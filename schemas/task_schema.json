@@ -1,0 +1,7 @@
+{
+  "task_id": "string",
+  "title": "string",
+  "category": "work | personal | admin",
+  "duration_minutes": "number",
+  "status": "pending | running | complete"
+}
