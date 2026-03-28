@@ -81,8 +81,7 @@ timebite-platform/
 ```
 
 ---
-
-## Target platform layout (planned)
+### Target platform layout (planned)
 
 Full monorepo layout (clients, backend, scripts). Expand to view.
 
