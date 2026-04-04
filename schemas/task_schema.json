@@ -1,7 +1,18 @@
 {
-  "task_id": "string",
+  "id": "uuid",
   "title": "string",
-  "category": "work | personal | admin",
+  "source": "voice | sunsama | manual | notion | google_calendar | asana | healthkit | vision",
+  "source_id": "string",
+  "category": "app | income | brand | personal | admin | health",
+  "cycle_id": "today_focus",
   "duration_minutes": "number",
-  "status": "pending | running | complete"
+  "energy_cost": "low | medium | high",
+  "confidence": "number",
+  "state": "planned | active | done | archived",
+  "created_at": "ISO-8601 datetime",
+  "updated_at": "ISO-8601 datetime",
+  "metadata": {
+    "integration": "string",
+    "notes": "string"
+  }
 }

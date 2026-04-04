@@ -1,62 +1,59 @@
 # System architecture
 
-High-level flow for the TimeBite client: cycle matrix, UI surfaces, constrained assistant, and telemetry.
+High-level flow for the TimeBite platform: ingestion, canonical tasks, integrations, agents, UI surfaces, and telemetry.
 
 ---
 
-## Data flow
+## Information architecture
 
 ```mermaid
 flowchart TD
-    %% USER
-    User -->|input task / action| App
+    User["User"] --> Manual["Manual Text"]
+    User --> Voice["Voice / STT"]
+    User --> Vision["Vision Capture"]
 
-    %% APP LAYER
-    App["iOS / visionOS / macOS App"]
-    App --> CyclesUI["Cycles Dashboard"]
-    App --> TaskTimer
-    App --> AssistantUI
+    Health["HealthKit"] --> Canonical
+    Sunsama["Sunsama Adapter"] --> Canonical
+    Notion["Notion Adapter"] --> Canonical
+    GCal["Google Calendar Adapter"] --> Canonical
+    Asana["Asana Adapter"] --> Canonical
 
-    %% CORE LOOP
-    TaskTimer --> CycleMatrix
-    CycleMatrix --> CycleEngine
-    CycleEngine --> Scoring
-    CycleEngine --> Snapshots
-    CycleMatrix --> CyclesUI
+    Manual --> Canonical["Canonical Task Layer"]
+    Voice --> Canonical
+    Vision --> Canonical
 
-    %% UI COMPONENTS
-    CyclesUI --> Bars["Category Bars"]
-    CyclesUI --> Grid["Contribution Grid"]
-    CyclesUI --> Score["Cycle Score"]
+    Canonical --> GreenAgent["Green Agent<br/>Planning"]
+    Canonical --> PurpleAgent["Purple Agent<br/>Execution"]
 
-    %% AGENTS
-    GreenAgent["Green Agent<br/>Planning"]
-    PurpleAgent["Purple Agent<br/>Execution"]
-    GreenAgent --> CycleMatrix
-    PurpleAgent --> CycleMatrix
+    GreenAgent --> PlannerUI["Planner / Daily Intent"]
+    PurpleAgent --> ExecutionUI["Execution View + Timers"]
+    Canonical --> CyclesUI["Rings / Cycles / Reflection"]
 
-    %% ASSISTANT (TIGHT RAG)
-    AssistantUI --> Orchestrator
+    ExecutionUI --> CycleEngine["Cycle Engine"]
+    CycleEngine --> Scoring["Scoring + Snapshots"]
+    Scoring --> CyclesUI
+
+    AssistantUI["Constrained Assistant"] --> Orchestrator
     Orchestrator --> IntentClassifier
-    IntentClassifier -->|UI Action| UIWhitelist
-    IntentClassifier -->|Doc Lookup| Retriever
-    IntentClassifier -->|Unsupported| Fallback
-    UIWhitelist --> App
-    Retriever --> Docs
-    Docs --> Response
+    IntentClassifier -->|UI action| UIWhitelist["UI Action Whitelist"]
+    IntentClassifier -->|Doc lookup| Retriever["Retriever"]
+    IntentClassifier -->|Unsupported| Fallback["Fallback"]
+    UIWhitelist --> PlannerUI
+    UIWhitelist --> ExecutionUI
+    Retriever --> Docs["Docs"]
+    Docs --> Response["Assistant Response"]
     Fallback --> Response
     Response --> AssistantUI
 
-    %% DATA
-    CycleMatrix --> Storage[(Local + Backend Storage)]
+    Canonical --> Storage[(Canonical Store)]
     Docs --> VectorDB[(Vector Store)]
-
-    %% TELEMETRY
-    CycleMatrix --> Telemetry
+    Canonical --> Telemetry["Telemetry"]
     Telemetry --> Logs[(JSONL Logs)]
 
-    %% OUTPUT
-    CycleMatrix --> CyclesUI
+    Canonical -. optional write-back .-> Sunsama
+    Canonical -. optional write-back .-> Notion
+    Canonical -. optional write-back .-> GCal
+    Canonical -. optional write-back .-> Asana
 ```
 
 ---
@@ -65,8 +62,9 @@ flowchart TD
 
 | Symbol | Meaning |
 | ------ | ------- |
-| **Cycle Matrix** | Backend source of truth for time × category allocation |
-| **Green / Purple** | Planning vs execution paths into the matrix |
+| **Canonical Task Layer** | Source of truth that normalizes all inputs and integrations |
+| **Green / Purple** | Planning vs execution paths that operate on canonical tasks |
+| **Adapters** | Integration boundaries for Sunsama, Notion, Calendar, and Asana |
 | **Orchestrator** | Routes assistant intents to UI whitelist, retrieval, or fallback |
 | **Telemetry** | Structured logs for replay and debugging |
 

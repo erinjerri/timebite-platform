@@ -12,36 +12,50 @@ Built across:
 
 ## TL;DR
 
-- **What:** A system that shows how your time is distributed in reality
-- **Core:** Cycle Matrix → Cycles Dashboard → Feedback loop
-- **Agent:** Constrained assistant (tight RAG, not open chat)
+- **What:** A system that turns inputs and integrations into a canonical TimeBite task model
+- **Core:** Inputs → Canonical Tasks → Agents → UI
+- **Integrations:** Sunsama, Notion, Calendar, and Asana are adapters, not the source of truth
 - **Status:** Active development + research monorepo
 
 ---
 
 ## Core concepts
 
-### Cycle Matrix (backend)
+### Ingestion layer
 
-- Source of truth for time allocation
-- Structure:
-  - rows → time segments
-  - columns → categories
-  - values → time spent
+- Accepts inputs from:
+  - voice / STT
+  - manual text input
+  - computer vision capture
+  - HealthKit
+  - external tools such as Sunsama, Notion, Google Calendar, and Asana
 
-### TimeBite Cycles (UI)
+### Canonical task layer
 
-- User-facing representation of time distribution
+- Source of truth for planning and execution
+- Every input is normalized into one task shape before agents or UI touch it
+- Integrations sync into and out of this layer instead of introducing their own task logic
+
+### Agent layer
+
+- Green Agent plans and classifies work
+- Purple Agent executes, starts timers, and updates task state
+- Agents operate on canonical TimeBite tasks, not vendor-specific objects
+
+### TimeBite cycles (UI)
+
+- User-facing representation of time distribution and execution state
 - Includes:
-  - category allocation (bars)
-  - contribution grid (GitHub-style history)
-  - cycle score + feedback
+  - category allocation
+  - cycle bars and rings
+  - execution state
+  - reflection and feedback
 
 ### Constrained assistant (tight RAG)
 
 - Not a general chatbot
 - Only:
-  - executes **allowed UI actions**
+  - executes allowed UI actions
   - retrieves documentation
 
 ---
@@ -71,9 +85,9 @@ What exists in this repo today (high level):
 ```text
 timebite-platform/
 ├── apps/                    # Placeholder targets: iOS, visionOS, macOS
-├── docs/                    # e.g. system-architecture.md
+├── docs/                    # architecture, planning, and system docs
 ├── specs/                   # e.g. torus_environment.md
-├── schemas/                 # Shared JSON shapes (e.g. task_schema.json)
+├── schemas/                 # Shared canonical JSON shapes
 ├── research/
 │   └── auto_research/       # Research CLI, autoresearch package, outputs
 ├── README.md
@@ -123,6 +137,9 @@ timebite-platform/
 │   │       │   │       └── PercentageLabel.swift
 │   │       │   │
 │   │       │   ├── tasks/
+│   │       │   │   ├── Models/
+│   │       │   │   ├── Views/
+│   │       │   │   └── ViewModels/
 │   │       │   ├── planner/
 │   │       │   ├── insights/
 │   │       │   └── assistant/
@@ -132,6 +149,10 @@ timebite-platform/
 │   │       │   ├── Storage/
 │   │       │   ├── Assistant/
 │   │       │   └── Integrations/
+│   │       │       ├── Sunsama/
+│   │       │       ├── Notion/
+│   │       │       ├── Calendar/
+│   │       │       └── Asana/
 │   │       │
 │   │       └── Shared/
 │   │
@@ -177,10 +198,30 @@ timebite-platform/
 │
 ├── backend/
 │   ├── services/
+│   │   ├── ingestion/
+│   │   │   ├── voice/
+│   │   │   ├── text/
+│   │   │   ├── vision/
+│   │   │   └── healthkit/
+│   │   │
+│   │   ├── canonical/
+│   │   │   ├── models.py
+│   │   │   ├── normalization.py
+│   │   │   ├── repository.py
+│   │   │   └── sync_engine.py
+│   │   │
+│   │   ├── integrations/
+│   │   │   ├── sunsama/
+│   │   │   │   ├── client.py
+│   │   │   │   └── mapper.py
+│   │   │   ├── notion/
+│   │   │   ├── google_calendar/
+│   │   │   └── asana/
+│   │   │
 │   │   ├── cycles/
-│   │   │   ├── cycle_matrix.py
 │   │   │   ├── cycle_engine.py
-│   │   │   └── scoring.py
+│   │   │   ├── scoring.py
+│   │   │   └── snapshots.py
 │   │   │
 │   │   ├── agents/
 │   │   │   ├── green_agent/
@@ -211,6 +252,64 @@ timebite-platform/
 ```
 
 </details>
+
+---
+
+## Architecture direction
+
+TimeBite owns the canonical schema. External systems can enrich it, but they do not replace it.
+
+```mermaid
+flowchart LR
+    subgraph Inputs["Ingestion Layer"]
+        Voice["Voice / STT"]
+        Manual["Manual Text"]
+        Vision["Vision Capture"]
+        Health["HealthKit"]
+        Sunsama["Sunsama"]
+        Notion["Notion"]
+        GCal["Google Calendar"]
+        Asana["Asana"]
+    end
+
+    subgraph Canonical["Canonical Task Layer"]
+        Tasks["Normalized TimeBite Tasks"]
+    end
+
+    subgraph Agents["Agent Layer"]
+        Green["Green Agent"]
+        Purple["Purple Agent"]
+    end
+
+    subgraph UI["UI Layer"]
+        App["iOS / visionOS / macOS"]
+        Rings["Rings + Cycles"]
+        Exec["Execution View"]
+        Reflect["Reflection"]
+    end
+
+    Voice --> Tasks
+    Manual --> Tasks
+    Vision --> Tasks
+    Health --> Tasks
+    Sunsama --> Tasks
+    Notion --> Tasks
+    GCal --> Tasks
+    Asana --> Tasks
+
+    Tasks --> Green
+    Tasks --> Purple
+    Green --> App
+    Purple --> App
+    App --> Rings
+    App --> Exec
+    App --> Reflect
+
+    Tasks -. optional sync back .-> Sunsama
+    Tasks -. optional sync back .-> Notion
+    Tasks -. optional sync back .-> GCal
+    Tasks -. optional sync back .-> Asana
+```
 
 ---
 
