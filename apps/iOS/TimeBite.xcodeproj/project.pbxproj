@@ -1,0 +1,202 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		300000000000000000000001 /* TimeBiteApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000001 /* TimeBiteApp.swift */; };
+		300000000000000000000002 /* RootTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000002 /* RootTabView.swift */; };
+		300000000000000000000003 /* ActionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000003 /* ActionView.swift */; };
+		300000000000000000000004 /* TrackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000004 /* TrackView.swift */; };
+		300000000000000000000005 /* GoalsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000005 /* GoalsView.swift */; };
+		300000000000000000000006 /* DashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000006 /* DashView.swift */; };
+		300000000000000000000007 /* TBColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000007 /* TBColor.swift */; };
+		300000000000000000000008 /* TBTypography.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000008 /* TBTypography.swift */; };
+		300000000000000000000009 /* ActionItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000009 /* ActionItem.swift */; };
+		30000000000000000000000A /* HabitEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000000A /* HabitEntry.swift */; };
+		30000000000000000000000B /* GoalItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000000B /* GoalItem.swift */; };
+		30000000000000000000000C /* DailyLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000000C /* DailyLog.swift */; };
+		30000000000000000000000D /* TBCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000000D /* TBCard.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		200000000000000000000001 /* TimeBiteApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/App/TimeBiteApp.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000002 /* RootTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/App/RootTabView.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000003 /* ActionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Features/Action/ActionView.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000004 /* TrackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Features/Track/TrackView.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000005 /* GoalsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Features/Goals/GoalsView.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000006 /* DashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Features/Dash/DashView.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000007 /* TBColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Shared/Theme/TBColor.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000008 /* TBTypography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Shared/Theme/TBTypography.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000009 /* ActionItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Models/ActionItem.swift; sourceTree = SOURCE_ROOT; };
+		20000000000000000000000A /* HabitEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Models/HabitEntry.swift; sourceTree = SOURCE_ROOT; };
+		20000000000000000000000B /* GoalItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Models/GoalItem.swift; sourceTree = SOURCE_ROOT; };
+		20000000000000000000000C /* DailyLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Models/DailyLog.swift; sourceTree = SOURCE_ROOT; };
+		20000000000000000000000D /* TBCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Shared/Components/TBCard.swift; sourceTree = SOURCE_ROOT; };
+		20000000000000000000000E /* TimeBite.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TimeBite.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		100000000000000000000001 = {isa = PBXGroup; children = (100000000000000000000002, 100000000000000000000003, 100000000000000000000004, 100000000000000000000005, 100000000000000000000006, 100000000000000000000007, 100000000000000000000016, 100000000000000000000017); sourceTree = "<group>"; };
+		100000000000000000000002 = {isa = PBXGroup; children = (200000000000000000000001, 200000000000000000000002); name = App; sourceTree = "<group>"; };
+		100000000000000000000003 = {isa = PBXGroup; children = (200000000000000000000003); name = Action; sourceTree = "<group>"; };
+		100000000000000000000004 = {isa = PBXGroup; children = (200000000000000000000004); name = Track; sourceTree = "<group>"; };
+		100000000000000000000005 = {isa = PBXGroup; children = (200000000000000000000005); name = Goals; sourceTree = "<group>"; };
+		100000000000000000000006 = {isa = PBXGroup; children = (200000000000000000000006); name = Dash; sourceTree = "<group>"; };
+		100000000000000000000007 = {isa = PBXGroup; children = (100000000000000000000008, 100000000000000000000009); name = Shared; sourceTree = "<group>"; };
+		100000000000000000000008 = {isa = PBXGroup; children = (200000000000000000000007, 200000000000000000000008); name = Theme; sourceTree = "<group>"; };
+		100000000000000000000009 = {isa = PBXGroup; children = (20000000000000000000000D); name = Components; sourceTree = "<group>"; };
+		100000000000000000000016 = {isa = PBXGroup; children = (200000000000000000000009, 20000000000000000000000A, 20000000000000000000000B, 20000000000000000000000C); name = Models; sourceTree = "<group>"; };
+		100000000000000000000017 = {isa = PBXGroup; children = (20000000000000000000000E); name = Products; sourceTree = "<group>"; };
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		10000000000000000000000C = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 100000000000000000000010;
+			buildPhases = (10000000000000000000000D, 10000000000000000000000E, 10000000000000000000000F);
+			buildRules = ();
+			dependencies = ();
+			name = TimeBite;
+			productName = TimeBite;
+			productReference = 20000000000000000000000E;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		10000000000000000000000A = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2610;
+				LastUpgradeCheck = 2610;
+				TargetAttributes = { 10000000000000000000000C = { CreatedOnToolsVersion = 26.1; }; };
+			};
+			buildConfigurationList = 100000000000000000000011;
+			compatibilityVersion = "Xcode 15.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (en, Base);
+			mainGroup = 100000000000000000000001;
+			productRefGroup = 100000000000000000000017;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (10000000000000000000000C);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		10000000000000000000000F = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		10000000000000000000000D = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (300000000000000000000001, 300000000000000000000002, 300000000000000000000003, 300000000000000000000004, 300000000000000000000005, 300000000000000000000006, 300000000000000000000007, 300000000000000000000008, 300000000000000000000009, 30000000000000000000000A, 30000000000000000000000B, 30000000000000000000000C, 30000000000000000000000D); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		10000000000000000000000E = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		100000000000000000000012 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = TimeBite/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.timebite.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		100000000000000000000013 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = TimeBite/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.timebite.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		100000000000000000000014 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.timebite.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		100000000000000000000015 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.timebite.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		100000000000000000000010 = {
+			isa = XCConfigurationList;
+			buildConfigurations = (100000000000000000000012, 100000000000000000000013);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		100000000000000000000011 = {
+			isa = XCConfigurationList;
+			buildConfigurations = (100000000000000000000014, 100000000000000000000015);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 10000000000000000000000A;
+}

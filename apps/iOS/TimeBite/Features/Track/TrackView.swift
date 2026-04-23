@@ -1,0 +1,334 @@
+import SwiftUI
+
+struct TrackView: View {
+    @State private var selectedPeriod: TrackPeriod = .daily
+    @State private var habits: [HabitEntry] = HabitEntry.mock
+    @State private var showingAddHabit = false
+    @State private var draftTitle = ""
+    @State private var draftCategory = "Focus"
+
+    private let weekMinutes = [58, 71, 66, 94, 82, 49, 61]
+    private let heatmap = [
+        [0.10, 0.18, 0.26, 0.44, 0.58, 0.42, 0.30],
+        [0.12, 0.20, 0.34, 0.52, 0.68, 0.54, 0.40],
+        [0.08, 0.15, 0.24, 0.37, 0.60, 0.47, 0.31],
+        [0.11, 0.22, 0.38, 0.51, 0.72, 0.57, 0.43],
+        [0.07, 0.16, 0.29, 0.45, 0.63, 0.49, 0.33]
+    ]
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    header
+                    segmentedControl
+
+                    switch selectedPeriod {
+                    case .daily:
+                        dailyCard
+                    case .weekly:
+                        weeklyCard
+                    case .monthly:
+                        monthlyCard
+                    }
+                }
+                .padding(16)
+            }
+            .background(background)
+            .navigationTitle("Track")
+            .navigationBarTitleDisplayMode(.inline)
+            .sheet(isPresented: $showingAddHabit) {
+                AddHabitSheet(
+                    title: $draftTitle,
+                    category: $draftCategory,
+                    onSave: addHabit,
+                    onCancel: { showingAddHabit = false }
+                )
+                .preferredColorScheme(.dark)
+            }
+        }
+    }
+
+    private var header: some View {
+        TBCard {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Daily rhythm")
+                        .font(TBTypography.title(.title2, weight: .semibold))
+                        .foregroundStyle(TBColor.textPrimary)
+                    Text("Track the day, see the week, and glance at the month.")
+                        .font(TBTypography.caption())
+                        .foregroundStyle(TBColor.textSecondary)
+                }
+
+                Spacer()
+
+                Button {
+                    showingAddHabit = true
+                } label: {
+                    Image(systemName: "plus")
+                        .font(.system(size: 15, weight: .bold))
+                        .foregroundStyle(TBColor.textPrimary)
+                        .frame(width: 36, height: 36)
+                        .background(
+                            Circle()
+                                .fill(TBColor.primaryAccent.opacity(0.16))
+                                .overlay(Circle().stroke(TBColor.primaryAccent.opacity(0.24), lineWidth: 1))
+                        )
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+
+    private var segmentedControl: some View {
+        TBCard {
+            HStack(spacing: 8) {
+                ForEach(TrackPeriod.allCases) { period in
+                    Button {
+                        selectedPeriod = period
+                    } label: {
+                        Text(period.rawValue)
+                            .font(TBTypography.caption(.semibold))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 10)
+                            .foregroundStyle(selectedPeriod == period ? TBColor.textPrimary : TBColor.textSecondary)
+                            .background(
+                                Capsule(style: .continuous)
+                                    .fill(selectedPeriod == period ? TBColor.primaryAccent.opacity(0.18) : TBColor.surfaceElevated)
+                                    .overlay(Capsule(style: .continuous).stroke(selectedPeriod == period ? TBColor.primaryAccent.opacity(0.35) : TBColor.border, lineWidth: 1))
+                            )
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+    }
+
+    private var dailyCard: some View {
+        VStack(spacing: 12) {
+            ForEach(habits) { habit in
+                TBCard {
+                    HStack(alignment: .top, spacing: 12) {
+                        VStack(spacing: 6) {
+                            Image(systemName: habit.completed ? "checkmark.circle.fill" : "clock.badge.questionmark")
+                                .foregroundStyle(habit.completed ? TBColor.primaryAccent : habit.accent)
+                                .font(.system(size: 20, weight: .semibold))
+                                .frame(width: 32, height: 32)
+                                .background(Circle().fill(habit.accent.opacity(0.12)))
+
+                            RoundedRectangle(cornerRadius: 99, style: .continuous)
+                                .fill(habit.completed ? TBColor.primaryAccent : TBColor.textSecondary.opacity(0.35))
+                                .frame(width: 2, height: 34)
+                        }
+
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack(alignment: .firstTextBaseline) {
+                                Text(habit.title)
+                                    .font(TBTypography.body(.semibold))
+                                    .foregroundStyle(TBColor.textPrimary)
+                                Spacer()
+                                Text("\(habit.minutes) min")
+                                    .font(TBTypography.caption(.semibold))
+                                    .foregroundStyle(habit.completed ? TBColor.primaryAccent : TBColor.textSecondary)
+                            }
+
+                            Text(habit.note)
+                                .font(TBTypography.caption())
+                                .foregroundStyle(TBColor.textSecondary)
+
+                            HStack {
+                                labelPill(habit.category, tint: habit.accent)
+                                Spacer()
+                                Text(habit.completed ? "Logged" : "Upcoming")
+                                    .font(TBTypography.caption(.semibold))
+                                    .foregroundStyle(TBColor.textSecondary)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private var weeklyCard: some View {
+        TBCard {
+            VStack(alignment: .leading, spacing: 14) {
+                sectionHeader(title: "Weekly focus", subtitle: "A believable seven-day bar view")
+
+                HStack(alignment: .bottom, spacing: 10) {
+                    ForEach(Array(weekMinutes.enumerated()), id: \.offset) { index, value in
+                        VStack(spacing: 8) {
+                            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                .fill(TBColor.accentGradient)
+                                .frame(height: max(CGFloat(value) * 1.5, 28))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                        .stroke(TBColor.primaryAccent.opacity(0.18), lineWidth: 1)
+                                )
+                            Text(weekday(index))
+                                .font(TBTypography.caption(.semibold))
+                                .foregroundStyle(TBColor.textSecondary)
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
+                }
+                .frame(height: 190)
+
+                HStack {
+                    labelPill("Momentum is up", tint: TBColor.primaryAccent)
+                    Spacer()
+                    Text("412 min total")
+                        .font(TBTypography.caption(.semibold))
+                        .foregroundStyle(TBColor.textSecondary)
+                }
+            }
+        }
+    }
+
+    private var monthlyCard: some View {
+        TBCard {
+            VStack(alignment: .leading, spacing: 14) {
+                sectionHeader(title: "Monthly heatmap", subtitle: "A calm, believable overview")
+
+                VStack(spacing: 8) {
+                    ForEach(Array(heatmap.enumerated()), id: \.offset) { _, row in
+                        HStack(spacing: 8) {
+                            ForEach(Array(row.enumerated()), id: \.offset) { _, value in
+                                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                    .fill(TBColor.primaryAccent.opacity(0.10 + value * 0.75))
+                                    .frame(height: 22)
+                            }
+                        }
+                    }
+                }
+                .frame(height: 150)
+
+                HStack(spacing: 8) {
+                    Text("Low")
+                        .font(TBTypography.caption())
+                        .foregroundStyle(TBColor.textSecondary)
+                    ForEach([0.12, 0.28, 0.48, 0.68, 0.88], id: \.self) { value in
+                        RoundedRectangle(cornerRadius: 6, style: .continuous)
+                            .fill(TBColor.primaryAccent.opacity(value))
+                            .frame(width: 18, height: 8)
+                    }
+                    Text("High")
+                        .font(TBTypography.caption())
+                        .foregroundStyle(TBColor.textSecondary)
+                    Spacer()
+                    Text("30-day streaks are visible here")
+                        .font(TBTypography.caption())
+                        .foregroundStyle(TBColor.textSecondary)
+                }
+            }
+        }
+    }
+
+    private var background: some View {
+        LinearGradient(
+            colors: [TBColor.background, TBColor.surface.opacity(0.45), TBColor.background],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+        .ignoresSafeArea()
+    }
+
+    private func addHabit() {
+        let habit = HabitEntry(
+            title: draftTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "New local habit" : draftTitle,
+            minutes: 15,
+            completed: false,
+            category: draftCategory,
+            accent: TBColor.primaryAccent,
+            note: "Locally added from the MVP sheet."
+        )
+        habits.insert(habit, at: 0)
+        draftTitle = ""
+        draftCategory = "Focus"
+        showingAddHabit = false
+    }
+
+    private func weekday(_ index: Int) -> String {
+        ["M", "T", "W", "T", "F", "S", "S"][index]
+    }
+
+    private func labelPill(_ text: String, tint: Color) -> some View {
+        Text(text)
+            .font(TBTypography.caption(.semibold))
+            .foregroundStyle(tint)
+            .padding(.vertical, 6)
+            .padding(.horizontal, 10)
+            .background(
+                Capsule(style: .continuous)
+                    .fill(tint.opacity(0.12))
+                    .overlay(Capsule(style: .continuous).stroke(tint.opacity(0.25), lineWidth: 1))
+            )
+    }
+
+    private func sectionHeader(title: String, subtitle: String) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title)
+                .font(TBTypography.title(.headline, weight: .semibold))
+                .foregroundStyle(TBColor.textPrimary)
+            Text(subtitle)
+                .font(TBTypography.caption())
+                .foregroundStyle(TBColor.textSecondary)
+        }
+    }
+}
+
+private enum TrackPeriod: String, CaseIterable, Identifiable {
+    case daily = "Daily"
+    case weekly = "Weekly"
+    case monthly = "Monthly"
+
+    var id: String { rawValue }
+}
+
+private struct AddHabitSheet: View {
+    @Binding var title: String
+    @Binding var category: String
+    let onSave: () -> Void
+    let onCancel: () -> Void
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section("Habit") {
+                    TextField("Morning walk", text: $title)
+                }
+
+                Section("Category") {
+                    Picker("Category", selection: $category) {
+                        Text("Focus").tag("Focus")
+                        Text("Health").tag("Health")
+                        Text("Build").tag("Build")
+                        Text("Creative").tag("Creative")
+                    }
+                }
+            }
+            .scrollContentBackground(.hidden)
+            .background(TBColor.background)
+            .navigationTitle("Add Habit")
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel", action: onCancel)
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save", action: onSave)
+                        .fontWeight(.semibold)
+                }
+            }
+        }
+    }
+}
+
+#if DEBUG
+struct TrackView_Previews: PreviewProvider {
+    static var previews: some View {
+        TrackView().preferredColorScheme(.dark)
+    }
+}
+#endif
+
