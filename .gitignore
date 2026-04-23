@@ -208,3 +208,6 @@ __marimo__/
 
 # OS files
 .DS_Store
+
+# Agent tooling
+.claude/

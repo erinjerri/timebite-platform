@@ -1,0 +1,115 @@
+{
+  "version": "0.3",
+  "enums": {
+    "lane": ["app", "income", "brand", "support"],
+    "priority_tier": ["survival", "leverage", "optimization"],
+    "task_state": ["planned", "ready", "active", "paused", "done", "archived"],
+    "effort": ["low", "medium", "high"],
+    "queue_state": ["primary", "queued", "hidden"],
+    "platform_surface": ["ios", "watchos", "visionos", "macos"],
+    "project_state": ["active", "paused", "deferred", "blocked", "archived"],
+    "project_type": ["app", "income", "brand", "support", "personal", "other"]
+  },
+  "entities": {
+    "project_bucket": {
+      "id": "uuid",
+      "name": "string",
+      "type": "project_type",
+      "state": "project_state",
+      "weekly_cap_minutes": "number | null",
+      "outcome": "string | null",
+      "notes": "string | null",
+      "created_at": "ISO-8601 datetime",
+      "updated_at": "ISO-8601 datetime"
+    },
+    "day_plan": {
+      "id": "uuid",
+      "date": "YYYY-MM-DD",
+      "energy_score": "number | null",
+      "reflection": "string | null",
+      "active_task_id": "uuid | null",
+      "lanes": ["focus_lane"]
+    },
+    "focus_lane": {
+      "id": "uuid",
+      "lane": "lane",
+      "label": "string",
+      "target_minutes": "number",
+      "actual_minutes": "number",
+      "completion_ratio": "number",
+      "primary_task_id": "uuid | null",
+      "ring_style": {
+        "kind": "torus | ring | bar",
+        "color_token": "string"
+      },
+      "tasks": ["task_item"]
+    },
+    "task_item": {
+      "id": "uuid",
+      "title": "string",
+      "summary": "string | null",
+      "lane": "lane",
+      "priority_tier": "priority_tier",
+      "queue_state": "queue_state",
+      "position": "number",
+      "planned_minutes": "number",
+      "actual_minutes": "number",
+      "effort": "effort",
+      "task_state": "task_state",
+      "is_primary": "boolean",
+      "surfaces": ["platform_surface"],
+      "source": "manual | agent | notion | calendar | imported",
+      "project_id": "uuid | null",
+      "deadline": "ISO-8601 datetime | null",
+      "success_outcome": "string | null",
+      "notes": "string | null",
+      "created_at": "ISO-8601 datetime",
+      "updated_at": "ISO-8601 datetime"
+    },
+    "session_log": {
+      "id": "uuid",
+      "task_id": "uuid",
+      "lane_id": "uuid",
+      "project_id": "uuid | null",
+      "started_at": "ISO-8601 datetime",
+      "ended_at": "ISO-8601 datetime | null",
+      "duration_minutes": "number",
+      "notes": "string | null"
+    }
+  },
+  "view_contracts": {
+    "daily_command_center": {
+      "description": "A compact view of 3-4 lanes with one visible primary task each.",
+      "required_fields": [
+        "focus_lane.label",
+        "focus_lane.target_minutes",
+        "focus_lane.actual_minutes",
+        "focus_lane.primary_task_id",
+        "task_item.title",
+        "task_item.task_state",
+        "task_item.queue_state"
+      ]
+    },
+    "execution_view": {
+      "description": "Single active task with timer and session logging.",
+      "required_fields": [
+        "day_plan.active_task_id",
+        "session_log.started_at",
+        "session_log.ended_at",
+        "session_log.duration_minutes"
+      ]
+    },
+    "weekly_caps_dashboard": {
+      "description": "Weekly project cap view showing planned(cap) vs actual hours and over-cap warnings; paused projects are hidden by default.",
+      "required_fields": [
+        "project_bucket.name",
+        "project_bucket.type",
+        "project_bucket.state",
+        "project_bucket.weekly_cap_minutes",
+        "session_log.project_id",
+        "session_log.started_at",
+        "session_log.duration_minutes"
+      ]
+    }
+  }
+}

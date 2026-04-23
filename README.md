@@ -1,6 +1,6 @@
 # TimeBite Platform
 
-TimeBite is a **cycle-based time system** for modeling how time is actually spent across life categories — not just planned.
+TimeBite is a **local-first focus operating system** that turns daily intent into execution truth through dynamic ring-based interfaces.
 
 Built across:
 
@@ -12,55 +12,69 @@ Built across:
 
 ## TL;DR
 
-- **What:** A system that turns inputs and integrations into a canonical TimeBite task model
-- **Core:** Inputs → Canonical Tasks → Agents → UI
-- **Integrations:** Sunsama, Notion, Calendar, and Asana are adapters, not the source of truth
+- **What:** Daily Intent → Ring Timer → Reflection → Dashboard (iPhone first)
+- **Core:** Execution truth comes from durable session logs, not wishful checkmarks
+- **Stance:** Local-first by default; backend sync is optional later
 - **Status:** Active development + research monorepo
 
 ---
 
-## Core concepts
+## Product vision
 
-### Ingestion layer
+TimeBite helps ambitious knowledge workers intentionally allocate time, track execution, collaborate with AI agents, and visualize progress through ring-based interfaces.
 
-- Accepts inputs from:
-  - voice / STT
-  - manual text input
-  - computer vision capture
-  - HealthKit
-  - external tools such as Sunsama, Notion, Google Calendar, and Asana
+Core iPhone loop:
+- **Daily Intent planning**
+- **Focus lanes**
+- **Ring timer execution**
+- **Reflection journaling**
+- **Dashboard analytics**
 
-### Canonical task layer
+See: `specs/vision.md`
 
-- Source of truth for planning and execution
-- Every input is normalized into one task shape before agents or UI touch it
-- Integrations sync into and out of this layer instead of introducing their own task logic
+## Why now
 
-### Agent layer
+Knowledge work is increasingly:
+- fragmented across tools and notifications,
+- measured by “plans” rather than execution truth,
+- accelerated by AI (but still constrained by attention and time budgets).
 
-- Green Agent plans and classifies work
-- Purple Agent executes, starts timers, and updates task state
-- Agents operate on canonical TimeBite tasks, not vendor-specific objects
+TimeBite focuses on what actually changes behavior: a calm daily plan, a single “now” surface, and feedback grounded in session evidence.
 
-### TimeBite cycles (UI)
+## Roadmap (Q2 2026)
 
-- User-facing representation of time distribution and execution state
-- Includes:
-  - category allocation
-  - cycle bars and rings
-  - execution state
-  - reflection and feedback
+Q2 2026 (Apr–Jun) focuses on an iPhone MVP that proves the core loop end-to-end:
+- Foundations: local-first model + durable timer sessions
+- MVP loop: Daily Intent + lanes + reflection + dashboard truth
+- Beta polish: onboarding, stability, metrics, App Store readiness
 
-### Constrained assistant (tight RAG)
+See: `specs/roadmap-q2.md` and `specs/sprint-current.md`
 
-- Not a general chatbot
-- Only:
-  - executes allowed UI actions
-  - retrieves documentation
+## Tech stack (current)
+
+- **iOS app:** Swift + SwiftUI, iPhone-first MVP in `apps/iOS/TimeBite.xcodeproj`
+- **Backend prototypes:** Python modules in `backend/services/` (cycles, assistant, retrieval, telemetry)
+- **Canonical schemas:** JSON in `schemas/`
+- **Docs/specs:** Markdown in `specs/`, `product/`, `architecture/`, `docs/`
 
 ---
 
-## Cycles dashboard (UI concept)
+## Core concepts (platform-wide)
+
+### Canonical day model (local-first)
+
+- Source of truth for planning and execution lives on-device
+- Structured as day plan → lanes → tasks → session logs (see `schemas/focus_os_schema.json`)
+
+### Ring timer execution (execution truth)
+
+- Sessions generate durable logs
+- Dashboard aggregates from session logs, not just task state
+
+### Constrained assistance (optional)
+
+- AI is a workflow accelerator, not the product
+- Suggestions are optional and user-confirmed
 
 TimeBite surfaces time as a **structured system**, not just tasks.
 
@@ -85,9 +99,14 @@ What exists in this repo today (high level):
 ```text
 timebite-platform/
 ├── apps/                    # Placeholder targets: iOS, visionOS, macOS
-├── docs/                    # architecture, planning, and system docs
-├── specs/                   # e.g. torus_environment.md
+├── backend/                 # Prototype services (Python)
+├── analytics/               # Event taxonomy + metrics (starter)
+├── architecture/            # System design + interfaces (starter)
+├── product/                 # PRDs + IA (starter)
+├── docs/                    # operational docs (launch, brand, checklists)
+├── specs/                   # requirements + roadmap
 ├── schemas/                 # Shared canonical JSON shapes
+├── shared/                  # Shared code (starter)
 ├── research/
 │   └── auto_research/       # Research CLI, autoresearch package, outputs
 ├── README.md
@@ -315,8 +334,20 @@ flowchart LR
 
 ## Documentation
 
-- [System architecture](docs/system-architecture.md) — flow diagram and component relationships
-- [Torus environment](specs/torus_environment.md) — state and actions sketch
+- Product and specs:
+  - `specs/master-requirements.md`
+  - `product/ia.md`
+  - `product/prd-daily-intent.md`
+  - `product/prd-ring-engine.md`
+  - `product/prd-dashboard.md`
+  - `product/prd-reflection.md`
+- Architecture:
+  - `architecture/system-design.md`
+  - `architecture/data-models.md`
+  - `docs/system-architecture.md` (legacy diagram)
+- Launch:
+  - `docs/launch-checklist.md`
+  - `docs/app-store-launch.md`
 
 ---
 
