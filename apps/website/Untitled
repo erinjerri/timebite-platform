@@ -1,0 +1,24 @@
+import { buildConfig } from 'payload/config'
+
+export default buildConfig({
+  serverURL: process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
+  secret: process.env.PAYLOAD_SECRET || 'dev-secret',
+
+  collections: [
+    {
+      slug: 'waitlist',
+      fields: [
+        {
+          name: 'email',
+          type: 'email',
+          required: true,
+        },
+        {
+          name: 'createdAt',
+          type: 'date',
+          admin: { readOnly: true },
+        },
+      ],
+    },
+  ],
+})
