@@ -208,3 +208,18 @@ __marimo__/
 
 # OS files
 .DS_Store
+
+# Node / Next.js generated files
+node_modules/
+.next/
+apps/website/node_modules/
+apps/website/.next/
+apps/website/tsconfig.tsbuildinfo
+apps/website/next-env.d.ts
+
+# Xcode local state
+*.xcuserstate
+xcuserdata/
+
+# Local agent/worktree metadata
+.claude/
