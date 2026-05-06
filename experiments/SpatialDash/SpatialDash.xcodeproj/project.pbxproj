@@ -30,9 +30,9 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		DC1BDF862FAAE88A005FF90A /* SpatialDash */ = {
+		DC1BDF862FAAE88A005FF90A /* ../../apps/iOS */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = SpatialDash;
+			path = ../../apps/iOS;
 			sourceTree = "<group>";
 		};
 		DC1BDF962FAAE88D005FF90A /* SpatialDashTests */ = {
@@ -75,7 +75,7 @@
 		DC1BDF7B2FAAE889005FF90A = {
 			isa = PBXGroup;
 			children = (
-				DC1BDF862FAAE88A005FF90A /* SpatialDash */,
+				DC1BDF862FAAE88A005FF90A /* ../../apps/iOS */,
 				DC1BDF962FAAE88D005FF90A /* SpatialDashTests */,
 				DC1BDFA02FAAE88D005FF90A /* SpatialDashUITests */,
 				DC1BDF852FAAE88A005FF90A /* Products */,
@@ -108,7 +108,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				DC1BDF862FAAE88A005FF90A /* SpatialDash */,
+				DC1BDF862FAAE88A005FF90A /* ../../apps/iOS */,
 			);
 			name = SpatialDash;
 			packageProductDependencies = (
