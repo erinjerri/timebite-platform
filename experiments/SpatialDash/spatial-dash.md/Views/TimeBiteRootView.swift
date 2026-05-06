@@ -10,19 +10,19 @@ struct TimeBiteRootView: View {
     var body: some View {
         TabView {
             shell {
-                ActionView(environment: environment, tokens: tokens)
+                ActionsView(environment: environment, tokens: tokens)
             }
-            .tabItem { Label("Action", systemImage: "timer") }
-
-            shell {
-                TrackView(environment: environment, tokens: tokens)
-            }
-            .tabItem { Label("Track", systemImage: "chart.bar.xaxis") }
+            .tabItem { Label("Actions", systemImage: "timer") }
 
             shell {
                 GoalsView(environment: environment, tokens: tokens)
             }
             .tabItem { Label("Goals", systemImage: "target") }
+
+            shell {
+                TrackView(environment: environment, tokens: tokens)
+            }
+            .tabItem { Label("Track", systemImage: "chart.bar.xaxis") }
 
             shell {
                 DashboardView(environment: environment, tokens: tokens)
@@ -52,4 +52,3 @@ struct TimeBiteRootView: View {
 #Preview {
     TimeBiteRootView()
 }
-

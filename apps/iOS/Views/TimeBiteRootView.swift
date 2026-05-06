@@ -3,20 +3,23 @@ import SwiftUI
 struct TimeBiteRootView: View {
     var body: some View {
         TabView {
-            IntentView()
+            ActionsView()
                 .tabItem {
-                    Label("Intent", systemImage: "target")
+                    Label("Actions", systemImage: "timer")
                 }
+                .accessibilityLabel("Actions")
 
-            ExecutionView()
+            GoalsView()
                 .tabItem {
-                    Label("Execution", systemImage: "timer")
+                    Label("Goals", systemImage: "target")
                 }
+                .accessibilityLabel("Goals")
 
-            SpatialRingDemoView()
+            TrackView()
                 .tabItem {
-                    Label("Ring", systemImage: "circle.hexagongrid.circle")
+                    Label("Track", systemImage: "chart.xyaxis.line")
                 }
+                .accessibilityLabel("Track")
 
             ReflectionView()
                 .tabItem {

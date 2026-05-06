@@ -1,7 +1,7 @@
 import SwiftData
 import SwiftUI
 
-struct SpatialRingDemoView: View {
+struct TrackView: View {
     @EnvironmentObject private var timerManager: TimerManager
     @Query(sort: \CycleLog.startTime, order: .reverse) private var cycleLogs: [CycleLog]
     @State private var fallbackProgress = 0.35
@@ -14,7 +14,7 @@ struct SpatialRingDemoView: View {
 
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
-                        Text("Ring progress")
+                        Text("Progress")
                             .font(.headline)
                         Spacer()
                         Text("\(Int(progress * 100))%")
@@ -24,6 +24,7 @@ struct SpatialRingDemoView: View {
 
                     Slider(value: $fallbackProgress, in: 0...1)
                         .disabled(timerManager.isRunning)
+                        .accessibilityLabel("Track progress")
 
                     if timerManager.isRunning {
                         Text("Bound to active timer")
@@ -42,7 +43,7 @@ struct SpatialRingDemoView: View {
             .padding(.top)
             .background(Color.black.ignoresSafeArea())
             .foregroundStyle(.white)
-            .navigationTitle("Spatial Ring")
+            .navigationTitle("Track")
         }
     }
 

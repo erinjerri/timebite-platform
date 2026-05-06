@@ -1,7 +1,7 @@
 import SwiftData
 import SwiftUI
 
-struct ExecutionView: View {
+struct ActionsView: View {
     @Environment(\.modelContext) private var modelContext
     @EnvironmentObject private var timerManager: TimerManager
     @Query private var lanes: [FocusLane]
@@ -22,15 +22,16 @@ struct ExecutionView: View {
                                 timerManager.stopSession(modelContext: modelContext)
                             }
                             .buttonStyle(.borderedProminent)
+                            .accessibilityLabel("Stop active timer")
                         }
                         .padding(.vertical, 4)
                     } else {
-                        Text("No active session")
+                        Text("No active action")
                             .foregroundStyle(.secondary)
                     }
                 }
 
-                Section("Tasks") {
+                Section("Action Queue") {
                     ForEach(sortedLanes) { lane in
                         HStack {
                             VStack(alignment: .leading, spacing: 4) {
@@ -47,6 +48,7 @@ struct ExecutionView: View {
                                 timerManager.startSession(laneType: lane.type, taskTitle: lane.title)
                             }
                             .disabled(timerManager.isRunning)
+                            .accessibilityLabel("Start \(lane.title)")
                         }
                     }
                 }
@@ -67,7 +69,7 @@ struct ExecutionView: View {
                     }
                 }
             }
-            .navigationTitle("Execution")
+            .navigationTitle("Actions")
         }
     }
 

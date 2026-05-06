@@ -60,9 +60,9 @@ dashboard:
 
 The same `SpatialEnvironment` can express itself differently per tab:
 
-- Action: prioritize current timer and daily intent.
-- Track: prioritize cycle history and logs.
+- Actions: prioritize current timer and daily action items.
 - Goals: prioritize focus areas and weekly targets.
+- Track: prioritize cycle history, logs, telemetry, and progress visualization.
 - Dashboard: prioritize summary metrics and spatial balance.
 
 For TimeBite, the dashboard should feel like a command view in Operator, a calm overview in Light, and a reflective studio in Dark.

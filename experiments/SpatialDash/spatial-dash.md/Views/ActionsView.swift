@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct ActionView: View {
+struct ActionsView: View {
     let environment: SpatialEnvironment
     let tokens: DesignTokens
 
@@ -13,7 +13,7 @@ struct ActionView: View {
                     .frame(maxWidth: environment.intent == .focus ? 420 : 360)
 
                 VStack(spacing: tokens.spacing.standard) {
-                    SpatialCard(title: "Daily Intent", subtitle: "Today's anchor", tokens: tokens) {
+                    SpatialCard(title: "Daily Goals", subtitle: "Today's anchor", tokens: tokens) {
                         Text("Ship the clearest version of the spatial dashboard engine.")
                             .font(tokens.typography.body)
                             .foregroundStyle(tokens.color.primaryText)
@@ -31,10 +31,10 @@ struct ActionView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: tokens.spacing.compact) {
-            Text("Action")
+            Text("Actions")
                 .font(tokens.typography.title)
                 .foregroundStyle(tokens.color.primaryText)
-            Text(environment.intent == .focus ? "Minimal surface for intent and active time." : "Active command surface for the current cycle.")
+            Text(environment.intent == .focus ? "Minimal surface for today's actions and active time." : "Active command surface for the current cycle.")
                 .font(tokens.typography.body)
                 .foregroundStyle(tokens.color.secondaryText)
         }
@@ -51,4 +51,3 @@ struct ActionView: View {
         .font(tokens.typography.body)
     }
 }
-

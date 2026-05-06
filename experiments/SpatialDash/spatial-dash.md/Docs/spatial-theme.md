@@ -8,7 +8,7 @@
 - Keep opacity between `0.70` and `1.0`.
 - Keep motion duration between `0.15` and `0.60`.
 - Use the known enum values for intent, mood, style, energy, density, and brightness.
-- Do not remove Action, Track, Goals, or Dashboard.
+- Do not remove Actions, Goals, Track, or Dashboard.
 - Keep `preserve_torus_geometry` enabled.
 
 ## Light Example
@@ -73,4 +73,3 @@ Start with one preset and make small changes:
 - For readability, adjust secondary text only after checking primary text contrast.
 
 The engine should validate config before rendering. If a value is unknown or unsafe, it should fall back to the nearest supported token rather than applying the value directly.
-

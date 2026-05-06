@@ -1,7 +1,7 @@
 import SwiftData
 import SwiftUI
 
-struct IntentView: View {
+struct GoalsView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \DailyPlan.createdAt, order: .reverse) private var plans: [DailyPlan]
     @Query private var lanes: [FocusLane]
@@ -16,7 +16,7 @@ struct IntentView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Today") {
+                Section("Priorities") {
                     TextField("App focus", text: $appFocus)
                     Stepper("App target: \(appMinutes) min", value: $appMinutes, in: 5...240, step: 5)
 
@@ -28,14 +28,15 @@ struct IntentView: View {
                 }
 
                 Section {
-                    Button("Save Daily Plan") {
+                    Button("Save Goals") {
                         savePlan()
                     }
                     .disabled(appFocus.nilIfBlank == nil || incomeFocus.nilIfBlank == nil)
+                    .accessibilityLabel("Save daily goals")
                 }
 
                 if let currentPlan = plans.first {
-                    Section("Saved Intent") {
+                    Section("Saved Goals") {
                         Text(currentPlan.appFocus)
                         Text(currentPlan.incomeFocus)
                         if let brandFocus = currentPlan.brandFocus {
@@ -44,7 +45,7 @@ struct IntentView: View {
                     }
                 }
             }
-            .navigationTitle("Intent")
+            .navigationTitle("Goals")
             .onAppear(perform: hydrateFromSavedPlan)
         }
     }
