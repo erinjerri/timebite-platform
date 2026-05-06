@@ -1,0 +1,61 @@
+spatial_environment:
+  id: timebite-blue-operator
+  name: TimeBite Blue Operator
+  intent: operator
+  mood: analytical
+  style: terminal
+  energy: high
+  density: dense
+  brightness: dark
+
+surfaces:
+  action:
+    emphasis: current_timer
+    density: balanced
+  track:
+    emphasis: cycle_history
+    density: dense
+  goals:
+    emphasis: weekly_targets
+    density: balanced
+  dashboard:
+    emphasis: data_viz
+    density: dense
+
+tokens:
+  colors:
+    background: "#06111F"
+    surface: "#0B1E33"
+    primaryText: "#EAF4FF"
+    secondaryText: "#8FB3D9"
+    accent: "#38BDF8"
+    ringPrimary: "#0EA5E9"
+    ringSecondary: "#1E3A8A"
+  material:
+    surface: sharpGlass
+    blur: medium
+    opacity: 0.88
+  spacing:
+    compact: 6
+    standard: 12
+    spacious: 20
+  motion:
+    duration: 0.22
+    curve: easeOut
+    intensity: safeHigh
+  lighting:
+    mode: coolGlow
+    shadow: crispGlow
+    contrast: high
+
+avatar:
+  enabled: false
+  style: none
+  behavior: none
+
+constraints:
+  preserve_core_navigation: true
+  preserve_torus_geometry: true
+  max_motion_intensity: safe
+  min_text_contrast: accessible
+

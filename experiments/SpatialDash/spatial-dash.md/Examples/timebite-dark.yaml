@@ -1,0 +1,61 @@
+spatial_environment:
+  id: timebite-dark
+  name: TimeBite Dark
+  intent: flow
+  mood: ambient
+  style: glass
+  energy: medium
+  density: balanced
+  brightness: dim
+
+surfaces:
+  action:
+    emphasis: current_timer
+    density: balanced
+  track:
+    emphasis: cycle_history
+    density: balanced
+  goals:
+    emphasis: reflection
+    density: balanced
+  dashboard:
+    emphasis: data_viz
+    density: balanced
+
+tokens:
+  colors:
+    background: "#0E1116"
+    surface: "#171B22"
+    primaryText: "#F9FAFB"
+    secondaryText: "#9CA3AF"
+    accent: "#A78BFA"
+    ringPrimary: "#8B5CF6"
+    ringSecondary: "#312E81"
+  material:
+    surface: softGlass
+    blur: medium
+    opacity: 0.82
+  spacing:
+    compact: 10
+    standard: 18
+    spacious: 28
+  motion:
+    duration: 0.45
+    curve: spring
+    intensity: medium
+  lighting:
+    mode: dimAmbient
+    shadow: subtleGlow
+    contrast: low
+
+avatar:
+  enabled: false
+  style: none
+  behavior: none
+
+constraints:
+  preserve_core_navigation: true
+  preserve_torus_geometry: true
+  max_motion_intensity: safe
+  min_text_contrast: accessible
+
