@@ -10,7 +10,7 @@ struct TorusRingSceneView: UIViewRepresentable {
 
     func makeUIView(context: Context) -> SCNView {
         let view = SCNView()
-        view.backgroundColor = .black
+        view.backgroundColor = .clear
         view.scene = context.coordinator.makeScene()
         view.autoenablesDefaultLighting = false
         view.antialiasingMode = .multisampling4X
@@ -30,7 +30,7 @@ struct TorusRingSceneView: UIViewRepresentable {
 
         func makeScene() -> SCNScene {
             let scene = SCNScene()
-            scene.background.contents = UIColor.black
+            scene.background.contents = UIColor.clear
 
             rootNode.eulerAngles = SCNVector3(-0.82, 0, -0.28)
             scene.rootNode.addChildNode(rootNode)
@@ -53,30 +53,30 @@ struct TorusRingSceneView: UIViewRepresentable {
             let keyLight = SCNNode()
             keyLight.light = SCNLight()
             keyLight.light?.type = .area
-            keyLight.light?.intensity = 760
-            keyLight.light?.color = UIColor(red: 0.62, green: 0.82, blue: 1, alpha: 1)
+            keyLight.light?.intensity = 680
+            keyLight.light?.color = UIColor(red: 0.72, green: 0.88, blue: 1, alpha: 1)
             keyLight.position = SCNVector3(-2.4, 2.2, 3.1)
             scene.rootNode.addChildNode(keyLight)
 
             let rimLight = SCNNode()
             rimLight.light = SCNLight()
             rimLight.light?.type = .omni
-            rimLight.light?.intensity = 360
-            rimLight.light?.color = UIColor(red: 0.45, green: 0.3, blue: 1, alpha: 1)
+            rimLight.light?.intensity = 280
+            rimLight.light?.color = UIColor(red: 0.64, green: 0.52, blue: 1, alpha: 1)
             rimLight.position = SCNVector3(2.1, -1.4, 2.6)
             scene.rootNode.addChildNode(rimLight)
 
             let ambient = SCNNode()
             ambient.light = SCNLight()
             ambient.light?.type = .ambient
-            ambient.light?.intensity = 90
+            ambient.light?.intensity = 118
             ambient.light?.color = UIColor(red: 0.18, green: 0.22, blue: 0.32, alpha: 1)
             scene.rootNode.addChildNode(ambient)
 
             let spin = CABasicAnimation(keyPath: "rotation")
             spin.fromValue = NSValue(scnVector4: SCNVector4(0, 1, 0, 0))
             spin.toValue = NSValue(scnVector4: SCNVector4(0, 1, 0, Float.pi * 2))
-            spin.duration = 22
+            spin.duration = 30
             spin.repeatCount = .infinity
             rootNode.addAnimation(spin, forKey: "timebite-ring-spin")
 
@@ -98,13 +98,13 @@ struct TorusRingSceneView: UIViewRepresentable {
 
         private static func remainingMaterial() -> SCNMaterial {
             let material = SCNMaterial()
-            material.diffuse.contents = UIColor(red: 0.04, green: 0.6, blue: 1, alpha: 0.88)
-            material.emission.contents = UIColor(red: 0.02, green: 0.24, blue: 0.66, alpha: 1)
+            material.diffuse.contents = UIColor(red: 0.42, green: 0.86, blue: 0.96, alpha: 0.88)
+            material.emission.contents = UIColor(red: 0.05, green: 0.22, blue: 0.34, alpha: 1)
             material.specular.contents = UIColor.white
-            material.transparency = 0.9
+            material.transparency = 0.90
             material.blendMode = .alpha
             material.lightingModel = .physicallyBased
-            material.metalness.contents = 0.16
+            material.metalness.contents = 0.18
             material.roughness.contents = 0.18
             material.isDoubleSided = true
             return material
@@ -112,14 +112,14 @@ struct TorusRingSceneView: UIViewRepresentable {
 
         private static func trackMaterial() -> SCNMaterial {
             let material = SCNMaterial()
-            material.diffuse.contents = UIColor(red: 0.36, green: 0.25, blue: 0.86, alpha: 0.28)
-            material.emission.contents = UIColor(red: 0.08, green: 0.04, blue: 0.2, alpha: 1)
-            material.specular.contents = UIColor(red: 0.5, green: 0.64, blue: 1, alpha: 1)
-            material.transparency = 0.38
+            material.diffuse.contents = UIColor(red: 0.28, green: 0.31, blue: 0.42, alpha: 0.20)
+            material.emission.contents = UIColor(red: 0.035, green: 0.04, blue: 0.07, alpha: 1)
+            material.specular.contents = UIColor(red: 0.72, green: 0.78, blue: 0.96, alpha: 1)
+            material.transparency = 0.36
             material.blendMode = .alpha
             material.lightingModel = .physicallyBased
-            material.metalness.contents = 0.08
-            material.roughness.contents = 0.3
+            material.metalness.contents = 0.12
+            material.roughness.contents = 0.26
             material.isDoubleSided = true
             return material
         }

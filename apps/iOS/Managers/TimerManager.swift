@@ -92,8 +92,8 @@ final class TimerManager: ObservableObject {
     private func startTickerIfNeeded() {
         guard isRunning, ticker == nil else { return }
 
-        ticker = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
-            Task { @MainActor in
+        ticker = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+            Task { @MainActor [weak self] in
                 self?.updateElapsed()
             }
         }

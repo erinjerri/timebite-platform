@@ -1,30 +1,27 @@
 import SwiftUI
 
 struct TimeBiteRootView: View {
+    @State private var selection: TBTab = .actions
+
     var body: some View {
-        TabView {
-            ActionsView()
-                .tabItem {
-                    Label("Actions", systemImage: "timer")
+        ZStack(alignment: .bottom) {
+            Group {
+                switch selection {
+                case .actions:
+                    ActionsView()
+                case .dash:
+                    TrackView()
+                case .goals:
+                    GoalsView()
+                case .reflect:
+                    ReflectionView()
                 }
-                .accessibilityLabel("Actions")
+            }
+            .transition(.opacity.combined(with: .scale(scale: 0.985)))
 
-            GoalsView()
-                .tabItem {
-                    Label("Goals", systemImage: "target")
-                }
-                .accessibilityLabel("Goals")
-
-            TrackView()
-                .tabItem {
-                    Label("Track", systemImage: "chart.xyaxis.line")
-                }
-                .accessibilityLabel("Track")
-
-            ReflectionView()
-                .tabItem {
-                    Label("Reflect", systemImage: "checklist")
-                }
+            TBTabBar(selection: $selection)
+                .padding(.bottom, 10)
         }
+        .tint(TBTheme.cyan)
     }
 }

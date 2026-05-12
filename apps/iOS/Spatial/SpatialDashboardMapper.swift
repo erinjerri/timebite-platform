@@ -21,7 +21,9 @@ enum SpatialDashboardMapper {
             )
         }
 
-        let segments = summaries.map(makeSegment(summary:))
+        let segments = summaries.map { summary in
+            Self.makeSegment(summary: summary)
+        }
         let totalTarget = max(0, summaries.reduce(0) { $0 + $1.targetMinutes })
         let totalLogged = max(0, summaries.reduce(0) { $0 + $1.loggedMinutes })
         let percent = totalTarget == 0 ? 0 : min(1, Double(totalLogged) / Double(totalTarget))
@@ -64,7 +66,7 @@ enum SpatialDashboardMapper {
         return derived
     }
 
-    private static func makeSegment(summary: SpatialLaneSummary) -> SpatialRingSegment {
+    nonisolated private static func makeSegment(summary: SpatialLaneSummary) -> SpatialRingSegment {
         let percent = summary.targetMinutes == 0
             ? 0
             : min(1, Double(summary.loggedMinutes) / Double(summary.targetMinutes))
@@ -81,7 +83,7 @@ enum SpatialDashboardMapper {
         )
     }
 
-    private static func reflectionStatus(
+    nonisolated private static func reflectionStatus(
         for laneType: FocusLaneType,
         reflection: Reflection?
     ) -> ReflectionStatus? {

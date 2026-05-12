@@ -14,39 +14,74 @@ struct GoalsView: View {
     @State private var brandMinutes = 30
 
     var body: some View {
-        NavigationStack {
-            Form {
-                Section("Priorities") {
-                    TextField("App focus", text: $appFocus)
-                    Stepper("App target: \(appMinutes) min", value: $appMinutes, in: 5...240, step: 5)
+        TBScreen(title: "Goals", eyebrow: "Strategic Direction") {
+            TBSectionHeader(title: "Priorities", subtitle: "Set the day before the system starts tracking it")
 
-                    TextField("Income focus", text: $incomeFocus)
-                    Stepper("Income target: \(incomeMinutes) min", value: $incomeMinutes, in: 5...240, step: 5)
+            TBCard(isProminent: true) {
+                goalField("App focus", text: $appFocus, minutes: $appMinutes, range: 5...240)
+                Divider().overlay(TBTheme.stroke)
+                goalField("Income focus", text: $incomeFocus, minutes: $incomeMinutes, range: 5...240)
+                Divider().overlay(TBTheme.stroke)
+                goalField("Brand focus optional", text: $brandFocus, minutes: $brandMinutes, range: 5...180)
 
-                    TextField("Brand focus optional", text: $brandFocus)
-                    Stepper("Brand target: \(brandMinutes) min", value: $brandMinutes, in: 5...180, step: 5)
+                Button("Save Goals") {
+                    savePlan()
                 }
+                .buttonStyle(TBPrimaryButtonStyle())
+                .disabled(appFocus.nilIfBlank == nil || incomeFocus.nilIfBlank == nil)
+                .accessibilityLabel("Save daily goals")
+            }
 
-                Section {
-                    Button("Save Goals") {
-                        savePlan()
-                    }
-                    .disabled(appFocus.nilIfBlank == nil || incomeFocus.nilIfBlank == nil)
-                    .accessibilityLabel("Save daily goals")
-                }
-
-                if let currentPlan = plans.first {
-                    Section("Saved Goals") {
-                        Text(currentPlan.appFocus)
-                        Text(currentPlan.incomeFocus)
-                        if let brandFocus = currentPlan.brandFocus {
-                            Text(brandFocus)
-                        }
+            if let currentPlan = plans.first {
+                TBSectionHeader(title: "Saved Goals", subtitle: "The current behavioral plan")
+                TBCard {
+                    savedGoalRow("App", value: currentPlan.appFocus)
+                    savedGoalRow("Income", value: currentPlan.incomeFocus)
+                    if let brandFocus = currentPlan.brandFocus {
+                        savedGoalRow("Brand", value: brandFocus)
                     }
                 }
             }
-            .navigationTitle("Goals")
-            .onAppear(perform: hydrateFromSavedPlan)
+        }
+        .onAppear(perform: hydrateFromSavedPlan)
+    }
+
+    private func goalField(
+        _ title: String,
+        text: Binding<String>,
+        minutes: Binding<Int>,
+        range: ClosedRange<Int>
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            TextField(title, text: text)
+                .font(.headline.weight(.semibold))
+                .foregroundStyle(TBTheme.primaryText)
+                .textFieldStyle(.plain)
+                .padding(14)
+                .background(TBTheme.graphite.opacity(0.56), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+
+            HStack {
+                Text("\(minutes.wrappedValue) min target")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(TBTheme.secondaryText)
+                Spacer()
+                Stepper(title, value: minutes, in: range, step: 5)
+                    .labelsHidden()
+            }
+        }
+    }
+
+    private func savedGoalRow(_ label: String, value: String) -> some View {
+        HStack(alignment: .firstTextBaseline) {
+            Text(label.uppercased())
+                .font(.caption.weight(.bold))
+                .tracking(1.1)
+                .foregroundStyle(TBTheme.secondaryText)
+            Spacer()
+            Text(value)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(TBTheme.primaryText)
+                .multilineTextAlignment(.trailing)
         }
     }
 
