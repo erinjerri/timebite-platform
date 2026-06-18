@@ -206,5 +206,11 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 
-# OS files
-.DS_Store.claude/
+# JavaScript / Next.js generated files
+node_modules/
+.next/
+*.tsbuildinfo
+
+# Local agent worktrees and OS files
+.claude/
+.DS_Store
