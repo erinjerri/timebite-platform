@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct RootTabView: View {
     @AppStorage("isAdmin") private var isAdmin = false
@@ -53,6 +54,13 @@ struct RootTabView: View {
         }
     }
 
+    private var bottomSafeAreaPadding: CGFloat {
+        let inset = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .first?.keyWindow?.safeAreaInsets.bottom ?? 0
+        return max(inset, 8)
+    }
+
     private var bottomNavigationInset: some View {
         VStack(spacing: 4) {
             appVersionUnlock
@@ -61,6 +69,7 @@ struct RootTabView: View {
                 .padding(.horizontal, 16)
         }
         .padding(.top, 6)
+        .padding(.bottom, bottomSafeAreaPadding)
         .background(
             LinearGradient(
                 colors: [
@@ -70,6 +79,7 @@ struct RootTabView: View {
                 startPoint: .top,
                 endPoint: .bottom
             )
+            .ignoresSafeArea(edges: .bottom)
             .allowsHitTesting(false)
         )
     }
