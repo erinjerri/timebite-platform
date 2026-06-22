@@ -14,18 +14,20 @@ struct RootTabView: View {
     }
 
     var body: some View {
-        GeometryReader { geo in
-            ZStack(alignment: .topLeading) {
-                selectedContent
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .overlay(alignment: .bottom) {
-                        bottomNavigationInset(safeAreaBottom: geo.safeAreaInsets.bottom)
-                    }
+        ZStack(alignment: .topLeading) {
+            TBColor.background
+                .ignoresSafeArea()
 
-                adminLogoUnlock
-                    .padding(.top, 10)
-                    .padding(.leading, 18)
-            }
+            selectedContent
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            adminLogoUnlock
+                .padding(.top, 10)
+                .padding(.leading, 18)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            bottomNavigationInset
         }
         .ignoresSafeArea(.keyboard)
         .sheet(isPresented: $showingAdminUnlock) {
@@ -51,7 +53,7 @@ struct RootTabView: View {
         }
     }
 
-    private func bottomNavigationInset(safeAreaBottom: CGFloat) -> some View {
+    private var bottomNavigationInset: some View {
         VStack(spacing: 4) {
             appVersionUnlock
 
@@ -59,7 +61,6 @@ struct RootTabView: View {
                 .padding(.horizontal, 16)
         }
         .padding(.top, 6)
-        .padding(.bottom, max(safeAreaBottom, 8))
         .background(
             LinearGradient(
                 colors: [

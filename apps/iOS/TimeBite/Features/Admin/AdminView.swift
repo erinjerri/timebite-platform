@@ -21,7 +21,6 @@ struct AdminView: View {
                     lockButton
                 }
                 .padding(16)
-                .padding(.bottom, 104)
             }
             .background(background)
             .navigationTitle("Admin")
@@ -381,4 +380,3 @@ struct AdminView_Previews: PreviewProvider {
     }
 }
 #endif
-

@@ -1,140 +1,309 @@
 // !$*UTF8*$!
 {
 	archiveVersion = 1;
-	classes = {};
-	objectVersion = 56;
+	classes = {
+	};
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
-		300000000000000000000001 /* TimeBiteApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000001 /* TimeBiteApp.swift */; };
-		300000000000000000000002 /* RootTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000002 /* RootTabView.swift */; };
-		300000000000000000000003 /* ActionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000003 /* ActionView.swift */; };
-		300000000000000000000004 /* TrackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000004 /* TrackView.swift */; };
-		300000000000000000000005 /* GoalsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000005 /* GoalsView.swift */; };
-		300000000000000000000006 /* DashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000006 /* DashView.swift */; };
-		300000000000000000000007 /* TBColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000007 /* TBColor.swift */; };
-		300000000000000000000008 /* TBTypography.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000008 /* TBTypography.swift */; };
-		300000000000000000000009 /* ActionItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000009 /* ActionItem.swift */; };
-		30000000000000000000000A /* HabitEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000000A /* HabitEntry.swift */; };
-		30000000000000000000000B /* GoalItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000000B /* GoalItem.swift */; };
-		30000000000000000000000C /* DailyLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000000C /* DailyLog.swift */; };
-		30000000000000000000000D /* TBCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000000D /* TBCard.swift */; };
-		30000000000000000000000E /* Goal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000000F /* Goal.swift */; };
-		30000000000000000000000F /* Milestone.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000010 /* Milestone.swift */; };
-		300000000000000000000010 /* GoalProgressEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000011 /* GoalProgressEntry.swift */; };
-		300000000000000000000011 /* GoalStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000012 /* GoalStore.swift */; };
-		300000000000000000000012 /* GoalPreviewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000013 /* GoalPreviewData.swift */; };
-		300000000000000000000013 /* SetGoalModal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000014 /* SetGoalModal.swift */; };
-		300000000000000000000014 /* AdminView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000015 /* AdminView.swift */; };
-		300000000000000000000015 /* AgentSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000016 /* AgentSession.swift */; };
-		300000000000000000000016 /* AIWorkSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000017 /* AIWorkSummary.swift */; };
-		300000000000000000000017 /* GoalImpact.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000018 /* GoalImpact.swift */; };
-		300000000000000000000018 /* DailyAIReflection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000019 /* DailyAIReflection.swift */; };
-		300000000000000000000019 /* AIProductivityAnalytics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000001A /* AIProductivityAnalytics.swift */; };
-		30000000000000000000001A /* AgentToolIntegrations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000001B /* AgentToolIntegrations.swift */; };
+		300000000000000000000001 /* TimeBite/App/TimeBiteApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000001 /* TimeBite/App/TimeBiteApp.swift */; };
+		300000000000000000000002 /* TimeBite/App/RootTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000002 /* TimeBite/App/RootTabView.swift */; };
+		300000000000000000000003 /* TimeBite/Features/Action/ActionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000003 /* TimeBite/Features/Action/ActionView.swift */; };
+		300000000000000000000004 /* TimeBite/Features/Track/TrackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000004 /* TimeBite/Features/Track/TrackView.swift */; };
+		300000000000000000000005 /* TimeBite/Features/Goals/GoalsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000005 /* TimeBite/Features/Goals/GoalsView.swift */; };
+		300000000000000000000006 /* TimeBite/Features/Dash/DashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000006 /* TimeBite/Features/Dash/DashView.swift */; };
+		300000000000000000000007 /* TimeBite/Shared/Theme/TBColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000007 /* TimeBite/Shared/Theme/TBColor.swift */; };
+		300000000000000000000008 /* TimeBite/Shared/Theme/TBTypography.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000008 /* TimeBite/Shared/Theme/TBTypography.swift */; };
+		300000000000000000000009 /* TimeBite/Models/ActionItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000009 /* TimeBite/Models/ActionItem.swift */; };
+		30000000000000000000000A /* TimeBite/Models/HabitEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000000A /* TimeBite/Models/HabitEntry.swift */; };
+		30000000000000000000000B /* TimeBite/Models/GoalItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000000B /* TimeBite/Models/GoalItem.swift */; };
+		30000000000000000000000C /* TimeBite/Models/DailyLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000000C /* TimeBite/Models/DailyLog.swift */; };
+		30000000000000000000000D /* TimeBite/Shared/Components/TBCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000000D /* TimeBite/Shared/Components/TBCard.swift */; };
+		30000000000000000000000E /* TimeBite/Models/Goal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000000F /* TimeBite/Models/Goal.swift */; };
+		30000000000000000000000F /* TimeBite/Models/Milestone.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000010 /* TimeBite/Models/Milestone.swift */; };
+		300000000000000000000010 /* TimeBite/Models/GoalProgressEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000011 /* TimeBite/Models/GoalProgressEntry.swift */; };
+		300000000000000000000011 /* TimeBite/Models/GoalStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000012 /* TimeBite/Models/GoalStore.swift */; };
+		300000000000000000000012 /* TimeBite/Models/GoalPreviewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000013 /* TimeBite/Models/GoalPreviewData.swift */; };
+		300000000000000000000013 /* TimeBite/Features/Goals/SetGoalModal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000014 /* TimeBite/Features/Goals/SetGoalModal.swift */; };
+		300000000000000000000014 /* TimeBite/Features/Admin/AdminView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000015 /* TimeBite/Features/Admin/AdminView.swift */; };
+		300000000000000000000015 /* TimeBite/Models/AgentSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000016 /* TimeBite/Models/AgentSession.swift */; };
+		300000000000000000000016 /* TimeBite/Models/AIWorkSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000017 /* TimeBite/Models/AIWorkSummary.swift */; };
+		300000000000000000000017 /* TimeBite/Models/GoalImpact.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000018 /* TimeBite/Models/GoalImpact.swift */; };
+		300000000000000000000018 /* TimeBite/Models/DailyAIReflection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000019 /* TimeBite/Models/DailyAIReflection.swift */; };
+		300000000000000000000019 /* TimeBite/Models/AIProductivityAnalytics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000001A /* TimeBite/Models/AIProductivityAnalytics.swift */; };
+		30000000000000000000001A /* TimeBite/Models/AgentToolIntegrations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000001B /* TimeBite/Models/AgentToolIntegrations.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		200000000000000000000001 /* TimeBiteApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/App/TimeBiteApp.swift; sourceTree = SOURCE_ROOT; };
-		200000000000000000000002 /* RootTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/App/RootTabView.swift; sourceTree = SOURCE_ROOT; };
-		200000000000000000000003 /* ActionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Features/Action/ActionView.swift; sourceTree = SOURCE_ROOT; };
-		200000000000000000000004 /* TrackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Features/Track/TrackView.swift; sourceTree = SOURCE_ROOT; };
-		200000000000000000000005 /* GoalsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Features/Goals/GoalsView.swift; sourceTree = SOURCE_ROOT; };
-		200000000000000000000006 /* DashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Features/Dash/DashView.swift; sourceTree = SOURCE_ROOT; };
-		200000000000000000000007 /* TBColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Shared/Theme/TBColor.swift; sourceTree = SOURCE_ROOT; };
-		200000000000000000000008 /* TBTypography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Shared/Theme/TBTypography.swift; sourceTree = SOURCE_ROOT; };
-		200000000000000000000009 /* ActionItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Models/ActionItem.swift; sourceTree = SOURCE_ROOT; };
-		20000000000000000000000A /* HabitEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Models/HabitEntry.swift; sourceTree = SOURCE_ROOT; };
-		20000000000000000000000B /* GoalItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Models/GoalItem.swift; sourceTree = SOURCE_ROOT; };
-		20000000000000000000000C /* DailyLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Models/DailyLog.swift; sourceTree = SOURCE_ROOT; };
-		20000000000000000000000D /* TBCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Shared/Components/TBCard.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000001 /* TimeBite/App/TimeBiteApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/App/TimeBiteApp.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000002 /* TimeBite/App/RootTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/App/RootTabView.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000003 /* TimeBite/Features/Action/ActionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Features/Action/ActionView.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000004 /* TimeBite/Features/Track/TrackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Features/Track/TrackView.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000005 /* TimeBite/Features/Goals/GoalsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Features/Goals/GoalsView.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000006 /* TimeBite/Features/Dash/DashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Features/Dash/DashView.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000007 /* TimeBite/Shared/Theme/TBColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Shared/Theme/TBColor.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000008 /* TimeBite/Shared/Theme/TBTypography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Shared/Theme/TBTypography.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000009 /* TimeBite/Models/ActionItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Models/ActionItem.swift; sourceTree = SOURCE_ROOT; };
+		20000000000000000000000A /* TimeBite/Models/HabitEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Models/HabitEntry.swift; sourceTree = SOURCE_ROOT; };
+		20000000000000000000000B /* TimeBite/Models/GoalItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Models/GoalItem.swift; sourceTree = SOURCE_ROOT; };
+		20000000000000000000000C /* TimeBite/Models/DailyLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Models/DailyLog.swift; sourceTree = SOURCE_ROOT; };
+		20000000000000000000000D /* TimeBite/Shared/Components/TBCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Shared/Components/TBCard.swift; sourceTree = SOURCE_ROOT; };
 		20000000000000000000000E /* TimeBite.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TimeBite.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		20000000000000000000000F /* Goal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Models/Goal.swift; sourceTree = SOURCE_ROOT; };
-		200000000000000000000010 /* Milestone.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Models/Milestone.swift; sourceTree = SOURCE_ROOT; };
-		200000000000000000000011 /* GoalProgressEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Models/GoalProgressEntry.swift; sourceTree = SOURCE_ROOT; };
-		200000000000000000000012 /* GoalStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Models/GoalStore.swift; sourceTree = SOURCE_ROOT; };
-		200000000000000000000013 /* GoalPreviewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Models/GoalPreviewData.swift; sourceTree = SOURCE_ROOT; };
-		200000000000000000000014 /* SetGoalModal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Features/Goals/SetGoalModal.swift; sourceTree = SOURCE_ROOT; };
-		200000000000000000000015 /* AdminView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Features/Admin/AdminView.swift; sourceTree = SOURCE_ROOT; };
-		200000000000000000000016 /* AgentSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Models/AgentSession.swift; sourceTree = SOURCE_ROOT; };
-		200000000000000000000017 /* AIWorkSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Models/AIWorkSummary.swift; sourceTree = SOURCE_ROOT; };
-		200000000000000000000018 /* GoalImpact.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Models/GoalImpact.swift; sourceTree = SOURCE_ROOT; };
-		200000000000000000000019 /* DailyAIReflection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Models/DailyAIReflection.swift; sourceTree = SOURCE_ROOT; };
-		20000000000000000000001A /* AIProductivityAnalytics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Models/AIProductivityAnalytics.swift; sourceTree = SOURCE_ROOT; };
-		20000000000000000000001B /* AgentToolIntegrations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Models/AgentToolIntegrations.swift; sourceTree = SOURCE_ROOT; };
+		20000000000000000000000F /* TimeBite/Models/Goal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Models/Goal.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000010 /* TimeBite/Models/Milestone.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Models/Milestone.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000011 /* TimeBite/Models/GoalProgressEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Models/GoalProgressEntry.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000012 /* TimeBite/Models/GoalStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Models/GoalStore.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000013 /* TimeBite/Models/GoalPreviewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Models/GoalPreviewData.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000014 /* TimeBite/Features/Goals/SetGoalModal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Features/Goals/SetGoalModal.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000015 /* TimeBite/Features/Admin/AdminView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Features/Admin/AdminView.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000016 /* TimeBite/Models/AgentSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Models/AgentSession.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000017 /* TimeBite/Models/AIWorkSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Models/AIWorkSummary.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000018 /* TimeBite/Models/GoalImpact.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Models/GoalImpact.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000019 /* TimeBite/Models/DailyAIReflection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Models/DailyAIReflection.swift; sourceTree = SOURCE_ROOT; };
+		20000000000000000000001A /* TimeBite/Models/AIProductivityAnalytics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Models/AIProductivityAnalytics.swift; sourceTree = SOURCE_ROOT; };
+		20000000000000000000001B /* TimeBite/Models/AgentToolIntegrations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Models/AgentToolIntegrations.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
+/* Begin PBXFrameworksBuildPhase section */
+		10000000000000000000000E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
 /* Begin PBXGroup section */
-		100000000000000000000001 = {isa = PBXGroup; children = (100000000000000000000002, 100000000000000000000003, 100000000000000000000004, 100000000000000000000005, 100000000000000000000006, 100000000000000000000018, 100000000000000000000007, 100000000000000000000016, 100000000000000000000017); sourceTree = "<group>"; };
-		100000000000000000000002 = {isa = PBXGroup; children = (200000000000000000000001, 200000000000000000000002); name = App; sourceTree = "<group>"; };
-		100000000000000000000003 = {isa = PBXGroup; children = (200000000000000000000003); name = Action; sourceTree = "<group>"; };
-		100000000000000000000004 = {isa = PBXGroup; children = (200000000000000000000004); name = Track; sourceTree = "<group>"; };
-		100000000000000000000005 = {isa = PBXGroup; children = (200000000000000000000005, 200000000000000000000014); name = Goals; sourceTree = "<group>"; };
-		100000000000000000000006 = {isa = PBXGroup; children = (200000000000000000000006); name = Dash; sourceTree = "<group>"; };
-		100000000000000000000018 = {isa = PBXGroup; children = (200000000000000000000015); name = Admin; sourceTree = "<group>"; };
-		100000000000000000000007 = {isa = PBXGroup; children = (100000000000000000000008, 100000000000000000000009); name = Shared; sourceTree = "<group>"; };
-		100000000000000000000008 = {isa = PBXGroup; children = (200000000000000000000007, 200000000000000000000008); name = Theme; sourceTree = "<group>"; };
-		100000000000000000000009 = {isa = PBXGroup; children = (20000000000000000000000D); name = Components; sourceTree = "<group>"; };
-		100000000000000000000016 = {isa = PBXGroup; children = (200000000000000000000009, 20000000000000000000000A, 20000000000000000000000B, 20000000000000000000000C, 20000000000000000000000F, 200000000000000000000010, 200000000000000000000011, 200000000000000000000012, 200000000000000000000013, 200000000000000000000016, 200000000000000000000017, 200000000000000000000018, 200000000000000000000019, 20000000000000000000001A, 20000000000000000000001B); name = Models; sourceTree = "<group>"; };
-		100000000000000000000017 = {isa = PBXGroup; children = (20000000000000000000000E); name = Products; sourceTree = "<group>"; };
+		100000000000000000000001 = {
+			isa = PBXGroup;
+			children = (
+				100000000000000000000002 /* App */,
+				100000000000000000000003 /* Action */,
+				100000000000000000000004 /* Track */,
+				100000000000000000000005 /* Goals */,
+				100000000000000000000006 /* Dash */,
+				100000000000000000000018 /* Admin */,
+				100000000000000000000007 /* Shared */,
+				100000000000000000000016 /* Models */,
+				100000000000000000000017 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		100000000000000000000002 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				200000000000000000000001 /* TimeBite/App/TimeBiteApp.swift */,
+				200000000000000000000002 /* TimeBite/App/RootTabView.swift */,
+			);
+			name = App;
+			sourceTree = "<group>";
+		};
+		100000000000000000000003 /* Action */ = {
+			isa = PBXGroup;
+			children = (
+				200000000000000000000003 /* TimeBite/Features/Action/ActionView.swift */,
+			);
+			name = Action;
+			sourceTree = "<group>";
+		};
+		100000000000000000000004 /* Track */ = {
+			isa = PBXGroup;
+			children = (
+				200000000000000000000004 /* TimeBite/Features/Track/TrackView.swift */,
+			);
+			name = Track;
+			sourceTree = "<group>";
+		};
+		100000000000000000000005 /* Goals */ = {
+			isa = PBXGroup;
+			children = (
+				200000000000000000000005 /* TimeBite/Features/Goals/GoalsView.swift */,
+				200000000000000000000014 /* TimeBite/Features/Goals/SetGoalModal.swift */,
+			);
+			name = Goals;
+			sourceTree = "<group>";
+		};
+		100000000000000000000006 /* Dash */ = {
+			isa = PBXGroup;
+			children = (
+				200000000000000000000006 /* TimeBite/Features/Dash/DashView.swift */,
+			);
+			name = Dash;
+			sourceTree = "<group>";
+		};
+		100000000000000000000007 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				100000000000000000000008 /* Theme */,
+				100000000000000000000009 /* Components */,
+			);
+			name = Shared;
+			sourceTree = "<group>";
+		};
+		100000000000000000000008 /* Theme */ = {
+			isa = PBXGroup;
+			children = (
+				200000000000000000000007 /* TimeBite/Shared/Theme/TBColor.swift */,
+				200000000000000000000008 /* TimeBite/Shared/Theme/TBTypography.swift */,
+			);
+			name = Theme;
+			sourceTree = "<group>";
+		};
+		100000000000000000000009 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				20000000000000000000000D /* TimeBite/Shared/Components/TBCard.swift */,
+			);
+			name = Components;
+			sourceTree = "<group>";
+		};
+		100000000000000000000016 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				200000000000000000000009 /* TimeBite/Models/ActionItem.swift */,
+				20000000000000000000000A /* TimeBite/Models/HabitEntry.swift */,
+				20000000000000000000000B /* TimeBite/Models/GoalItem.swift */,
+				20000000000000000000000C /* TimeBite/Models/DailyLog.swift */,
+				20000000000000000000000F /* TimeBite/Models/Goal.swift */,
+				200000000000000000000010 /* TimeBite/Models/Milestone.swift */,
+				200000000000000000000011 /* TimeBite/Models/GoalProgressEntry.swift */,
+				200000000000000000000012 /* TimeBite/Models/GoalStore.swift */,
+				200000000000000000000013 /* TimeBite/Models/GoalPreviewData.swift */,
+				200000000000000000000016 /* TimeBite/Models/AgentSession.swift */,
+				200000000000000000000017 /* TimeBite/Models/AIWorkSummary.swift */,
+				200000000000000000000018 /* TimeBite/Models/GoalImpact.swift */,
+				200000000000000000000019 /* TimeBite/Models/DailyAIReflection.swift */,
+				20000000000000000000001A /* TimeBite/Models/AIProductivityAnalytics.swift */,
+				20000000000000000000001B /* TimeBite/Models/AgentToolIntegrations.swift */,
+			);
+			name = Models;
+			sourceTree = "<group>";
+		};
+		100000000000000000000017 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				20000000000000000000000E /* TimeBite.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		100000000000000000000018 /* Admin */ = {
+			isa = PBXGroup;
+			children = (
+				200000000000000000000015 /* TimeBite/Features/Admin/AdminView.swift */,
+			);
+			name = Admin;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		10000000000000000000000C = {
+		10000000000000000000000C /* TimeBite */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 100000000000000000000010;
-			buildPhases = (10000000000000000000000D, 10000000000000000000000E, 10000000000000000000000F);
-			buildRules = ();
-			dependencies = ();
+			buildConfigurationList = 100000000000000000000010 /* Build configuration list for PBXNativeTarget "TimeBite" */;
+			buildPhases = (
+				10000000000000000000000D /* Sources */,
+				10000000000000000000000E /* Frameworks */,
+				10000000000000000000000F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
 			name = TimeBite;
 			productName = TimeBite;
-			productReference = 20000000000000000000000E;
+			productReference = 20000000000000000000000E /* TimeBite.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		10000000000000000000000A = {
+		10000000000000000000000A /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 2610;
 				LastUpgradeCheck = 2610;
-				TargetAttributes = { 10000000000000000000000C = { CreatedOnToolsVersion = 26.1; }; };
+				TargetAttributes = {
+					10000000000000000000000C = {
+						CreatedOnToolsVersion = 26.1;
+					};
+				};
 			};
-			buildConfigurationList = 100000000000000000000011;
+			buildConfigurationList = 100000000000000000000011 /* Build configuration list for PBXProject "TimeBite" */;
 			compatibilityVersion = "Xcode 15.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
-			knownRegions = (en, Base);
+			knownRegions = (
+				en,
+				Base,
+			);
 			mainGroup = 100000000000000000000001;
-			productRefGroup = 100000000000000000000017;
+			productRefGroup = 100000000000000000000017 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
-			targets = (10000000000000000000000C);
+			targets = (
+				10000000000000000000000C /* TimeBite */,
+			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		10000000000000000000000F = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+		10000000000000000000000F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		10000000000000000000000D = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (300000000000000000000001, 300000000000000000000002, 300000000000000000000003, 300000000000000000000004, 300000000000000000000005, 300000000000000000000006, 300000000000000000000007, 300000000000000000000008, 300000000000000000000009, 30000000000000000000000A, 30000000000000000000000B, 30000000000000000000000C, 30000000000000000000000D, 30000000000000000000000E, 30000000000000000000000F, 300000000000000000000010, 300000000000000000000011, 300000000000000000000012, 300000000000000000000013, 300000000000000000000014, 300000000000000000000015, 300000000000000000000016, 300000000000000000000017, 300000000000000000000018, 300000000000000000000019, 30000000000000000000001A); runOnlyForDeploymentPostprocessing = 0; };
+		10000000000000000000000D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				300000000000000000000001 /* TimeBite/App/TimeBiteApp.swift in Sources */,
+				300000000000000000000002 /* TimeBite/App/RootTabView.swift in Sources */,
+				300000000000000000000003 /* TimeBite/Features/Action/ActionView.swift in Sources */,
+				300000000000000000000004 /* TimeBite/Features/Track/TrackView.swift in Sources */,
+				300000000000000000000005 /* TimeBite/Features/Goals/GoalsView.swift in Sources */,
+				300000000000000000000006 /* TimeBite/Features/Dash/DashView.swift in Sources */,
+				300000000000000000000007 /* TimeBite/Shared/Theme/TBColor.swift in Sources */,
+				300000000000000000000008 /* TimeBite/Shared/Theme/TBTypography.swift in Sources */,
+				300000000000000000000009 /* TimeBite/Models/ActionItem.swift in Sources */,
+				30000000000000000000000A /* TimeBite/Models/HabitEntry.swift in Sources */,
+				30000000000000000000000B /* TimeBite/Models/GoalItem.swift in Sources */,
+				30000000000000000000000C /* TimeBite/Models/DailyLog.swift in Sources */,
+				30000000000000000000000D /* TimeBite/Shared/Components/TBCard.swift in Sources */,
+				30000000000000000000000E /* TimeBite/Models/Goal.swift in Sources */,
+				30000000000000000000000F /* TimeBite/Models/Milestone.swift in Sources */,
+				300000000000000000000010 /* TimeBite/Models/GoalProgressEntry.swift in Sources */,
+				300000000000000000000011 /* TimeBite/Models/GoalStore.swift in Sources */,
+				300000000000000000000012 /* TimeBite/Models/GoalPreviewData.swift in Sources */,
+				300000000000000000000013 /* TimeBite/Features/Goals/SetGoalModal.swift in Sources */,
+				300000000000000000000014 /* TimeBite/Features/Admin/AdminView.swift in Sources */,
+				300000000000000000000015 /* TimeBite/Models/AgentSession.swift in Sources */,
+				300000000000000000000016 /* TimeBite/Models/AIWorkSummary.swift in Sources */,
+				300000000000000000000017 /* TimeBite/Models/GoalImpact.swift in Sources */,
+				300000000000000000000018 /* TimeBite/Models/DailyAIReflection.swift in Sources */,
+				300000000000000000000019 /* TimeBite/Models/AIProductivityAnalytics.swift in Sources */,
+				30000000000000000000001A /* TimeBite/Models/AgentToolIntegrations.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
-/* Begin PBXFrameworksBuildPhase section */
-		10000000000000000000000E = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
-/* End PBXFrameworksBuildPhase section */
-
 /* Begin XCBuildConfiguration section */
-		100000000000000000000012 = {
+		100000000000000000000012 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = DHFA4423Z8;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = TimeBite/Info.plist;
@@ -149,13 +318,13 @@
 			};
 			name = Debug;
 		};
-		100000000000000000000013 = {
+		100000000000000000000013 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = DHFA4423Z8;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = TimeBite/Info.plist;
@@ -170,7 +339,7 @@
 			};
 			name = Release;
 		};
-		100000000000000000000014 = {
+		100000000000000000000014 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -189,7 +358,7 @@
 			};
 			name = Debug;
 		};
-		100000000000000000000015 = {
+		100000000000000000000015 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -211,19 +380,25 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		100000000000000000000010 = {
+		100000000000000000000010 /* Build configuration list for PBXNativeTarget "TimeBite" */ = {
 			isa = XCConfigurationList;
-			buildConfigurations = (100000000000000000000012, 100000000000000000000013);
+			buildConfigurations = (
+				100000000000000000000012 /* Debug */,
+				100000000000000000000013 /* Release */,
+			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		100000000000000000000011 = {
+		100000000000000000000011 /* Build configuration list for PBXProject "TimeBite" */ = {
 			isa = XCConfigurationList;
-			buildConfigurations = (100000000000000000000014, 100000000000000000000015);
+			buildConfigurations = (
+				100000000000000000000014 /* Debug */,
+				100000000000000000000015 /* Release */,
+			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = 10000000000000000000000A;
+	rootObject = 10000000000000000000000A /* Project object */;
 }

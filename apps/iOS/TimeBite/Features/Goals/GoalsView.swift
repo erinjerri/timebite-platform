@@ -43,7 +43,6 @@ struct GoalsView: View {
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 16)
-                .padding(.bottom, 104)
             }
             .background(background)
             .navigationTitle("Goals")
