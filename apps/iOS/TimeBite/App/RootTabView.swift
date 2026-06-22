@@ -1,20 +1,76 @@
 import SwiftUI
 
 struct RootTabView: View {
+    @AppStorage("isAdmin") private var isAdmin = false
+    @AppStorage("adminPassword") private var adminPassword = "timebite-founder"
     @State private var selectedTab: TimeBiteTab = .actions
+    @State private var versionTapCount = 0
+    @State private var showingAdminUnlock = false
+
+    init() {}
+
+    fileprivate init(initialTab: TimeBiteTab) {
+        _selectedTab = State(initialValue: initialTab)
+    }
 
     var body: some View {
-        ZStack {
-            selectedContent
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        GeometryReader { geo in
+            ZStack(alignment: .topLeading) {
+                selectedContent
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .overlay(alignment: .bottom) {
+                        bottomNavigationInset(safeAreaBottom: geo.safeAreaInsets.bottom)
+                    }
 
-            VStack {
-                Spacer()
-                TimeBiteTabBar(selectedTab: $selectedTab)
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 10)
+                adminLogoUnlock
+                    .padding(.top, 10)
+                    .padding(.leading, 18)
             }
         }
+        .ignoresSafeArea(.keyboard)
+        .sheet(isPresented: $showingAdminUnlock) {
+            AdminUnlockSheet(
+                storedPassword: adminPassword,
+                onUnlock: {
+                    isAdmin = true
+                    showingAdminUnlock = false
+                    withAnimation(.spring(response: 0.28, dampingFraction: 0.88)) {
+                        selectedTab = .admin
+                    }
+                },
+                onCancel: {
+                    showingAdminUnlock = false
+                }
+            )
+            .preferredColorScheme(.dark)
+        }
+        .onChange(of: isAdmin) { _, newValue in
+            if !newValue && selectedTab == .admin {
+                selectedTab = .actions
+            }
+        }
+    }
+
+    private func bottomNavigationInset(safeAreaBottom: CGFloat) -> some View {
+        VStack(spacing: 4) {
+            appVersionUnlock
+
+            TimeBiteTabBar(selectedTab: $selectedTab, availableTabs: availableTabs)
+                .padding(.horizontal, 16)
+        }
+        .padding(.top, 6)
+        .padding(.bottom, max(safeAreaBottom, 8))
+        .background(
+            LinearGradient(
+                colors: [
+                    TBColor.background.opacity(0),
+                    TBColor.background.opacity(0.92)
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .allowsHitTesting(false)
+        )
     }
 
     @ViewBuilder
@@ -28,15 +84,158 @@ struct RootTabView: View {
             TrackView()
         case .reflect:
             DashView()
+        case .admin:
+            AdminView(onLock: {
+                isAdmin = false
+            })
+        }
+    }
+
+    private var availableTabs: [TimeBiteTab] {
+        TimeBiteTab.allCases.filter { tab in
+            tab != .admin || isAdmin
+        }
+    }
+
+    private var adminLogoUnlock: some View {
+        Text("TimeBite")
+            .font(.system(size: 12, weight: .bold, design: .rounded))
+            .foregroundStyle(TBColor.textPrimary.opacity(0.18))
+            .padding(.vertical, 8)
+            .padding(.horizontal, 10)
+            .contentShape(Rectangle())
+            .onLongPressGesture(minimumDuration: 1.2) {
+                showingAdminUnlock = true
+            }
+            .accessibilityHidden(true)
+    }
+
+    private var appVersionUnlock: some View {
+        Text("v\(appVersion)")
+            .font(.system(size: 9, weight: .medium, design: .rounded))
+            .foregroundStyle(TBColor.textSecondary.opacity(0.28))
+            .padding(.vertical, 4)
+            .padding(.horizontal, 8)
+            .contentShape(Rectangle())
+            .onTapGesture {
+                versionTapCount += 1
+                if versionTapCount >= 7 {
+                    versionTapCount = 0
+                    showingAdminUnlock = true
+                }
+            }
+            .accessibilityHidden(true)
+    }
+
+    private var appVersion: String {
+        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
+    }
+}
+
+private struct RootTabView_Previews: PreviewProvider {
+    static var previews: some View {
+        Group {
+            RootTabView(initialTab: .reflect)
+                .preferredColorScheme(.dark)
+                .previewDevice("iPhone 16e")
+                .previewDisplayName("Reflect - iPhone 16e")
+
+            RootTabView(initialTab: .reflect)
+                .preferredColorScheme(.dark)
+                .previewDevice("iPhone 16 Pro")
+                .previewDisplayName("Reflect - iPhone 16 Pro")
+
+            RootTabView(initialTab: .reflect)
+                .preferredColorScheme(.dark)
+                .previewDevice("iPhone 17 Pro")
+                .previewDisplayName("Reflect - iPhone 17 Pro")
         }
     }
 }
 
-private enum TimeBiteTab: String, CaseIterable, Identifiable {
+private struct AdminUnlockSheet: View {
+    let storedPassword: String
+    let onUnlock: () -> Void
+    let onCancel: () -> Void
+
+    @State private var password = ""
+    @State private var showError = false
+
+    var body: some View {
+        NavigationStack {
+            VStack(alignment: .leading, spacing: 18) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Admin Mode")
+                        .font(TBTypography.title(.title2, weight: .bold))
+                        .foregroundStyle(TBColor.textPrimary)
+
+                    Text("Founder-only local access to development tooling.")
+                        .font(TBTypography.body())
+                        .foregroundStyle(TBColor.textSecondary)
+                }
+
+                SecureField("Password", text: $password)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                    .font(TBTypography.body(.semibold))
+                    .foregroundStyle(TBColor.textPrimary)
+                    .padding(14)
+                    .background(
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .fill(TBColor.surfaceElevated)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                    .stroke(showError ? TBColor.gold.opacity(0.5) : TBColor.border, lineWidth: 1)
+                            )
+                    )
+
+                if showError {
+                    Text("Incorrect password.")
+                        .font(TBTypography.caption(.semibold))
+                        .foregroundStyle(TBColor.gold)
+                }
+
+                Spacer()
+
+                Button {
+                    if password == storedPassword {
+                        onUnlock()
+                    } else {
+                        showError = true
+                    }
+                } label: {
+                    Text("Unlock")
+                        .font(TBTypography.body(.semibold))
+                        .foregroundStyle(Color.black.opacity(0.86))
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 48)
+                        .background(
+                            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                .fill(TBColor.primaryAccent)
+                        )
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(20)
+            .background(TBColor.background.ignoresSafeArea())
+            .navigationTitle("Unlock")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel", action: onCancel)
+                        .foregroundStyle(TBColor.textSecondary)
+                }
+            }
+        }
+    }
+}
+
+fileprivate enum TimeBiteTab: String, CaseIterable, Identifiable {
     case actions
     case goals
     case track
     case reflect
+    case admin
 
     var id: String { rawValue }
 
@@ -50,16 +249,19 @@ private enum TimeBiteTab: String, CaseIterable, Identifiable {
             return "Track"
         case .reflect:
             return "Reflect"
+        case .admin:
+            return "Admin"
         }
     }
 }
 
 private struct TimeBiteTabBar: View {
     @Binding var selectedTab: TimeBiteTab
+    let availableTabs: [TimeBiteTab]
 
     var body: some View {
         HStack(spacing: 0) {
-            ForEach(TimeBiteTab.allCases) { tab in
+            ForEach(availableTabs) { tab in
                 Button {
                     withAnimation(.spring(response: 0.28, dampingFraction: 0.88)) {
                         selectedTab = tab
@@ -137,6 +339,8 @@ private struct TimeBiteTabItem: View {
             tabIconShape(TrackWaveIcon(), lineWidth: lineWidth)
         case .reflect:
             tabIconShape(ReflectCrescentIcon(), lineWidth: lineWidth)
+        case .admin:
+            tabIconShape(AdminKeyIcon(), lineWidth: lineWidth)
         }
     }
 
@@ -255,6 +459,34 @@ private struct ReflectCrescentIcon: Shape {
             endAngle: .degrees(108),
             clockwise: true
         )
+
+        return path
+    }
+}
+
+private struct AdminKeyIcon: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let scale = min(rect.width, rect.height) / 24
+        func point(_ x: CGFloat, _ y: CGFloat) -> CGPoint {
+            CGPoint(
+                x: rect.minX + x * scale,
+                y: rect.minY + y * scale
+            )
+        }
+
+        path.addEllipse(in: CGRect(
+            x: rect.minX + 3 * scale,
+            y: rect.minY + 5 * scale,
+            width: 8 * scale,
+            height: 8 * scale
+        ))
+        path.move(to: point(10, 12))
+        path.addLine(to: point(21, 21))
+        path.move(to: point(16, 18))
+        path.addLine(to: point(18, 16))
+        path.move(to: point(18, 20))
+        path.addLine(to: point(20, 18))
 
         return path
     }

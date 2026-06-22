@@ -32,6 +32,22 @@ struct DashView: View {
         .init(title: "Recovery", progress: 0.34, status: "At Risk", tint: TBColor.gold)
     ]
 
+    private let aiProductivity = AIProductivitySnapshot(
+        sessionsToday: 6,
+        runtime: "3h 12m",
+        interventions: 11,
+        completionRate: 0.84,
+        timeSaved: "5.6h",
+        cost: "$3.42"
+    )
+
+    private let aiReflectionPrompts = [
+        "Did AI help you make meaningful progress today?",
+        "What task benefited most from AI?",
+        "What required human judgment?",
+        "What should be automated next?"
+    ]
+
     private let insights: [InsightCard] = [
         .init(
             title: "Best focus block is mid-morning",
@@ -55,7 +71,9 @@ struct DashView: View {
                     kpiGrid
                     focusChart
                     categoryDonut
+                    aiProductivityCard
                     goalProgressCard
+                    aiReflectionCard
                     insightStack
                 }
                 .padding(16)
@@ -167,6 +185,103 @@ struct DashView: View {
         }
     }
 
+    private var aiProductivityCard: some View {
+        TBCard {
+            VStack(alignment: .leading, spacing: 14) {
+                HStack(alignment: .top) {
+                    sectionHeader(
+                        title: "AI Productivity",
+                        subtitle: "Whether agent work moved real goals forward"
+                    )
+
+                    Spacer()
+
+                    Image(systemName: "sparkles")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(TBColor.primaryAccent)
+                        .frame(width: 36, height: 36)
+                        .background(Circle().fill(TBColor.primaryAccent.opacity(0.13)))
+                }
+
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 2), spacing: 10) {
+                    aiMetric("AI Sessions Today", value: "\(aiProductivity.sessionsToday)", tint: TBColor.primaryAccent)
+                    aiMetric("Agent Runtime", value: aiProductivity.runtime, tint: Color(red: 0.39, green: 0.77, blue: 0.98))
+                    aiMetric("Human Interventions", value: "\(aiProductivity.interventions)", tint: TBColor.gold)
+                    aiMetric("Completion Rate", value: "\(Int(aiProductivity.completionRate * 100))%", tint: TBColor.primaryAccent)
+                    aiMetric("Estimated Time Saved", value: aiProductivity.timeSaved, tint: Color(red: 0.92, green: 0.47, blue: 0.82))
+                    aiMetric("Estimated Cost", value: aiProductivity.cost, tint: TBColor.textSecondary)
+                }
+
+                VStack(alignment: .leading, spacing: 7) {
+                    HStack {
+                        Text("AI Leverage Score")
+                            .font(TBTypography.caption(.semibold))
+                            .foregroundStyle(TBColor.textSecondary)
+                        Spacer()
+                        Text("7.8")
+                            .font(TBTypography.caption(.semibold))
+                            .foregroundStyle(TBColor.primaryAccent)
+                    }
+
+                    ProgressView(value: 0.78)
+                        .tint(TBColor.primaryAccent)
+                }
+            }
+        }
+    }
+
+    private var aiReflectionCard: some View {
+        TBCard {
+            VStack(alignment: .leading, spacing: 12) {
+                sectionHeader(
+                    title: "AI Reflection",
+                    subtitle: "Optional prompts for judging the collaboration, not just counting it"
+                )
+
+                ForEach(aiReflectionPrompts, id: \.self) { prompt in
+                    HStack(alignment: .top, spacing: 10) {
+                        Circle()
+                            .fill(TBColor.primaryAccent.opacity(0.72))
+                            .frame(width: 6, height: 6)
+                            .padding(.top, 6)
+
+                        Text(prompt)
+                            .font(TBTypography.caption(.semibold))
+                            .foregroundStyle(TBColor.textPrimary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+            }
+        }
+    }
+
+    private func aiMetric(_ title: String, value: String, tint: Color) -> some View {
+        VStack(alignment: .leading, spacing: 7) {
+            Text(value)
+                .font(.system(size: 20, weight: .bold, design: .rounded))
+                .foregroundStyle(TBColor.textPrimary)
+
+            Text(title)
+                .font(TBTypography.caption(.semibold))
+                .foregroundStyle(TBColor.textSecondary)
+                .fixedSize(horizontal: false, vertical: true)
+
+            Capsule(style: .continuous)
+                .fill(tint)
+                .frame(width: 24, height: 3)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(TBColor.surface.opacity(0.76))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .stroke(tint.opacity(0.16), lineWidth: 1)
+                )
+        )
+    }
+
     private var goalProgressCard: some View {
         TBCard {
             VStack(alignment: .leading, spacing: 12) {
@@ -271,6 +386,15 @@ private struct GoalRow: Identifiable {
     let progress: Double
     let status: String
     let tint: Color
+}
+
+private struct AIProductivitySnapshot {
+    let sessionsToday: Int
+    let runtime: String
+    let interventions: Int
+    let completionRate: Double
+    let timeSaved: String
+    let cost: String
 }
 
 private struct InsightCard: Identifiable {
