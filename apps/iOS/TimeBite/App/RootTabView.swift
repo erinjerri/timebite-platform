@@ -1,5 +1,4 @@
 import SwiftUI
-import UIKit
 
 struct RootTabView: View {
     @AppStorage("isAdmin") private var isAdmin = false
@@ -27,8 +26,8 @@ struct RootTabView: View {
                 .padding(.leading, 18)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            bottomNavigationInset
+        .overlay(alignment: .bottom) {
+            bottomNavigationBar
         }
         .ignoresSafeArea(.keyboard)
         .sheet(isPresented: $showingAdminUnlock) {
@@ -54,14 +53,7 @@ struct RootTabView: View {
         }
     }
 
-    private var bottomSafeAreaPadding: CGFloat {
-        let inset = UIApplication.shared.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .first?.keyWindow?.safeAreaInsets.bottom ?? 0
-        return max(inset, 8)
-    }
-
-    private var bottomNavigationInset: some View {
+    private var bottomNavigationBar: some View {
         VStack(spacing: 4) {
             appVersionUnlock
 
@@ -69,7 +61,7 @@ struct RootTabView: View {
                 .padding(.horizontal, 16)
         }
         .padding(.top, 6)
-        .padding(.bottom, bottomSafeAreaPadding)
+        .padding(.bottom, 8)
         .background(
             LinearGradient(
                 colors: [
