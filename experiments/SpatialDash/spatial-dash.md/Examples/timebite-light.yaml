@@ -1,0 +1,61 @@
+spatial_environment:
+  id: timebite-light
+  name: TimeBite Light
+  intent: focus
+  mood: calm
+  style: minimal
+  energy: low
+  density: balanced
+  brightness: light
+
+surfaces:
+  action:
+    emphasis: current_timer
+    density: minimal
+  track:
+    emphasis: cycle_history
+    density: minimal
+  goals:
+    emphasis: weekly_targets
+    density: balanced
+  dashboard:
+    emphasis: data_viz
+    density: balanced
+
+tokens:
+  colors:
+    background: "#F7F7F2"
+    surface: "#FFFFFF"
+    primaryText: "#111827"
+    secondaryText: "#6B7280"
+    accent: "#7C8F6A"
+    ringPrimary: "#9CAF88"
+    ringSecondary: "#D8E2C8"
+  material:
+    surface: matte
+    blur: low
+    opacity: 0.96
+  spacing:
+    compact: 8
+    standard: 16
+    spacious: 24
+  motion:
+    duration: 0.32
+    curve: easeInOut
+    intensity: low
+  lighting:
+    mode: ambient
+    shadow: soft
+    contrast: low
+
+avatar:
+  enabled: false
+  style: none
+  behavior: none
+
+constraints:
+  preserve_core_navigation: true
+  preserve_torus_geometry: true
+  max_motion_intensity: safe
+  min_text_contrast: accessible
+
