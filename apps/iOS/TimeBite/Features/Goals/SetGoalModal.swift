@@ -1,0 +1,372 @@
+import SwiftData
+import SwiftUI
+
+struct SetGoalModal: View {
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
+
+    let goal: Goal?
+
+    @State private var title = ""
+    @State private var description = ""
+    @State private var startDate = Date()
+    @State private var dueDate = Date()
+    @State private var goalType = GoalType.shortTerm
+    @State private var category = ""
+    @State private var considerations = ""
+    @State private var blockers = ""
+    @State private var resources = ""
+    @State private var successCriteria = ""
+    @State private var nextAction = ""
+    @State private var milestones = ""
+    @State private var showValidation = false
+    @State private var saveError: String?
+
+    private var isEditing: Bool {
+        goal != nil
+    }
+
+    private var isValid: Bool {
+        !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    intro
+
+                    goalField("Title", isRequired: true) {
+                        styledTextField("Launch TimeBite MVP", text: $title)
+                    }
+
+                    goalField("Description") {
+                        styledEditor(text: $description, minHeight: 86)
+                    }
+
+                    HStack(spacing: 12) {
+                        goalField("Start Date") {
+                            styledDatePicker(selection: $startDate)
+                        }
+
+                        goalField("Due Date", isRequired: true) {
+                            styledDatePicker(selection: $dueDate)
+                        }
+                    }
+
+                    goalField("Goal Type") {
+                        Picker("Goal Type", selection: $goalType) {
+                            ForEach(GoalType.allCases) { type in
+                                Text(type.title).tag(type)
+                            }
+                        }
+                        .pickerStyle(.segmented)
+                    }
+
+                    goalField("Category") {
+                        styledTextField("Build, Growth, Health", text: $category)
+                    }
+
+                    goalField("Considerations") {
+                        styledEditor(text: $considerations, minHeight: 74)
+                    }
+
+                    goalField("Blockers") {
+                        styledEditor(text: $blockers, minHeight: 74)
+                    }
+
+                    goalField("Resources") {
+                        styledEditor(text: $resources, minHeight: 74)
+                    }
+
+                    goalField("Success Criteria") {
+                        styledEditor(text: $successCriteria, minHeight: 74)
+                    }
+
+                    goalField("Next Action") {
+                        styledEditor(text: $nextAction, minHeight: 74)
+                    }
+
+                    goalField("Milestones") {
+                        VStack(alignment: .leading, spacing: 8) {
+                            styledEditor(text: $milestones, minHeight: 104)
+
+                            Text("Add one milestone per line.")
+                                .font(TBTypography.caption())
+                                .foregroundStyle(TBColor.textSecondary)
+                        }
+                    }
+
+                    if showValidation && !isValid {
+                        validationMessage("Title is required.")
+                    }
+
+                    if let saveError {
+                        validationMessage(saveError)
+                    }
+                }
+                .padding(16)
+                .padding(.bottom, 24)
+            }
+            .background(background)
+            .navigationTitle(isEditing ? "Edit Goal" : "Set Goal")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                    .foregroundStyle(TBColor.textSecondary)
+                }
+
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        save()
+                    }
+                    .fontWeight(.semibold)
+                    .foregroundStyle(TBColor.primaryAccent)
+                }
+            }
+            .onAppear(perform: load)
+        }
+    }
+
+    private var intro: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(isEditing ? "Refine the commitment." : "Turn intent into a clear commitment.")
+                .font(TBTypography.title(.title3, weight: .semibold))
+                .foregroundStyle(TBColor.textPrimary)
+
+            Text("Capture the shape of the goal now; cards and timelines can build from the same source later.")
+                .font(TBTypography.caption())
+                .foregroundStyle(TBColor.textSecondary)
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .fill(TBColor.surface)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 22, style: .continuous)
+                        .stroke(TBColor.primaryAccent.opacity(0.18), lineWidth: 1)
+                )
+        )
+    }
+
+    private var background: some View {
+        LinearGradient(
+            colors: [
+                TBColor.background,
+                Color(red: 0.03, green: 0.11, blue: 0.14),
+                TBColor.background
+            ],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+        .ignoresSafeArea()
+    }
+
+    private func goalField<Content: View>(
+        _ label: String,
+        isRequired: Bool = false,
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 4) {
+                Text(label)
+                    .font(TBTypography.caption(.semibold))
+                    .foregroundStyle(TBColor.textSecondary)
+
+                if isRequired {
+                    Text("*")
+                        .font(TBTypography.caption(.semibold))
+                        .foregroundStyle(TBColor.primaryAccent)
+                }
+            }
+
+            content()
+        }
+    }
+
+    private func styledTextField(_ placeholder: String, text: Binding<String>) -> some View {
+        TextField(placeholder, text: text)
+            .font(TBTypography.body(.semibold))
+            .foregroundStyle(TBColor.textPrimary)
+            .textInputAutocapitalization(.sentences)
+            .padding(14)
+            .background(inputBackground)
+    }
+
+    private func styledEditor(text: Binding<String>, minHeight: CGFloat) -> some View {
+        TextEditor(text: text)
+            .font(TBTypography.body())
+            .foregroundStyle(TBColor.textPrimary)
+            .scrollContentBackground(.hidden)
+            .frame(minHeight: minHeight)
+            .padding(10)
+            .background(inputBackground)
+    }
+
+    private func styledDatePicker(selection: Binding<Date>) -> some View {
+        DatePicker("", selection: selection, displayedComponents: .date)
+            .labelsHidden()
+            .datePickerStyle(.compact)
+            .tint(TBColor.primaryAccent)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(12)
+            .background(inputBackground)
+    }
+
+    private var inputBackground: some View {
+        RoundedRectangle(cornerRadius: 16, style: .continuous)
+            .fill(TBColor.surfaceElevated.opacity(0.82))
+            .overlay(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .stroke(TBColor.border, lineWidth: 1)
+            )
+    }
+
+    private func validationMessage(_ message: String) -> some View {
+        Text(message)
+            .font(TBTypography.caption(.semibold))
+            .foregroundStyle(TBColor.gold)
+            .padding(12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(TBColor.gold.opacity(0.12))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .stroke(TBColor.gold.opacity(0.24), lineWidth: 1)
+                    )
+            )
+    }
+
+    private func load() {
+        guard let goal else { return }
+
+        title = goal.title
+        description = goal.goalDescription
+        startDate = goal.startDate
+        dueDate = goal.dueDate
+        goalType = GoalType(rawValue: goal.goalType) ?? .shortTerm
+        category = goal.category
+        considerations = goal.considerations
+        blockers = goal.blockers
+        resources = goal.resources
+        successCriteria = goal.successCriteria
+        nextAction = goal.nextAction
+        milestones = fetchMilestoneTitles(goalId: goal.id).joined(separator: "\n")
+    }
+
+    private func save() {
+        showValidation = true
+        saveError = nil
+
+        guard isValid else { return }
+
+        do {
+            let savedGoal = try saveGoal()
+            try replaceMilestones(for: savedGoal)
+            try modelContext.save()
+            dismiss()
+        } catch {
+            saveError = "Unable to save this goal. Please try again."
+        }
+    }
+
+    private func saveGoal() throws -> Goal {
+        let cleanTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if let goal {
+            goal.title = cleanTitle
+            goal.goalDescription = description
+            goal.startDate = startDate
+            goal.dueDate = dueDate
+            goal.goalType = goalType.title
+            goal.category = category
+            goal.considerations = considerations
+            goal.blockers = blockers
+            goal.resources = resources
+            goal.successCriteria = successCriteria
+            goal.nextAction = nextAction
+            goal.updatedAt = .now
+            return goal
+        }
+
+        let goal = Goal(
+            title: cleanTitle,
+            description: description,
+            category: category,
+            goalType: goalType.title,
+            startDate: startDate,
+            dueDate: dueDate,
+            progress: 0,
+            status: "Pending",
+            considerations: considerations,
+            blockers: blockers,
+            resources: resources,
+            successCriteria: successCriteria,
+            nextAction: nextAction
+        )
+        modelContext.insert(goal)
+        return goal
+    }
+
+    private func fetchMilestoneTitles(goalId: UUID) -> [String] {
+        let descriptor = FetchDescriptor<Milestone>(
+            predicate: #Predicate { milestone in
+                milestone.goalId == goalId
+            },
+            sortBy: [SortDescriptor(\.dueDate, order: .forward)]
+        )
+
+        return (try? modelContext.fetch(descriptor).map(\.title)) ?? []
+    }
+
+    private func replaceMilestones(for goal: Goal) throws {
+        let goalId = goal.id
+        let descriptor = FetchDescriptor<Milestone>(
+            predicate: #Predicate { milestone in
+                milestone.goalId == goalId
+            }
+        )
+        let existingMilestones = try modelContext.fetch(descriptor)
+        existingMilestones.forEach(modelContext.delete)
+
+        let titles = milestones
+            .components(separatedBy: .newlines)
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+
+        for (index, title) in titles.enumerated() {
+            let dueDate = Calendar.current.date(byAdding: .day, value: index * 7, to: startDate) ?? startDate
+            modelContext.insert(
+                Milestone(
+                    goalId: goalId,
+                    title: title,
+                    dueDate: min(dueDate, goal.dueDate),
+                    status: "Pending"
+                )
+            )
+        }
+    }
+}
+
+private enum GoalType: String, CaseIterable, Identifiable {
+    case shortTerm = "Short Term"
+    case intermediate = "Intermediate"
+    case longTerm = "Long Term"
+
+    var id: String { rawValue }
+    var title: String { rawValue }
+}
+
+#if DEBUG
+struct SetGoalModal_Previews: PreviewProvider {
+    static var previews: some View {
+        SetGoalModal(goal: nil)
+            .modelContainer(GoalPreviewData.modelContainer)
+            .preferredColorScheme(.dark)
+    }
+}
+#endif
