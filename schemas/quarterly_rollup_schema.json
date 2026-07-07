@@ -1,0 +1,15 @@
+{
+  "quarter": "string (format YYYY-QN, example: 2026-Q3)",
+  "goals": [
+    {
+      "goal_id": "uuid",
+      "title": "string",
+      "pillar": "work | personal | admin",
+      "target_minutes": "integer",
+      "logged_minutes": "integer (server-computed)",
+      "percent_complete": "number (server-computed; never submitted by client)",
+      "task_count": "integer",
+      "completed_task_count": "integer"
+    }
+  ]
+}

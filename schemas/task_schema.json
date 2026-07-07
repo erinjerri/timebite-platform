@@ -3,5 +3,9 @@
   "title": "string",
   "category": "work | personal | admin",
   "duration_minutes": "number",
-  "status": "pending | running | complete"
+  "status": "pending | running | complete",
+  "time_allotted_minutes": "integer (required, planned duration)",
+  "time_spent_minutes": "integer | null (actual duration on completion)",
+  "goal_id": "uuid | null (foreign key to goal_schema.goal_id)",
+  "completed_at": "ISO 8601 timestamp | null"
 }

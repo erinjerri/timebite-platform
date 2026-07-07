@@ -36,6 +36,14 @@ Built across:
   - category allocation (bars)
   - contribution grid (GitHub-style history)
   - cycle score + feedback
+  - quarterly goal progress from completed task time
+
+### Quarterly Goal Chart
+
+- Goals belong to a quarter and carry a target time budget
+- Completed tasks fill goal progress using captured time
+- `percent_complete` is server-computed; clients render the rollup but never submit progress percentages
+- Notion mirrors quarterly rollups read-only, consistent with TimeBite's write-primary rule
 
 ### Constrained assistant (tight RAG)
 
@@ -62,6 +70,14 @@ Admin       — 2h 10m █████░░░░
 Personal    — 0h 30m █░░░░░░░░
 ```
 
+### Quarterly Goal Chart (example)
+
+```text
+[ Q3 2026 ]
+Ship TimeBite MVP — 42h of 60h ███████░░░ 70%  (18/24 tasks)
+Book pitch draft  —  6h of 20h ███░░░░░░░ 30%  (3/10 tasks)
+```
+
 ---
 
 ## Repository layout (current)
@@ -73,7 +89,8 @@ timebite-platform/
 ├── apps/                    # Placeholder targets: iOS, visionOS, macOS
 ├── docs/                    # e.g. system-architecture.md
 ├── specs/                   # e.g. torus_environment.md
-├── schemas/                 # Shared JSON shapes (e.g. task_schema.json)
+├── schemas/                 # Shared JSON shapes for tasks, goals, and quarterly rollups
+├── backend/                 # Services and API routes for cycles and goal rollups
 ├── research/
 │   └── auto_research/       # Research CLI, autoresearch package, outputs
 ├── README.md
@@ -123,6 +140,11 @@ timebite-platform/
 │   │       │   │       └── PercentageLabel.swift
 │   │       │   │
 │   │       │   ├── tasks/
+│   │       │   ├── goals/
+│   │       │   │   ├── Views/
+│   │       │   │   │   └── QuarterlyGoalChartView.swift
+│   │       │   │   └── ViewModels/
+│   │       │   │       └── QuarterlyGoalViewModel.swift
 │   │       │   ├── planner/
 │   │       │   ├── insights/
 │   │       │   └── assistant/
@@ -182,6 +204,10 @@ timebite-platform/
 │   │   │   ├── cycle_engine.py
 │   │   │   └── scoring.py
 │   │   │
+│   │   ├── goals/
+│   │   │   ├── quarterly_rollup.py
+│   │   │   └── task_completion_handler.py
+│   │   │
 │   │   ├── agents/
 │   │   │   ├── green_agent/
 │   │   │   ├── purple_agent/
@@ -203,9 +229,14 @@ timebite-platform/
 │   │   └── telemetry/
 │   │
 │   └── api/
+│       └── goals_quarterly.py
 │
 ├── shared/
 ├── docs/
+├── schemas/
+│   ├── task_schema.json
+│   ├── goal_schema.json
+│   └── quarterly_rollup_schema.json
 ├── research/
 └── scripts/
 ```

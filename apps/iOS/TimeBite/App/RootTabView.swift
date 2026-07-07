@@ -83,10 +83,12 @@ struct RootTabView: View {
             ActionView()
         case .goals:
             GoalsView()
+        case .finance:
+            FinanceDashboardView()
         case .track:
             TrackView()
-        case .reflect:
-            DashView()
+        case .settings:
+            SettingsView()
         case .admin:
             AdminView(onLock: {
                 isAdmin = false
@@ -138,20 +140,20 @@ struct RootTabView: View {
 private struct RootTabView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
-            RootTabView(initialTab: .reflect)
+            RootTabView(initialTab: .settings)
                 .preferredColorScheme(.dark)
                 .previewDevice("iPhone 16e")
-                .previewDisplayName("Reflect - iPhone 16e")
+                .previewDisplayName("Settings - iPhone 16e")
 
-            RootTabView(initialTab: .reflect)
+            RootTabView(initialTab: .settings)
                 .preferredColorScheme(.dark)
                 .previewDevice("iPhone 16 Pro")
-                .previewDisplayName("Reflect - iPhone 16 Pro")
+                .previewDisplayName("Settings - iPhone 16 Pro")
 
-            RootTabView(initialTab: .reflect)
+            RootTabView(initialTab: .settings)
                 .preferredColorScheme(.dark)
                 .previewDevice("iPhone 17 Pro")
-                .previewDisplayName("Reflect - iPhone 17 Pro")
+                .previewDisplayName("Settings - iPhone 17 Pro")
         }
     }
 }
@@ -236,8 +238,9 @@ private struct AdminUnlockSheet: View {
 fileprivate enum TimeBiteTab: String, CaseIterable, Identifiable {
     case actions
     case goals
+    case finance
     case track
-    case reflect
+    case settings
     case admin
 
     var id: String { rawValue }
@@ -248,10 +251,12 @@ fileprivate enum TimeBiteTab: String, CaseIterable, Identifiable {
             return "Actions"
         case .goals:
             return "Goals"
+        case .finance:
+            return "Finance"
         case .track:
             return "Track"
-        case .reflect:
-            return "Reflect"
+        case .settings:
+            return "Settings"
         case .admin:
             return "Admin"
         }
@@ -338,10 +343,14 @@ private struct TimeBiteTabItem: View {
             tabIconShape(ActionSparkIcon(), lineWidth: lineWidth)
         case .goals:
             tabIconShape(GoalRingsIcon(), lineWidth: lineWidth)
+        case .finance:
+            Image(systemName: "creditcard.fill")
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundStyle(isSelected ? AnyShapeStyle(activeGradient) : AnyShapeStyle(Color(hex: 0x5A6072)))
         case .track:
             tabIconShape(TrackWaveIcon(), lineWidth: lineWidth)
-        case .reflect:
-            tabIconShape(ReflectCrescentIcon(), lineWidth: lineWidth)
+        case .settings:
+            tabIconShape(SettingsGearIcon(), lineWidth: lineWidth)
         case .admin:
             tabIconShape(AdminKeyIcon(), lineWidth: lineWidth)
         }
@@ -440,27 +449,44 @@ private struct TrackWaveIcon: Shape {
     }
 }
 
-private struct ReflectCrescentIcon: Shape {
+private struct SettingsGearIcon: Shape {
     func path(in rect: CGRect) -> Path {
         var path = Path()
         let side = min(rect.width, rect.height)
         let scale = side / 24
-        let center = CGPoint(x: rect.midX - 1.3 * scale, y: rect.midY)
-        let innerCenter = CGPoint(x: rect.midX + 4.2 * scale, y: rect.midY - 0.4 * scale)
+        let center = CGPoint(x: rect.midX, y: rect.midY)
+        let outerRadius: CGFloat = 8.2 * scale
+        let innerRadius: CGFloat = 3.5 * scale
 
-        path.addArc(
-            center: center,
-            radius: 8.7 * scale,
-            startAngle: .degrees(104),
-            endAngle: .degrees(256),
-            clockwise: false
+        for index in 0..<8 {
+            let angle = CGFloat(index) * .pi / 4
+            let start = CGPoint(
+                x: center.x + cos(angle) * outerRadius,
+                y: center.y + sin(angle) * outerRadius
+            )
+            let end = CGPoint(
+                x: center.x + cos(angle) * 10.4 * scale,
+                y: center.y + sin(angle) * 10.4 * scale
+            )
+            path.move(to: start)
+            path.addLine(to: end)
+        }
+
+        path.addEllipse(
+            in: CGRect(
+                x: center.x - outerRadius,
+                y: center.y - outerRadius,
+                width: outerRadius * 2,
+                height: outerRadius * 2
+            )
         )
-        path.addArc(
-            center: innerCenter,
-            radius: 7.2 * scale,
-            startAngle: .degrees(252),
-            endAngle: .degrees(108),
-            clockwise: true
+        path.addEllipse(
+            in: CGRect(
+                x: center.x - innerRadius,
+                y: center.y - innerRadius,
+                width: innerRadius * 2,
+                height: innerRadius * 2
+            )
         )
 
         return path

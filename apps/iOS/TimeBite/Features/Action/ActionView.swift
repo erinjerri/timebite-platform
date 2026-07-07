@@ -10,6 +10,7 @@ struct ActionView: View {
         .init(title: "Polish timer controls and states", minutes: 12, isDone: false),
         .init(title: "Add one more pass of realism", minutes: 10, isDone: false)
     ]
+    @State private var completionCapture: TaskCompletionCapture?
 
     private let tick = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
@@ -18,6 +19,9 @@ struct ActionView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     heroCard
+                    if let completionCapture {
+                        inlineCompletionCapture(completionCapture)
+                    }
                     timerCard
                     subtasksCard
                 }
@@ -191,6 +195,53 @@ struct ActionView: View {
     private func toggle(_ step: ActionStep) {
         guard let index = steps.firstIndex(where: { $0.id == step.id }) else { return }
         steps[index].isDone.toggle()
+
+        if steps[index].isDone {
+            let capture = TaskCompletionCapture(
+                goalID: "goal-timebite",
+                goalTitle: "Ship TimeBite Quarterly Chart",
+                minutes: step.minutes
+            )
+            withAnimation(.spring(response: 0.28, dampingFraction: 0.86)) {
+                completionCapture = capture
+            }
+            NotificationCenter.default.post(
+                name: .timeBiteTaskCompleted,
+                object: nil,
+                userInfo: [
+                    "goalID": capture.goalID,
+                    "goalTitle": capture.goalTitle,
+                    "minutes": capture.minutes
+                ]
+            )
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
+                withAnimation(.easeOut(duration: 0.22)) {
+                    completionCapture = nil
+                }
+            }
+        }
+    }
+
+    private func inlineCompletionCapture(_ capture: TaskCompletionCapture) -> some View {
+        HStack(spacing: 10) {
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 16, weight: .bold))
+                .foregroundStyle(TBColor.primaryAccent)
+
+            Text("+\(capture.minutes)m -> \(capture.goalTitle)")
+                .font(TBTypography.caption(.semibold))
+                .foregroundStyle(TBColor.textPrimary)
+
+            Spacer()
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(TBColor.primaryAccent.opacity(0.12))
+                .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(TBColor.primaryAccent.opacity(0.24), lineWidth: 1))
+        )
+        .transition(.move(edge: .top).combined(with: .opacity))
     }
 
     private func pill(label: String, systemName: String, tint: Color? = nil) -> some View {
@@ -256,4 +307,3 @@ struct ActionView_Previews: PreviewProvider {
     }
 }
 #endif
-

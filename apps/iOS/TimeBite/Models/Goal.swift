@@ -17,6 +17,8 @@ final class Goal {
     var resources: String
     var successCriteria: String
     var nextAction: String
+    var quarter: String
+    var targetMinutes: Int
     var createdAt: Date
     var updatedAt: Date
 
@@ -35,6 +37,8 @@ final class Goal {
         resources: String = "",
         successCriteria: String = "",
         nextAction: String = "",
+        quarter: String = Date.currentQuarterIdentifier,
+        targetMinutes: Int = 0,
         createdAt: Date = .now,
         updatedAt: Date = .now
     ) {
@@ -52,7 +56,22 @@ final class Goal {
         self.resources = resources
         self.successCriteria = successCriteria
         self.nextAction = nextAction
+        self.quarter = quarter
+        self.targetMinutes = targetMinutes
         self.createdAt = createdAt
         self.updatedAt = updatedAt
+    }
+}
+
+extension Date {
+    static var currentQuarterIdentifier: String {
+        Date().quarterIdentifier
+    }
+
+    var quarterIdentifier: String {
+        let components = Calendar.current.dateComponents([.year, .month], from: self)
+        let month = components.month ?? 1
+        let quarter = ((month - 1) / 3) + 1
+        return "\(components.year ?? 2026)-Q\(quarter)"
     }
 }

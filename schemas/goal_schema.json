@@ -1,0 +1,15 @@
+{
+  "goal_id": "uuid",
+  "title": "string",
+  "pillar": "work | personal | admin",
+  "category": "work | personal | admin",
+  "quarter": "string (format YYYY-QN, example: 2026-Q3)",
+  "target_minutes": "integer",
+  "status": "active | completed | archived",
+  "created_at": "ISO 8601 timestamp",
+  "target_date": "ISO 8601 date",
+  "derived_server_computed": {
+    "logged_minutes": "integer (sum of completed child task time_spent_minutes, falling back to time_allotted_minutes)",
+    "percent_complete": "number (logged_minutes / target_minutes; never accepted from client submissions)"
+  }
+}

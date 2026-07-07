@@ -22,6 +22,14 @@
 	<string>1</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSHealthShareUsageDescription</key>
+	<string>TimeBite reads workout and activity minutes so your Track view can connect planned time with health-supporting movement.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>TimeBite can save completed focus or recovery sessions to Health when you choose to log them.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>TimeBite uses the microphone only when you dictate a task or reflection, turning your speech into task text.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>TimeBite uses speech recognition to transcribe dictated tasks and reflections so you can capture work without typing.</string>
 	<key>UIUserInterfaceStyle</key>
 	<string>Dark</string>
 	<key>UISupportedInterfaceOrientations</key>
@@ -29,6 +37,9 @@
 		<string>UIInterfaceOrientationPortrait</string>
 	</array>
 	<key>UILaunchScreen</key>
-	<dict/>
+	<dict>
+		<key>UIColorName</key>
+		<string>LaunchBackground</string>
+	</dict>
 </dict>
 </plist>
