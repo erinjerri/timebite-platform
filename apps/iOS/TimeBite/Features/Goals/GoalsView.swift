@@ -33,6 +33,7 @@ struct GoalsView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
                     header
+                    QuarterlyGoalChartView()
                     modeControls
 
                     if goals.isEmpty {

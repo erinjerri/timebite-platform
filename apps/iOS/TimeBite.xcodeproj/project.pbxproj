@@ -33,6 +33,13 @@
 		300000000000000000000018 /* TimeBite/Models/DailyAIReflection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000019 /* TimeBite/Models/DailyAIReflection.swift */; };
 		300000000000000000000019 /* TimeBite/Models/AIProductivityAnalytics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000001A /* TimeBite/Models/AIProductivityAnalytics.swift */; };
 		30000000000000000000001A /* TimeBite/Models/AgentToolIntegrations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000001B /* TimeBite/Models/AgentToolIntegrations.swift */; };
+		30000000000000000000001B /* TimeBite/Models/FinanceBill.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000001C /* TimeBite/Models/FinanceBill.swift */; };
+		30000000000000000000001C /* TimeBite/Features/Finance/FinanceDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000001D /* TimeBite/Features/Finance/FinanceDashboardView.swift */; };
+		30000000000000000000001D /* TimeBite/Features/Finance/FinanceNotificationScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000001E /* TimeBite/Features/Finance/FinanceNotificationScheduler.swift */; };
+		30000000000000000000001E /* Views/QuarterlyGoalChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000001F /* Views/QuarterlyGoalChartView.swift */; };
+		30000000000000000000001F /* ViewModels/QuarterlyGoalViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000020 /* ViewModels/QuarterlyGoalViewModel.swift */; };
+		300000000000000000000020 /* TimeBite/Features/Settings/SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000021 /* TimeBite/Features/Settings/SettingsView.swift */; };
+		300000000000000000000021 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000022 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -63,6 +70,13 @@
 		200000000000000000000019 /* TimeBite/Models/DailyAIReflection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Models/DailyAIReflection.swift; sourceTree = SOURCE_ROOT; };
 		20000000000000000000001A /* TimeBite/Models/AIProductivityAnalytics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Models/AIProductivityAnalytics.swift; sourceTree = SOURCE_ROOT; };
 		20000000000000000000001B /* TimeBite/Models/AgentToolIntegrations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Models/AgentToolIntegrations.swift; sourceTree = SOURCE_ROOT; };
+		20000000000000000000001C /* TimeBite/Models/FinanceBill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Models/FinanceBill.swift; sourceTree = SOURCE_ROOT; };
+		20000000000000000000001D /* TimeBite/Features/Finance/FinanceDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Features/Finance/FinanceDashboardView.swift; sourceTree = SOURCE_ROOT; };
+		20000000000000000000001E /* TimeBite/Features/Finance/FinanceNotificationScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Features/Finance/FinanceNotificationScheduler.swift; sourceTree = SOURCE_ROOT; };
+		20000000000000000000001F /* Views/QuarterlyGoalChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/QuarterlyGoalChartView.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000020 /* ViewModels/QuarterlyGoalViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModels/QuarterlyGoalViewModel.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000021 /* TimeBite/Features/Settings/SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Features/Settings/SettingsView.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000022 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -83,10 +97,15 @@
 				100000000000000000000003 /* Action */,
 				100000000000000000000004 /* Track */,
 				100000000000000000000005 /* Goals */,
+				100000000000000000000019 /* Finance */,
+				10000000000000000000001C /* Settings */,
+				10000000000000000000001A /* Views */,
+				10000000000000000000001B /* ViewModels */,
 				100000000000000000000006 /* Dash */,
 				100000000000000000000018 /* Admin */,
 				100000000000000000000007 /* Shared */,
 				100000000000000000000016 /* Models */,
+				200000000000000000000022 /* Assets.xcassets */,
 				100000000000000000000017 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -177,6 +196,7 @@
 				200000000000000000000019 /* TimeBite/Models/DailyAIReflection.swift */,
 				20000000000000000000001A /* TimeBite/Models/AIProductivityAnalytics.swift */,
 				20000000000000000000001B /* TimeBite/Models/AgentToolIntegrations.swift */,
+				20000000000000000000001C /* TimeBite/Models/FinanceBill.swift */,
 			);
 			name = Models;
 			sourceTree = "<group>";
@@ -195,6 +215,39 @@
 				200000000000000000000015 /* TimeBite/Features/Admin/AdminView.swift */,
 			);
 			name = Admin;
+			sourceTree = "<group>";
+		};
+		100000000000000000000019 /* Finance */ = {
+			isa = PBXGroup;
+			children = (
+				20000000000000000000001D /* TimeBite/Features/Finance/FinanceDashboardView.swift */,
+				20000000000000000000001E /* TimeBite/Features/Finance/FinanceNotificationScheduler.swift */,
+			);
+			name = Finance;
+			sourceTree = "<group>";
+		};
+		10000000000000000000001A /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				20000000000000000000001F /* Views/QuarterlyGoalChartView.swift */,
+			);
+			name = Views;
+			sourceTree = "<group>";
+		};
+		10000000000000000000001B /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				200000000000000000000020 /* ViewModels/QuarterlyGoalViewModel.swift */,
+			);
+			name = ViewModels;
+			sourceTree = "<group>";
+		};
+		10000000000000000000001C /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				200000000000000000000021 /* TimeBite/Features/Settings/SettingsView.swift */,
+			);
+			name = Settings;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -255,6 +308,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				300000000000000000000021 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -291,6 +345,12 @@
 				300000000000000000000018 /* TimeBite/Models/DailyAIReflection.swift in Sources */,
 				300000000000000000000019 /* TimeBite/Models/AIProductivityAnalytics.swift in Sources */,
 				30000000000000000000001A /* TimeBite/Models/AgentToolIntegrations.swift in Sources */,
+				30000000000000000000001B /* TimeBite/Models/FinanceBill.swift in Sources */,
+				30000000000000000000001C /* TimeBite/Features/Finance/FinanceDashboardView.swift in Sources */,
+				30000000000000000000001D /* TimeBite/Features/Finance/FinanceNotificationScheduler.swift in Sources */,
+				30000000000000000000001E /* Views/QuarterlyGoalChartView.swift in Sources */,
+				30000000000000000000001F /* ViewModels/QuarterlyGoalViewModel.swift in Sources */,
+				300000000000000000000020 /* TimeBite/Features/Settings/SettingsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -301,6 +361,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = DHFA4423Z8;
@@ -322,6 +383,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = DHFA4423Z8;

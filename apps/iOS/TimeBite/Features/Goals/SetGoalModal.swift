@@ -13,6 +13,8 @@ struct SetGoalModal: View {
     @State private var dueDate = Date()
     @State private var goalType = GoalType.shortTerm
     @State private var category = ""
+    @State private var quarter = Date.currentQuarterIdentifier
+    @State private var targetHours = 0
     @State private var considerations = ""
     @State private var blockers = ""
     @State private var resources = ""
@@ -65,6 +67,21 @@ struct SetGoalModal: View {
 
                     goalField("Category") {
                         styledTextField("Build, Growth, Health", text: $category)
+                    }
+
+                    HStack(spacing: 12) {
+                        goalField("Quarter") {
+                            styledTextField("2026-Q3", text: $quarter)
+                                .textInputAutocapitalization(.characters)
+                        }
+
+                        goalField("Target Hours") {
+                            Stepper("\(targetHours)h", value: $targetHours, in: 0...1000, step: 1)
+                                .font(TBTypography.body(.semibold))
+                                .foregroundStyle(TBColor.textPrimary)
+                                .padding(12)
+                                .background(inputBackground)
+                        }
                     }
 
                     goalField("Considerations") {
@@ -250,6 +267,8 @@ struct SetGoalModal: View {
         dueDate = goal.dueDate
         goalType = GoalType(rawValue: goal.goalType) ?? .shortTerm
         category = goal.category
+        quarter = goal.quarter
+        targetHours = goal.targetMinutes / 60
         considerations = goal.considerations
         blockers = goal.blockers
         resources = goal.resources
@@ -284,6 +303,8 @@ struct SetGoalModal: View {
             goal.dueDate = dueDate
             goal.goalType = goalType.title
             goal.category = category
+            goal.quarter = normalizedQuarter
+            goal.targetMinutes = targetHours * 60
             goal.considerations = considerations
             goal.blockers = blockers
             goal.resources = resources
@@ -306,10 +327,17 @@ struct SetGoalModal: View {
             blockers: blockers,
             resources: resources,
             successCriteria: successCriteria,
-            nextAction: nextAction
+            nextAction: nextAction,
+            quarter: normalizedQuarter,
+            targetMinutes: targetHours * 60
         )
         modelContext.insert(goal)
         return goal
+    }
+
+    private var normalizedQuarter: String {
+        let cleanQuarter = quarter.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
+        return cleanQuarter.isEmpty ? Date.currentQuarterIdentifier : cleanQuarter
     }
 
     private func fetchMilestoneTitles(goalId: UUID) -> [String] {
