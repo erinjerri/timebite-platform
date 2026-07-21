@@ -22,6 +22,8 @@
 	<string>1</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>TIMEBITE_API_BASE_URL</key>
+	<string>$(TIMEBITE_API_BASE_URL)</string>
 	<key>NSHealthShareUsageDescription</key>
 	<string>TimeBite reads workout and activity minutes so your Track view can connect planned time with health-supporting movement.</string>
 	<key>NSMicrophoneUsageDescription</key>

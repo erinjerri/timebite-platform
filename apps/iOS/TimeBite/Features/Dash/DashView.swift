@@ -114,7 +114,7 @@ struct CompletionCalendarView: View {
             calendarHeader
             weekdayHeader
             dayGrid
-            CompletionLegend()
+            CompletionLegend(completedTint: model.completedTint)
             CompletionSummary(model: model, visibleMonth: visibleMonth, selectedDay: selectedDay)
         }
         .padding(18)
@@ -168,6 +168,7 @@ struct CompletionCalendarView: View {
             ForEach(gridDays) { day in
                 CompletionDayCell(
                     day: day,
+                    completedTint: model.completedTint,
                     isSelected: selectedDate.map { calendar.isDate($0, inSameDayAs: day.date) } ?? false
                 ) {
                     selectedDate = day.date
@@ -207,6 +208,7 @@ struct CompletionCalendarView: View {
 
 struct CompletionDayCell: View {
     let day: CompletionCalendarDay
+    let completedTint: Color
     let isSelected: Bool
     let action: () -> Void
     @State private var didAnimateSymbol = false
@@ -258,7 +260,7 @@ struct CompletionDayCell: View {
         case .partial:
             Image(systemName: "circle.lefthalf.filled")
                 .font(.system(size: 15, weight: .semibold))
-                .foregroundStyle(TBColor.gold)
+                .foregroundStyle(completedTint)
         case .missed:
             Image(systemName: "xmark")
                 .font(.system(size: 12, weight: .bold))
@@ -271,9 +273,9 @@ struct CompletionDayCell: View {
         case .empty:
             return TBColor.surfaceElevated.opacity(0.72)
         case .completed:
-            return TBColor.primaryAccent.opacity(0.82)
+            return completedTint.opacity(0.82)
         case .partial:
-            return TBColor.gold.opacity(0.18)
+            return completedTint.opacity(0.18)
         case .missed:
             return Color(red: 0.98, green: 0.55, blue: 0.46).opacity(0.15)
         }
@@ -288,9 +290,9 @@ struct CompletionDayCell: View {
         case .empty:
             return Color.white.opacity(0.10)
         case .completed:
-            return TBColor.primaryAccent.opacity(0.38)
+            return completedTint.opacity(0.38)
         case .partial:
-            return TBColor.gold.opacity(0.34)
+            return completedTint.opacity(0.34)
         case .missed:
             return Color(red: 0.98, green: 0.55, blue: 0.46).opacity(0.32)
         }
@@ -298,10 +300,12 @@ struct CompletionDayCell: View {
 }
 
 struct CompletionLegend: View {
+    let completedTint: Color
+
     var body: some View {
         HStack(spacing: 14) {
             legendItem(label: "Empty", symbol: "○", tint: TBColor.textSecondary)
-            legendItem(label: "Completed", symbol: "✓", tint: TBColor.primaryAccent)
+            legendItem(label: "Completed", symbol: "✓", tint: completedTint)
             legendItem(label: "Partial", symbol: "◐", tint: TBColor.gold)
             legendItem(label: "Missed", symbol: "✕", tint: Color(red: 0.98, green: 0.55, blue: 0.46))
         }
@@ -391,7 +395,7 @@ struct CompletionSummary: View {
     private func weeklyDot(_ day: CompletionCalendarDay) -> some View {
         VStack(spacing: 6) {
             Circle()
-                .fill(day.state.summaryTint)
+                .fill(day.state.summaryTint(completedTint: model.completedTint))
                 .frame(width: 14, height: 14)
                 .overlay(Circle().stroke(Color.white.opacity(0.12), lineWidth: 1))
             Text(model.shortWeekday(for: day.date))
@@ -438,6 +442,10 @@ struct CompletionCalendarModel {
 
     var goalTitle: String {
         goal?.title ?? "No goal selected"
+    }
+
+    var completedTint: Color {
+        goal.map { LifeAreaCatalog.color(for: $0.lifeArea) } ?? TBColor.primaryAccent
     }
 
     var weekdaySymbols: [String] {
@@ -686,14 +694,14 @@ enum CompletionState: Hashable {
         }
     }
 
-    var summaryTint: Color {
+    func summaryTint(completedTint: Color) -> Color {
         switch self {
         case .empty:
             return TBColor.surfaceElevated
         case .completed:
-            return TBColor.primaryAccent
+            return completedTint
         case .partial:
-            return TBColor.gold
+            return completedTint.opacity(0.72)
         case .missed:
             return Color(red: 0.98, green: 0.55, blue: 0.46)
         }

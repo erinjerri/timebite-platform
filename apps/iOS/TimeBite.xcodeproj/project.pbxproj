@@ -40,7 +40,27 @@
 		30000000000000000000001F /* ViewModels/QuarterlyGoalViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000020 /* ViewModels/QuarterlyGoalViewModel.swift */; };
 		300000000000000000000020 /* TimeBite/Features/Settings/SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000021 /* TimeBite/Features/Settings/SettingsView.swift */; };
 		300000000000000000000021 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000022 /* Assets.xcassets */; };
+		300000000000000000000022 /* TimeBite/Features/Finance/FinanceUnlockStage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000023 /* TimeBite/Features/Finance/FinanceUnlockStage.swift */; };
+		300000000000000000000023 /* TimeBite/Features/Finance/FinanceUnlockModal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000024 /* TimeBite/Features/Finance/FinanceUnlockModal.swift */; };
+		300000000000000000000024 /* TimeBite/Features/Finance/FinanceUnlockManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000025 /* TimeBite/Features/Finance/FinanceUnlockManager.swift */; };
+		300000000000000000000025 /* TimeBite/Features/Finance/FinanceUnlockViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000026 /* TimeBite/Features/Finance/FinanceUnlockViewModel.swift */; };
+		300000000000000000000026 /* TimeBite/Features/Finance/SetFinanceGoalModal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000027 /* TimeBite/Features/Finance/SetFinanceGoalModal.swift */; };
+		300000000000000000000027 /* TimeBite/Infrastructure/TimeBiteAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000028 /* TimeBite/Infrastructure/TimeBiteAPI.swift */; };
+		300000000000000000000028 /* TimeBite/Infrastructure/TimeBiteSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000029 /* TimeBite/Infrastructure/TimeBiteSync.swift */; };
+		300000000000000000000029 /* TimeBite/Infrastructure/PlaidLinkConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000002A /* TimeBite/Infrastructure/PlaidLinkConnector.swift */; };
+		30000000000000000000002A /* TimeBite/Authentication/AuthenticationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000002B /* TimeBite/Authentication/AuthenticationView.swift */; };
+		800000000000000000000004 /* DataArchitectureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 800000000000000000000003 /* DataArchitectureTests.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		80000000000000000000000B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 10000000000000000000000A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 10000000000000000000000C;
+			remoteInfo = TimeBite;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		200000000000000000000001 /* TimeBite/App/TimeBiteApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/App/TimeBiteApp.swift; sourceTree = SOURCE_ROOT; };
@@ -77,10 +97,28 @@
 		200000000000000000000020 /* ViewModels/QuarterlyGoalViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModels/QuarterlyGoalViewModel.swift; sourceTree = SOURCE_ROOT; };
 		200000000000000000000021 /* TimeBite/Features/Settings/SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Features/Settings/SettingsView.swift; sourceTree = SOURCE_ROOT; };
 		200000000000000000000022 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = SOURCE_ROOT; };
+		200000000000000000000023 /* TimeBite/Features/Finance/FinanceUnlockStage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Features/Finance/FinanceUnlockStage.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000024 /* TimeBite/Features/Finance/FinanceUnlockModal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Features/Finance/FinanceUnlockModal.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000025 /* TimeBite/Features/Finance/FinanceUnlockManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Features/Finance/FinanceUnlockManager.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000026 /* TimeBite/Features/Finance/FinanceUnlockViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Features/Finance/FinanceUnlockViewModel.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000027 /* TimeBite/Features/Finance/SetFinanceGoalModal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Features/Finance/SetFinanceGoalModal.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000028 /* TimeBite/Infrastructure/TimeBiteAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Infrastructure/TimeBiteAPI.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000029 /* TimeBite/Infrastructure/TimeBiteSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Infrastructure/TimeBiteSync.swift; sourceTree = SOURCE_ROOT; };
+		20000000000000000000002A /* TimeBite/Infrastructure/PlaidLinkConnector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Infrastructure/PlaidLinkConnector.swift; sourceTree = SOURCE_ROOT; };
+		20000000000000000000002B /* TimeBite/Authentication/AuthenticationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Authentication/AuthenticationView.swift; sourceTree = SOURCE_ROOT; };
+		800000000000000000000002 /* TimeBiteTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TimeBiteTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		800000000000000000000003 /* DataArchitectureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBiteTests/DataArchitectureTests.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		10000000000000000000000E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		800000000000000000000006 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -93,6 +131,10 @@
 		100000000000000000000001 = {
 			isa = PBXGroup;
 			children = (
+				200000000000000000000028 /* TimeBite/Infrastructure/TimeBiteAPI.swift */,
+				200000000000000000000029 /* TimeBite/Infrastructure/TimeBiteSync.swift */,
+				20000000000000000000002A /* TimeBite/Infrastructure/PlaidLinkConnector.swift */,
+				20000000000000000000002B /* TimeBite/Authentication/AuthenticationView.swift */,
 				100000000000000000000002 /* App */,
 				100000000000000000000003 /* Action */,
 				100000000000000000000004 /* Track */,
@@ -105,6 +147,7 @@
 				100000000000000000000018 /* Admin */,
 				100000000000000000000007 /* Shared */,
 				100000000000000000000016 /* Models */,
+				80000000000000000000000D /* TimeBiteTests */,
 				200000000000000000000022 /* Assets.xcassets */,
 				100000000000000000000017 /* Products */,
 			);
@@ -205,6 +248,7 @@
 			isa = PBXGroup;
 			children = (
 				20000000000000000000000E /* TimeBite.app */,
+				800000000000000000000002 /* TimeBiteTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -222,6 +266,11 @@
 			children = (
 				20000000000000000000001D /* TimeBite/Features/Finance/FinanceDashboardView.swift */,
 				20000000000000000000001E /* TimeBite/Features/Finance/FinanceNotificationScheduler.swift */,
+				200000000000000000000023 /* TimeBite/Features/Finance/FinanceUnlockStage.swift */,
+				200000000000000000000024 /* TimeBite/Features/Finance/FinanceUnlockModal.swift */,
+				200000000000000000000025 /* TimeBite/Features/Finance/FinanceUnlockManager.swift */,
+				200000000000000000000026 /* TimeBite/Features/Finance/FinanceUnlockViewModel.swift */,
+				200000000000000000000027 /* TimeBite/Features/Finance/SetFinanceGoalModal.swift */,
 			);
 			name = Finance;
 			sourceTree = "<group>";
@@ -250,6 +299,14 @@
 			name = Settings;
 			sourceTree = "<group>";
 		};
+		80000000000000000000000D /* TimeBiteTests */ = {
+			isa = PBXGroup;
+			children = (
+				800000000000000000000003 /* DataArchitectureTests.swift */,
+			);
+			name = TimeBiteTests;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -266,9 +323,29 @@
 			dependencies = (
 			);
 			name = TimeBite;
+			packageProductDependencies = (
+			);
 			productName = TimeBite;
 			productReference = 20000000000000000000000E /* TimeBite.app */;
 			productType = "com.apple.product-type.application";
+		};
+		800000000000000000000001 /* TimeBiteTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 800000000000000000000008 /* Build configuration list for PBXNativeTarget "TimeBiteTests" */;
+			buildPhases = (
+				800000000000000000000005 /* Sources */,
+				800000000000000000000006 /* Frameworks */,
+				800000000000000000000007 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				80000000000000000000000C /* PBXTargetDependency */,
+			);
+			name = TimeBiteTests;
+			productName = TimeBiteTests;
+			productReference = 800000000000000000000002 /* TimeBiteTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -283,6 +360,10 @@
 					10000000000000000000000C = {
 						CreatedOnToolsVersion = 26.1;
 					};
+					800000000000000000000001 = {
+						CreatedOnToolsVersion = 26.1;
+						TestTargetID = 10000000000000000000000C;
+					};
 				};
 			};
 			buildConfigurationList = 100000000000000000000011 /* Build configuration list for PBXProject "TimeBite" */;
@@ -295,10 +376,13 @@
 			);
 			mainGroup = 100000000000000000000001;
 			productRefGroup = 100000000000000000000017 /* Products */;
+			packageReferences = (
+			);
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
 				10000000000000000000000C /* TimeBite */,
+				800000000000000000000001 /* TimeBiteTests */,
 			);
 		};
 /* End PBXProject section */
@@ -309,6 +393,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				300000000000000000000021 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		800000000000000000000007 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -351,10 +442,35 @@
 				30000000000000000000001E /* Views/QuarterlyGoalChartView.swift in Sources */,
 				30000000000000000000001F /* ViewModels/QuarterlyGoalViewModel.swift in Sources */,
 				300000000000000000000020 /* TimeBite/Features/Settings/SettingsView.swift in Sources */,
+				300000000000000000000022 /* TimeBite/Features/Finance/FinanceUnlockStage.swift in Sources */,
+				300000000000000000000023 /* TimeBite/Features/Finance/FinanceUnlockModal.swift in Sources */,
+				300000000000000000000024 /* TimeBite/Features/Finance/FinanceUnlockManager.swift in Sources */,
+				300000000000000000000025 /* TimeBite/Features/Finance/FinanceUnlockViewModel.swift in Sources */,
+				300000000000000000000026 /* TimeBite/Features/Finance/SetFinanceGoalModal.swift in Sources */,
+				300000000000000000000027 /* TimeBite/Infrastructure/TimeBiteAPI.swift in Sources */,
+				300000000000000000000028 /* TimeBite/Infrastructure/TimeBiteSync.swift in Sources */,
+				300000000000000000000029 /* TimeBite/Infrastructure/PlaidLinkConnector.swift in Sources */,
+				30000000000000000000002A /* TimeBite/Authentication/AuthenticationView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		800000000000000000000005 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				800000000000000000000004 /* DataArchitectureTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		80000000000000000000000C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 10000000000000000000000C /* TimeBite */;
+			targetProxy = 80000000000000000000000B /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		100000000000000000000012 /* Debug */ = {
@@ -363,8 +479,10 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_ENTITLEMENTS = TimeBite/TimeBite.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = DHFA4423Z8;
+				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = TimeBite/Info.plist;
@@ -374,8 +492,11 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_VERSION = 5.0;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				TARGETED_DEVICE_FAMILY = 1;
+				TIMEBITE_API_BASE_URL = "http://127.0.0.1:8000";
 			};
 			name = Debug;
 		};
@@ -385,6 +506,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_ENTITLEMENTS = TimeBite/TimeBite.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = DHFA4423Z8;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -398,6 +520,7 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
+				TIMEBITE_API_BASE_URL = "";
 			};
 			name = Release;
 		};
@@ -415,6 +538,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -439,6 +563,45 @@
 			};
 			name = Release;
 		};
+		800000000000000000000009 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = DHFA4423Z8;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.timebite.app.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TimeBite.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/TimeBite";
+			};
+			name = Debug;
+		};
+		80000000000000000000000A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = DHFA4423Z8;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.timebite.app.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TimeBite.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/TimeBite";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -456,6 +619,15 @@
 			buildConfigurations = (
 				100000000000000000000014 /* Debug */,
 				100000000000000000000015 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		800000000000000000000008 /* Build configuration list for PBXNativeTarget "TimeBiteTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				800000000000000000000009 /* Debug */,
+				80000000000000000000000A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -3,14 +3,25 @@ import SwiftUI
 
 struct FinanceDashboardView: View {
     @Environment(\.modelContext) private var modelContext
+    @EnvironmentObject private var authentication: AuthenticationStore
     @Query(sort: \FinancialGoal.tier) private var goals: [FinancialGoal]
     @Query(sort: \DebtAccount.payoffOrder) private var debtAccounts: [DebtAccount]
+    @Query private var lifeGoals: [Goal]
+
+    @AppStorage("finance.unlock.tabOpenCount") private var financeTabOpenCount = 0
+    @State private var isCheckingConnected = false
+    @State private var isSavingsConnected = false
+    @State private var isInvestmentAccountConnected = false
 
     @State private var incomeAmount = "2000"
     @State private var incomeSource = "Consulting"
     @State private var showingMonthlyReview = false
+    @State private var showingSetFinanceGoal = false
     @State private var completedReviewGoalIDs: Set<UUID> = []
     @State private var celebratingGoalID: UUID?
+    @State private var unlockStage: FinanceUnlockStage?
+
+    private let unlockManager = FinanceUnlockManager()
 
     private var engine: CapitalAllocationEngine {
         CapitalAllocationEngine(goals: goals, debts: debtAccounts)
@@ -20,6 +31,7 @@ struct FinanceDashboardView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
+                    financeGoalLauncher
                     header
                     nextDollarCard
                     incomeAllocator
@@ -34,10 +46,32 @@ struct FinanceDashboardView: View {
             .background(TBColor.background.ignoresSafeArea())
             .navigationTitle("Finance OS")
             .navigationBarTitleDisplayMode(.inline)
+            .sheet(isPresented: $showingSetFinanceGoal, onDismiss: evaluateFinanceUnlock) {
+                SetFinanceGoalModal(
+                    nextTier: (goals.map(\.tier).max() ?? -1) + 1,
+                    onSaved: FinanceNotificationScheduler.scheduleGoalReminder
+                )
+                .preferredColorScheme(.dark)
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
+            }
             .sheet(isPresented: $showingMonthlyReview) {
                 monthlyReviewSheet
                     .presentationDetents([.large])
                     .preferredColorScheme(.dark)
+            }
+            .sheet(item: $unlockStage) { stage in
+                FinanceUnlockModal(
+                    stage: stage,
+                    connector: PlaidFinanceAccountConnector(
+                        repository: RemoteFinanceRepository(client: authentication.client),
+                        opener: PlaidLinkOpenerFactory.make()
+                    ),
+                    onConnected: markConnected,
+                    onDismiss: { unlockStage = nil }
+                )
+                .presentationDetents([.large])
+                .presentationDragIndicator(.hidden)
             }
             .overlay {
                 if let goal = goals.first(where: { $0.id == celebratingGoalID }) {
@@ -45,14 +79,139 @@ struct FinanceDashboardView: View {
                 }
             }
             .task {
-                seedRoadmapIfNeeded()
+                await refreshServerAccountState()
                 FinanceNotificationScheduler.configureCategories()
                 FinanceNotificationScheduler.requestAuthorization()
                 FinanceNotificationScheduler.scheduleMonthlyReviewReminder()
                 FinanceNotificationScheduler.scheduleNextDollarReminder()
                 goals.forEach(FinanceNotificationScheduler.scheduleGoalReminder)
             }
+            .onAppear {
+                financeTabOpenCount += 1
+                evaluateFinanceUnlock()
+            }
+            .onChange(of: goals.count) { _, _ in
+                evaluateFinanceUnlock()
+            }
+            .onChange(of: debtAccounts.count) { _, _ in
+                evaluateFinanceUnlock()
+            }
         }
+    }
+
+    private func evaluateFinanceUnlock() {
+        guard unlockStage == nil, !showingMonthlyReview, !showingSetFinanceGoal else { return }
+
+        let context = FinanceUnlockContext(
+            financeTabOpenCount: financeTabOpenCount,
+            hasDebtOrSavingsGoal: !debtAccounts.isEmpty || hasSavingsGoal || hasLifeDebtOrSavingsGoal,
+            hasSavingsGoal: hasSavingsGoal,
+            isCheckingConnected: isCheckingConnected,
+            isSavingsConnected: isSavingsConnected,
+            areInvestmentWidgetsEnabled: hasInvestmentWidget,
+            isInvestmentAccountConnected: isInvestmentAccountConnected
+        )
+
+        unlockStage = unlockManager.nextUnlock(for: context)
+    }
+
+    private var hasSavingsGoal: Bool {
+        goals.contains {
+            $0.category == FinancialGoalCategory.emergencySavings.rawValue
+                || $0.category == FinancialGoalCategory.relocation.rawValue
+        } || lifeGoals.contains { GoalKind(storedValue: $0.category) == .savings }
+    }
+
+    private var hasLifeDebtOrSavingsGoal: Bool {
+        lifeGoals.contains {
+            let kind = GoalKind(storedValue: $0.category)
+            return kind == .debt || kind == .savings
+        }
+    }
+
+    private var hasInvestmentWidget: Bool {
+        goals.contains { $0.category == FinancialGoalCategory.investing.rawValue }
+    }
+
+    private func markConnected(_ stage: FinanceUnlockStage) {
+        switch stage {
+        case .checking:
+            isCheckingConnected = true
+        case .savings:
+            isSavingsConnected = true
+        case .investments:
+            isInvestmentAccountConnected = true
+        }
+        Task { await refreshServerAccountState() }
+    }
+
+    @MainActor
+    private func refreshServerAccountState() async {
+        let repository = RemoteFinanceRepository(client: authentication.client)
+        guard let accounts = try? await repository.accounts() else { return }
+        isCheckingConnected = accounts.contains { $0.subtype == "checking" }
+        isSavingsConnected = accounts.contains { $0.subtype == "savings" }
+        isInvestmentAccountConnected = accounts.contains { $0.type == "investment" }
+    }
+
+    private var financeGoalLauncher: some View {
+        TBCard {
+            VStack(alignment: .leading, spacing: 16) {
+                HStack(alignment: .top, spacing: 14) {
+                    Image(systemName: "target")
+                        .font(.system(size: 24, weight: .semibold))
+                        .foregroundStyle(TBColor.primaryAccent)
+                        .frame(width: 48, height: 48)
+                        .background(Circle().fill(TBColor.primaryAccent.opacity(0.14)))
+                        .accessibilityHidden(true)
+
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Build your financial plan")
+                            .font(TBTypography.title(.title2, weight: .bold))
+                            .foregroundStyle(TBColor.textPrimary)
+                            .fixedSize(horizontal: false, vertical: true)
+
+                        Text("Start with a goal. Accounts can wait until automation is useful.")
+                            .font(TBTypography.body())
+                            .foregroundStyle(TBColor.textSecondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+
+                HStack(spacing: 8) {
+                    financeGoalChip("Save", symbol: "banknote.fill")
+                    financeGoalChip("Pay down debt", symbol: "creditcard.fill")
+                    financeGoalChip("Invest", symbol: "chart.line.uptrend.xyaxis")
+                }
+
+                Button {
+                    showingSetFinanceGoal = true
+                } label: {
+                    Label("Set a Financial Goal", systemImage: "plus")
+                        .font(TBTypography.body(.semibold))
+                        .foregroundStyle(TBColor.financeModalButtonText)
+                        .frame(maxWidth: .infinity, minHeight: 50)
+                        .background(
+                            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                .fill(TBColor.primaryAccent)
+                        )
+                }
+                .buttonStyle(.plain)
+                .accessibilityHint("Opens financial goal setup")
+            }
+        }
+    }
+
+    private func financeGoalChip(_ title: String, symbol: String) -> some View {
+        Label(title, systemImage: symbol)
+            .font(TBTypography.caption(.semibold))
+            .foregroundStyle(TBColor.textSecondary)
+            .lineLimit(1)
+            .minimumScaleFactor(0.72)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 8)
+            .background(Capsule(style: .continuous).fill(TBColor.surfaceElevated))
+            .accessibilityHidden(true)
     }
 
     private var header: some View {
@@ -483,35 +642,6 @@ struct FinanceDashboardView: View {
         }
     }
 
-    private func seedRoadmapIfNeeded() {
-        guard goals.isEmpty else { return }
-
-        let calendar = Calendar.current
-        let august2026 = calendar.date(from: DateComponents(year: 2026, month: 8, day: 31))
-        let september2026 = calendar.date(from: DateComponents(year: 2026, month: 9, day: 30))
-
-        let seededGoals = [
-            FinancialGoal(title: "Base Living Expenses", category: .essentialLiving, targetAmount: 1000, dueDate: nil, monthlyMinimum: 1000, recommendedMonthly: 1000, priorityLevel: .critical, consequenceOfDelay: "Keeps life stable while consulting and job searching.", icon: "house.fill", colorHex: "5EEAD4", tier: 0),
-            FinancialGoal(title: "Dental + Vision", category: .healthcare, targetAmount: 5000, dueDate: august2026, monthlyMinimum: 500, recommendedMonthly: 1500, priorityLevel: .critical, consequenceOfDelay: "Higher medical costs if delayed.", notes: "Root canal, crown, cavities, cleaning, eye exam, contacts.", icon: "cross.case.fill", colorHex: "38BDF8", tier: 1),
-            FinancialGoal(title: "Egg Freezing", category: .fertility, targetAmount: 10000, dueDate: september2026, monthlyMinimum: 250, recommendedMonthly: 2000, priorityLevel: .critical, consequenceOfDelay: "Time-sensitive health goal with biological consequences.", notes: "$5,000 medications/treatment; optional $5,250 concierge.", icon: "circle.hexagongrid.fill", colorHex: "F6BA42", tier: 2, conciergeAmount: 5250),
-            FinancialGoal(title: "Credit Card Debt", category: .debt, targetAmount: 16255, dueDate: nil, monthlyMinimum: 600, recommendedMonthly: 1400, priorityLevel: .high, consequenceOfDelay: "Interest compounds and credit utilization stays elevated.", notes: "Hybrid snowball + avalanche: Chase, Amazon, Apple, Discover.", icon: "creditcard.fill", colorHex: "B565F2", tier: 3),
-            FinancialGoal(title: "Emergency Fund", category: .emergencySavings, targetAmount: 1000, dueDate: nil, monthlyMinimum: 100, recommendedMonthly: 300, priorityLevel: .high, consequenceOfDelay: "One surprise expense can force new debt.", icon: "shield.fill", colorHex: "5EEAD4", tier: 4),
-            FinancialGoal(title: "NYC Relocation Fund", category: .relocation, targetAmount: 9000, dueDate: nil, monthlyMinimum: 250, recommendedMonthly: 900, priorityLevel: .high, consequenceOfDelay: "Move readiness slips: deposit, first month, moving costs, furniture, setup.", icon: "building.2.fill", colorHex: "38BDF8", tier: 5),
-            FinancialGoal(title: "Business Infrastructure", category: .business, targetAmount: 4000, dueDate: nil, monthlyMinimum: 100, recommendedMonthly: 400, priorityLevel: .medium, consequenceOfDelay: "Next venture setup remains blocked.", notes: "$708 Delaware dissolution, new Delaware LLC, CPA, attorney.", icon: "briefcase.fill", colorHex: "F6BA42", tier: 6),
-            FinancialGoal(title: "Long-Term Capital", category: .investing, targetAmount: 10000, dueDate: nil, monthlyMinimum: 0, recommendedMonthly: 250, priorityLevel: .low, consequenceOfDelay: "Fund after higher-priority minimums: HYSA, brokerage, retirement, crypto, vacation, birthday.", icon: "chart.line.uptrend.xyaxis", colorHex: "B565F2", tier: 7)
-        ]
-
-        let seededDebts = [
-            DebtAccount(name: "Chase", balance: 6200, creditLimit: 8000, annualPercentageRate: 27.24, minimumPayment: 190, payoffOrder: 1),
-            DebtAccount(name: "Amazon", balance: 3850, creditLimit: 5000, annualPercentageRate: 29.99, minimumPayment: 125, payoffOrder: 2),
-            DebtAccount(name: "Apple", balance: 2805, creditLimit: 4000, annualPercentageRate: 24.99, minimumPayment: 95, payoffOrder: 3),
-            DebtAccount(name: "Discover", balance: 3400, creditLimit: 7000, annualPercentageRate: 22.99, minimumPayment: 110, payoffOrder: 4)
-        ]
-
-        seededGoals.forEach(modelContext.insert)
-        seededDebts.forEach(modelContext.insert)
-        try? modelContext.save()
-    }
 }
 
 private struct CapitalAllocationEngine {

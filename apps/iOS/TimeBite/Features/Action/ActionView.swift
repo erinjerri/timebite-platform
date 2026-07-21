@@ -2,26 +2,33 @@ import Combine
 import SwiftUI
 
 struct ActionView: View {
-    @State private var action = ActionItem.mock
-    @State private var queue = ActionQueueItem.samples
-    @State private var labels = WorkLabel.samples
+    @State private var action = ActionItem.empty
+    @State private var queue: [ActionQueueItem] = []
+    @State private var labels: [WorkLabel] = []
     @State private var isRunning = false
-    @State private var elapsedSeconds = ActionItem.mock.elapsedMinutes * 60
+    @State private var elapsedSeconds = 0
     @State private var now = Date()
-    @State private var ringMode: ActionRingMode = .focus
     @State private var showingWorkLabels = false
 
     private let tick = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     private let workLabelsStorageKey = "timebite.workLabels"
 
+    private var visibleQueue: [ActionQueueItem] {
+        let realItems = Array(queue.prefix(6))
+        guard realItems.count < 6 else { return realItems }
+        return realItems + ActionQueueItem.sixSlotPlaceholders.dropFirst(realItems.count)
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    executionCard
-                    timerCard
+                    todaysActionCard
+                    currentTaskCard
+                    halfDayRingsCard
                 }
                 .padding(16)
+                .padding(.bottom, 102)
             }
             .background(background)
             .navigationTitle("Action")
@@ -59,68 +66,115 @@ struct ActionView: View {
         }
     }
 
-    private var executionCard: some View {
+    private var todaysActionCard: some View {
         TBCard {
-            HStack(alignment: .top, spacing: 14) {
-                upcomingRail
-                    .frame(width: 128, height: 344)
+            heroContent
+                .frame(maxWidth: .infinity, alignment: .center)
+        }
+    }
 
-                Divider()
-                    .overlay(TBColor.border)
+    private var currentTaskCard: some View {
+        TBCard {
+            VStack(alignment: .leading, spacing: 14) {
+                currentTaskSummary
 
-                heroContent
-                    .frame(maxWidth: .infinity, alignment: .center)
+                HStack {
+                    Text("UPCOMING")
+                        .font(.system(size: 9, weight: .bold, design: .rounded))
+                        .tracking(1.05)
+                        .foregroundStyle(TBColor.textSecondary)
+
+                    Spacer()
+
+                    Text("6 slots")
+                        .font(TBTypography.caption(.semibold))
+                        .foregroundStyle(TBColor.textSecondary)
+                }
+
+                LazyVStack(spacing: 10) {
+                    ForEach(visibleQueue) { item in
+                        if let index = queue.firstIndex(where: { $0.id == item.id }) {
+                            queueRow(item: $queue[index])
+                        } else {
+                            queuePlaceholderRow(item)
+                        }
+                    }
+                }
             }
         }
     }
 
-    private var upcomingRail: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("CURRENT TASK")
-                .font(.system(size: 9, weight: .bold, design: .rounded))
-                .tracking(1.05)
-                .foregroundStyle(TBColor.textSecondary)
+    private var currentTaskSummary: some View {
+        HStack(alignment: .top, spacing: 12) {
+            currentTaskProgress
 
-            VStack(alignment: .leading, spacing: 7) {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(alignment: .firstTextBaseline) {
+                    Text("CURRENT TASK")
+                        .font(.system(size: 9, weight: .bold, design: .rounded))
+                        .tracking(1.05)
+                        .foregroundStyle(TBColor.textSecondary)
+
+                    Spacer()
+
+                    Text("\(durationText(Int(Double(elapsedSeconds) / 60))) / \(durationText(action.targetMinutes))")
+                        .font(TBTypography.caption(.semibold))
+                        .foregroundStyle(TBColor.primaryAccent)
+                }
+
                 Text(action.title)
-                    .font(TBTypography.caption(.semibold))
+                    .font(TBTypography.title(.headline, weight: .semibold))
                     .foregroundStyle(TBColor.textPrimary)
-                    .lineLimit(2)
+                    .lineLimit(3)
+                    .fixedSize(horizontal: false, vertical: true)
 
-                Menu {
-                    ForEach(labels) { workLabel in
-                        Button(workLabel.displayName) {
-                            action.labelID = workLabel.id
+                Text(action.note)
+                    .font(TBTypography.caption())
+                    .foregroundStyle(TBColor.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                HStack(spacing: 8) {
+                    Menu {
+                        ForEach(labels) { workLabel in
+                            Button(workLabel.displayName) {
+                                action.labelID = workLabel.id
+                            }
                         }
+                    } label: {
+                        workLabelBox(label(for: action.labelID))
                     }
-                } label: {
-                    workLabelBox(label(for: action.labelID))
+
+                    Text("\(scheduledTimeText(action.scheduledStart)) · \(durationText(action.targetMinutes))")
+                        .font(TBTypography.caption(.semibold))
+                        .foregroundStyle(TBColor.textSecondary)
                 }
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(10)
-            .background(
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .fill(action.accent.opacity(0.14))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10, style: .continuous)
-                            .stroke(action.accent.opacity(0.7), lineWidth: 1)
-                    )
-            )
 
-            Text("UPCOMING")
-                .font(.system(size: 9, weight: .bold, design: .rounded))
-                .tracking(1.05)
-                .foregroundStyle(TBColor.textSecondary)
-
-            ScrollView(.vertical, showsIndicators: true) {
-                LazyVStack(spacing: 8) {
-                    ForEach($queue) { $item in
-                        queueRow(item: $item)
-                    }
-                }
-            }
+            Spacer(minLength: 0)
         }
+        .padding(14)
+        .background(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(action.accent.opacity(0.14))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .stroke(action.accent.opacity(0.45), lineWidth: 1)
+                )
+        )
+    }
+
+    private var currentTaskProgress: some View {
+        ZStack {
+            Circle()
+                .stroke(action.accent.opacity(0.18), lineWidth: 4)
+            Circle()
+                .trim(from: 0, to: currentActionProgress)
+                .stroke(action.accent, style: StrokeStyle(lineWidth: 4, lineCap: .round))
+                .rotationEffect(.degrees(-90))
+        }
+        .frame(width: 30, height: 30)
+        .animation(.spring(response: 0.3, dampingFraction: 0.85), value: currentActionProgress)
+        .accessibilityHidden(true)
     }
 
     private func queueRow(item: Binding<ActionQueueItem>) -> some View {
@@ -133,7 +187,7 @@ struct ActionView: View {
                     .foregroundStyle(TBColor.textPrimary)
                     .lineLimit(2)
 
-                Text("\(item.wrappedValue.estimatedDurationMinutes)m")
+                Text("\(scheduledTimeText(item.wrappedValue.scheduledStart)) · \(durationText(item.wrappedValue.estimatedDurationMinutes))")
                     .font(.system(size: 9, weight: .medium, design: .rounded))
                     .foregroundStyle(TBColor.textSecondary)
 
@@ -155,6 +209,30 @@ struct ActionView: View {
         .overlay(Rectangle().stroke(TBColor.border, lineWidth: 1))
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(item.wrappedValue.title), \(Int(item.wrappedValue.progress * 100)) percent complete")
+    }
+
+    private func queuePlaceholderRow(_ item: ActionQueueItem) -> some View {
+        HStack(spacing: 8) {
+            queueProgress(item)
+
+            VStack(alignment: .leading, spacing: 3) {
+                Text(item.title)
+                    .font(.system(size: 11, weight: .semibold, design: .rounded))
+                    .foregroundStyle(TBColor.textPrimary.opacity(0.72))
+                    .lineLimit(2)
+
+                Text("\(scheduledTimeText(item.scheduledStart)) · \(durationText(item.estimatedDurationMinutes))")
+                    .font(.system(size: 9, weight: .medium, design: .rounded))
+                    .foregroundStyle(TBColor.textSecondary)
+
+                workLabelBox(label(for: item.labelID))
+            }
+
+            Spacer(minLength: 0)
+        }
+        .padding(8)
+        .background(TBColor.surfaceElevated.opacity(0.42))
+        .overlay(Rectangle().stroke(TBColor.border, lineWidth: 1))
     }
 
     @ViewBuilder
@@ -180,8 +258,8 @@ struct ActionView: View {
     }
 
     private var heroContent: some View {
-        VStack(alignment: .center, spacing: 12) {
-            VStack(alignment: .leading, spacing: 7) {
+        VStack(alignment: .center, spacing: 16) {
+            VStack(alignment: .center, spacing: 8) {
                 Text("TODAY’S ACTION")
                     .font(.system(size: 10, weight: .bold, design: .rounded))
                     .tracking(1.2)
@@ -194,22 +272,15 @@ struct ActionView: View {
                     .textInputAutocapitalization(.sentences)
             }
 
-            Picker("Ring mode", selection: $ringMode) {
-                ForEach(ActionRingMode.allCases) { mode in
-                    Text(mode.title).tag(mode)
-                }
-            }
-            .pickerStyle(.segmented)
-
             ZStack {
                 Circle()
                     .stroke(TBColor.surfaceElevated, lineWidth: 15)
 
                 Circle()
-                    .trim(from: 0, to: action.progress)
+                    .trim(from: 0, to: currentActionProgress)
                     .stroke(
-                        ringMode == .focus ? AnyShapeStyle(TBColor.accentGradient) : AnyShapeStyle(action.accent),
-                        style: StrokeStyle(lineWidth: 15, lineCap: .round, dash: ringMode == .cycles ? [18, 7] : [])
+                        TBColor.accentGradient,
+                        style: StrokeStyle(lineWidth: 15, lineCap: .round)
                     )
                     .rotationEffect(.degrees(-90))
                     .shadow(color: action.accent.opacity(0.25), radius: 12)
@@ -227,10 +298,12 @@ struct ActionView: View {
                 }
             }
             .frame(width: 154, height: 154)
-            .accessibilityLabel("Current task \(Int(action.progress * 100)) percent complete")
+            .accessibilityLabel("Current task \(Int(currentActionProgress * 100)) percent complete")
+
+            compactTimerControls
 
             VStack(spacing: 7) {
-                Text("\(action.elapsedMinutes) / \(action.targetMinutes) min")
+                Text("\(durationText(Int(Double(elapsedSeconds) / 60))) / \(durationText(action.targetMinutes))")
                     .font(TBTypography.caption(.semibold))
                     .foregroundStyle(TBColor.textPrimary)
 
@@ -245,6 +318,28 @@ struct ActionView: View {
         }
     }
 
+    private var compactTimerControls: some View {
+        HStack(spacing: 12) {
+            iconTimerButton(
+                label: isRunning ? "Pause" : "Start",
+                systemName: isRunning ? "pause.fill" : "play.fill",
+                tint: TBColor.primaryAccent
+            ) {
+                isRunning.toggle()
+            }
+
+            iconTimerButton(label: "Restart", systemName: "arrow.counterclockwise", tint: TBColor.textPrimary) {
+                isRunning = false
+                elapsedSeconds = action.elapsedMinutes * 60
+            }
+
+            iconTimerButton(label: "Labels", systemName: "tag", tint: action.accent) {
+                showingWorkLabels = true
+            }
+        }
+        .accessibilityElement(children: .contain)
+    }
+
     private func timeReadout(title: String, value: String) -> some View {
         HStack(spacing: 5) {
             Text(title)
@@ -257,34 +352,104 @@ struct ActionView: View {
         .frame(maxWidth: .infinity)
     }
 
-    private var timerCard: some View {
+    private var halfDayRingsCard: some View {
         TBCard {
-            VStack(alignment: .leading, spacing: 14) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Hourglass controls")
-                        .font(TBTypography.title(.headline, weight: .semibold))
+            VStack(alignment: .leading, spacing: 18) {
+                VStack(alignment: .leading, spacing: 5) {
+                    Text("AM and PM rings")
+                        .font(TBTypography.title(.title2, weight: .bold))
                         .foregroundStyle(TBColor.textPrimary)
-                    Text("Progress is rendered from TaskSvc; controls change the running session only.")
+
+                    Text("Planned and completed time across the first and second half of today.")
                         .font(TBTypography.caption())
                         .foregroundStyle(TBColor.textSecondary)
                 }
 
-                HStack(spacing: 10) {
-                    timerButton(label: isRunning ? "Pause" : "Start", systemName: isRunning ? "pause.fill" : "play.fill") {
-                        isRunning.toggle()
+                ViewThatFits(in: .horizontal) {
+                    HStack(spacing: 18) {
+                        halfDayRing(.morning)
+                        halfDayRing(.evening)
                     }
 
-                    timerButton(label: "Restart", systemName: "arrow.counterclockwise") {
-                        isRunning = false
-                        elapsedSeconds = action.elapsedMinutes * 60
-                    }
-
-                    timerButton(label: "Labels", systemName: "tag") {
-                        showingWorkLabels = true
+                    VStack(spacing: 18) {
+                        halfDayRing(.morning)
+                        halfDayRing(.evening)
                     }
                 }
+                .frame(maxWidth: .infinity)
+
+                HStack(spacing: 14) {
+                    Label("Planned", systemImage: "circle")
+                    Label("Completed", systemImage: "circle.fill")
+                }
+                .font(TBTypography.caption(.semibold))
+                .foregroundStyle(TBColor.textSecondary)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .accessibilityHidden(true)
             }
         }
+    }
+
+    private func halfDayRing(_ halfDay: ActionHalfDay) -> some View {
+        let slices = dailySlices.filter { $0.halfDay == halfDay }
+        let consumedMinutes = slices.reduce(0) { $0 + $1.consumedMinutes }
+
+        return VStack(spacing: 10) {
+            ZStack {
+                Circle()
+                    .stroke(TBColor.surfaceElevated, lineWidth: 18)
+
+                ForEach(0..<12, id: \.self) { hour in
+                    Capsule(style: .continuous)
+                        .fill(TBColor.textSecondary.opacity(hour % 3 == 0 ? 0.65 : 0.28))
+                        .frame(width: 2, height: hour % 3 == 0 ? 8 : 5)
+                        .offset(y: -71)
+                        .rotationEffect(.degrees(Double(hour) * 30))
+                }
+
+                ForEach(slices) { slice in
+                    Circle()
+                        .trim(from: slice.startFraction, to: slice.plannedEndFraction)
+                        .stroke(
+                            slice.color.opacity(0.22),
+                            style: StrokeStyle(lineWidth: 18, lineCap: .butt)
+                        )
+                        .rotationEffect(.degrees(-90))
+
+                    Circle()
+                        .trim(from: slice.startFraction, to: slice.completedEndFraction)
+                        .stroke(
+                            slice.color,
+                            style: StrokeStyle(lineWidth: 18, lineCap: .round)
+                        )
+                        .rotationEffect(.degrees(-90))
+                        .shadow(color: slice.color.opacity(0.24), radius: 7)
+                }
+
+                VStack(spacing: 3) {
+                    Text(halfDay.shortTitle)
+                        .font(.system(size: 22, weight: .bold, design: .rounded))
+                        .foregroundStyle(TBColor.textPrimary)
+
+                    Text(durationText(Int(consumedMinutes.rounded())))
+                        .font(TBTypography.caption(.semibold))
+                        .foregroundStyle(TBColor.primaryAccent)
+
+                    Text("logged")
+                        .font(.system(size: 9, weight: .semibold, design: .rounded))
+                        .foregroundStyle(TBColor.textSecondary)
+                }
+            }
+            .frame(width: 160, height: 160)
+            .animation(.linear(duration: 0.3), value: consumedMinutes)
+
+            Text(halfDay.rangeTitle)
+                .font(TBTypography.caption(.semibold))
+                .foregroundStyle(TBColor.textSecondary)
+        }
+        .frame(maxWidth: .infinity)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(halfDay.accessibilityLabel(for: slices, totalMinutes: consumedMinutes))
     }
 
     private var background: some View {
@@ -307,7 +472,98 @@ struct ActionView: View {
     }
 
     private var consumedTimeText: String {
-        String(format: "%02d:%02d", elapsedSeconds / 60, elapsedSeconds % 60)
+        let minutes = elapsedSeconds / 60
+        if minutes >= 60 {
+            return durationText(minutes)
+        }
+        return String(format: "%02d:%02d", minutes, elapsedSeconds % 60)
+    }
+
+    private var currentActionProgress: Double {
+        guard action.targetMinutes > 0 else { return 0 }
+        let liveProgress = Double(elapsedSeconds) / Double(action.targetMinutes * 60)
+        return min(max(liveProgress, action.progress), 1)
+    }
+
+    private var dailySlices: [DailyActionSlice] {
+        let current = makeDailySlices(
+            id: action.id,
+            title: action.title,
+            scheduledStart: action.scheduledStart,
+            plannedMinutes: Double(action.targetMinutes),
+            consumedMinutes: min(Double(elapsedSeconds) / 60, Double(action.targetMinutes)),
+            color: action.accent
+        )
+
+        let upcoming = queue.flatMap { item in
+            makeDailySlices(
+                id: item.id,
+                title: item.title,
+                scheduledStart: item.scheduledStart,
+                plannedMinutes: Double(item.estimatedDurationMinutes),
+                consumedMinutes: Double(item.estimatedDurationMinutes) * item.progress,
+                color: item.color
+            )
+        }
+
+        return current + upcoming
+    }
+
+    private func makeDailySlices(
+        id: UUID,
+        title: String,
+        scheduledStart: Date,
+        plannedMinutes: Double,
+        consumedMinutes: Double,
+        color: Color
+    ) -> [DailyActionSlice] {
+        let components = Calendar.current.dateComponents([.hour, .minute], from: scheduledStart)
+        var startMinute = Double((components.hour ?? 0) * 60 + (components.minute ?? 0))
+        var remainingPlanned = min(max(plannedMinutes, 0), 24 * 60)
+        var remainingConsumed = min(max(consumedMinutes, 0), remainingPlanned)
+        var segmentIndex = 0
+        var slices: [DailyActionSlice] = []
+
+        while remainingPlanned > 0 {
+            if startMinute >= 24 * 60 { startMinute = 0 }
+
+            let halfDay: ActionHalfDay = startMinute < 12 * 60 ? .morning : .evening
+            let boundary = halfDay == .morning ? Double(12 * 60) : Double(24 * 60)
+            let segmentPlanned = min(remainingPlanned, boundary - startMinute)
+            let segmentConsumed = min(remainingConsumed, segmentPlanned)
+
+            slices.append(
+                DailyActionSlice(
+                    id: "\(id.uuidString)-\(segmentIndex)",
+                    title: title,
+                    halfDay: halfDay,
+                    minuteInHalfDay: startMinute.truncatingRemainder(dividingBy: 12 * 60),
+                    plannedMinutes: segmentPlanned,
+                    consumedMinutes: segmentConsumed,
+                    color: color
+                )
+            )
+
+            startMinute += segmentPlanned
+            remainingPlanned -= segmentPlanned
+            remainingConsumed -= segmentConsumed
+            segmentIndex += 1
+        }
+
+        return slices
+    }
+
+    private func durationText(_ totalMinutes: Int) -> String {
+        let minutes = max(totalMinutes, 0)
+        guard minutes >= 60 else { return "\(minutes) min" }
+
+        let hours = minutes / 60
+        let remainder = minutes % 60
+        return remainder == 0 ? "\(hours) hr" : "\(hours) hr \(remainder) min"
+    }
+
+    private func scheduledTimeText(_ date: Date) -> String {
+        date.formatted(date: .omitted, time: .shortened)
     }
 
     private var clockText: String {
@@ -317,7 +573,8 @@ struct ActionView: View {
     }
 
     private var estimatedCompletionText: String {
-        let remainingMinutes = max(action.targetMinutes - action.elapsedMinutes, 0)
+        let elapsedMinutes = Int(Double(elapsedSeconds) / 60)
+        let remainingMinutes = max(action.targetMinutes - elapsedMinutes, 0)
         let completion = Calendar.current.date(byAdding: .minute, value: remainingMinutes, to: now) ?? now
         let time = completion.formatted(date: .omitted, time: .shortened)
         let zone = TimeZone.current.abbreviation() ?? ""
@@ -358,33 +615,61 @@ struct ActionView: View {
         }
     }
 
-    private func timerButton(label: String, systemName: String, action: @escaping () -> Void) -> some View {
+    private func iconTimerButton(label: String, systemName: String, tint: Color, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            VStack(spacing: 8) {
-                Image(systemName: systemName)
-                    .font(.system(size: 16, weight: .semibold))
-                Text(label)
-                    .font(TBTypography.caption(.semibold))
-            }
-            .foregroundStyle(TBColor.textPrimary)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 14)
-            .background(
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .fill(TBColor.surfaceElevated)
-                    .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(TBColor.border, lineWidth: 1))
-            )
+            Image(systemName: systemName)
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(tint)
+                .frame(width: 42, height: 42)
+                .background(
+                    Circle()
+                        .fill(TBColor.surfaceElevated)
+                        .overlay(Circle().stroke(tint.opacity(0.28), lineWidth: 1))
+                )
+                .contentShape(Circle())
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(label)
     }
 }
 
-private enum ActionRingMode: String, CaseIterable, Identifiable {
-    case focus
-    case cycles
+private enum ActionHalfDay: String, CaseIterable {
+    case morning
+    case evening
 
-    var id: String { rawValue }
-    var title: String { self == .focus ? "Focus" : "Cycles" }
+    var shortTitle: String { self == .morning ? "AM" : "PM" }
+    var rangeTitle: String { self == .morning ? "12 a.m. – 12 p.m." : "12 p.m. – 12 a.m." }
+
+    func accessibilityLabel(for slices: [DailyActionSlice], totalMinutes: Double) -> String {
+        let actions = slices
+            .filter { $0.consumedMinutes > 0 }
+            .map { "\($0.title), \(Int($0.consumedMinutes.rounded())) minutes" }
+            .joined(separator: ", ")
+        let detail = actions.isEmpty ? "No time logged" : actions
+        return "\(rangeTitle), \(Int(totalMinutes.rounded())) minutes logged. \(detail)."
+    }
+}
+
+private struct DailyActionSlice: Identifiable {
+    let id: String
+    let title: String
+    let halfDay: ActionHalfDay
+    let minuteInHalfDay: Double
+    let plannedMinutes: Double
+    let consumedMinutes: Double
+    let color: Color
+
+    var startFraction: Double {
+        min(max(minuteInHalfDay / 720, 0), 1)
+    }
+
+    var plannedEndFraction: Double {
+        min(max((minuteInHalfDay + plannedMinutes) / 720, startFraction), 1)
+    }
+
+    var completedEndFraction: Double {
+        min(max((minuteInHalfDay + min(consumedMinutes, plannedMinutes)) / 720, startFraction), plannedEndFraction)
+    }
 }
 
 private struct WorkLabelsView: View {

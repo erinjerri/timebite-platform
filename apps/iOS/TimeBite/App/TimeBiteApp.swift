@@ -5,11 +5,16 @@ import UserNotifications
 @main
 struct TimeBiteApp: App {
     @UIApplicationDelegateAdaptor(TimeBiteAppDelegate.self) private var appDelegate
+    @StateObject private var authentication = AuthenticationStore()
 
     var body: some Scene {
         WindowGroup {
-            RootTabView()
-                .preferredColorScheme(.dark)
+            AuthenticationGate(authentication: authentication) {
+                SyncBootstrapView(client: authentication.client) {
+                    RootTabView()
+                }
+            }
+            .preferredColorScheme(.dark)
         }
         .modelContainer(for: [
             Goal.self,
@@ -21,7 +26,13 @@ struct TimeBiteApp: App {
             DailyAIReflection.self,
             FinancialGoal.self,
             CapitalAllocation.self,
-            DebtAccount.self
+            DebtAccount.self,
+            PendingSyncMutation.self,
+            SyncCheckpoint.self,
+            CachedActionRecord.self,
+            CachedSessionRecord.self,
+            CachedFinancialAccount.self,
+            CachedTransaction.self
         ])
     }
 }

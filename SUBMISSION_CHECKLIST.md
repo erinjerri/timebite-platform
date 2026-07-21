@@ -24,8 +24,8 @@ Submission target: July 15, 2026.
 Use `PRIVACY_LABELS.md` as the source of truth.
 
 - Health and Fitness: optional, app functionality, not tracking.
-- Financial Info: not collected in the habit-centric MVP unless finance surfaces return.
-- User Content: collected on device only for goals, intents, sessions, reflections, and summaries; not tracking.
+- Financial Info: optional app functionality through Plaid; linked to the user; not tracking.
+- User Content: synchronized for goals, actions, sessions, reflections, and summaries; linked to the user; not tracking.
 - Usage Data: collected on device only for completion history, streaks, and calendar state; not tracking.
 - Contact Info, Identifiers, Diagnostics: not collected in the MVP navigation unless production services are added before submission.
 
@@ -36,8 +36,8 @@ Use `PRIVACY_LABELS.md` as the source of truth.
 - AI/agent features: not active in MVP primary navigation; admin-only local tooling is hidden behind founder unlock.
 - Network behavior: core Goal Loop works locally; optional sync/export surfaces show an empty or unavailable state if services are unavailable.
 - HealthKit behavior: app should continue to function if Health permission is denied.
-- Demo account: not required if no authentication is present in the submitted build.
-- If authentication is added before submission, provide username, password, and any required setup steps here.
+- Authentication: Sign in with Apple is required. Explain the flow in review notes.
+- Finance review: provide Plaid Sandbox institution/test instructions in App Store Connect review notes only.
 
 ## Binary Readiness
 

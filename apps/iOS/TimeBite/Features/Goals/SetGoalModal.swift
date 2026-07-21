@@ -4,6 +4,7 @@ import SwiftUI
 struct SetGoalModal: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
+    @EnvironmentObject private var syncCoordinator: SyncCoordinator
 
     let goal: Goal?
 
@@ -13,7 +14,8 @@ struct SetGoalModal: View {
     @State private var dueDate = Date()
     @State private var deadlineIncludesTime = false
     @State private var goalType = GoalType.shortTerm
-    @State private var category = ""
+    @State private var goalKind = GoalKind.work
+    @State private var customGoalKind = ""
     @State private var lifeArea = "Work"
     @State private var customLifeArea = ""
     @AppStorage("timebite.customLifeAreas") private var customLifeAreasRaw = ""
@@ -43,12 +45,20 @@ struct SetGoalModal: View {
                 VStack(alignment: .leading, spacing: 16) {
                     intro
 
+                    goalField("Life Area") {
+                        lifeAreaSelector
+                    }
+
+                    goalField("Goal Focus") {
+                        goalKindSelector
+                    }
+
                     goalField("Title", isRequired: true) {
-                        styledTextField("Launch TimeBite MVP", text: $title)
+                        styledTextField("Build an emergency fund", text: $title)
                     }
 
                     goalField("Description") {
-                        styledEditor(text: $description, minHeight: 86)
+                        styledEditor(text: $description, minHeight: 76)
                     }
 
                     goalField("Start Date") {
@@ -68,7 +78,7 @@ struct SetGoalModal: View {
                         .background(inputBackground)
                     }
 
-                    goalField("Goal Type") {
+                    goalField("Time Horizon") {
                         Picker("Goal Type", selection: $goalType) {
                             ForEach(GoalType.allCases) { type in
                                 Text(type.title).tag(type)
@@ -77,65 +87,15 @@ struct SetGoalModal: View {
                         .pickerStyle(.segmented)
                     }
 
-                    goalField("Goal Category (optional)") {
-                        styledTextField("Build, Growth, Health", text: $category)
-                    }
-
-                    goalField("Life Area") {
-                        lifeAreaSelector
-                    }
-
-                    goalField("% Complete") {
-                        HStack {
-                            Text("\(Int(min(max(goal?.progress ?? 0, 0), 1) * 100))%")
-                                .font(TBTypography.body(.semibold))
-                                .foregroundStyle(TBColor.textPrimary)
-                            Spacer()
-                            Label("Server computed", systemImage: "lock.fill")
-                                .font(TBTypography.caption(.semibold))
-                                .foregroundStyle(TBColor.textSecondary)
-                        }
-                        .padding(14)
-                        .background(inputBackground)
-                        .accessibilityHint("Read-only progress supplied by TimeBite servers")
-                    }
-
-                    HStack(spacing: 12) {
-                        goalField("Quarter") {
-                            styledTextField("2026-Q3", text: $quarter)
-                                .textInputAutocapitalization(.characters)
-                        }
-
-                        goalField("Target Hours") {
-                            Stepper("\(targetHours)h", value: $targetHours, in: 0...1000, step: 1)
-                                .font(TBTypography.body(.semibold))
-                                .foregroundStyle(TBColor.textPrimary)
-                                .padding(12)
-                                .background(inputBackground)
-                        }
-                    }
-
-                    goalField("Considerations") {
-                        styledEditor(text: $considerations, minHeight: 74)
-                    }
-
-                    goalField("Dependencies / Blockers / Resources") {
-                        styledEditor(text: $dependenciesResources, minHeight: 118)
-                    }
-
-                    goalField("Success Criteria") {
-                        styledEditor(text: $successCriteria, minHeight: 74)
-                    }
-
                     goalField("Next Action") {
                         styledEditor(text: $nextAction, minHeight: 74)
                     }
 
-                    goalField("Milestones") {
+                    goalField("Monthly Tasks") {
                         VStack(alignment: .leading, spacing: 8) {
                             styledEditor(text: $milestones, minHeight: 104)
 
-                            Text("Add one milestone per line.")
+                            Text("Add one task per line. These will feed month and quarter views in Track.")
                                 .font(TBTypography.caption())
                                 .foregroundStyle(TBColor.textSecondary)
                         }
@@ -292,6 +252,53 @@ struct SetGoalModal: View {
         }
     }
 
+    private var goalKindSelector: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 126), spacing: 8)], spacing: 8) {
+                ForEach(GoalKind.allCases) { kind in
+                    Button {
+                        withAnimation(.spring(response: 0.28, dampingFraction: 0.86)) {
+                            goalKind = kind
+                            if kind.isFinanceRelated {
+                                lifeArea = "Finance"
+                            }
+                        }
+                    } label: {
+                        Label(kind.title, systemImage: kind.symbolName)
+                            .font(TBTypography.caption(.semibold))
+                            .foregroundStyle(goalKind == kind ? TBColor.financeModalButtonText : TBColor.textPrimary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 12)
+                            .frame(minHeight: 44)
+                            .background(
+                                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                    .fill(goalKind == kind ? TBColor.primaryAccent : TBColor.surfaceElevated)
+                            )
+                            .overlay {
+                                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                    .stroke(goalKind == kind ? TBColor.primaryAccent : TBColor.border, lineWidth: 1)
+                            }
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityAddTraits(goalKind == kind ? .isSelected : [])
+                }
+            }
+
+            if goalKind == .other {
+                styledTextField("Describe this goal type", text: $customGoalKind)
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+            }
+
+            if goalKind.isFinanceRelated {
+                Label("This helps TimeBite personalize Finance when you’re ready.", systemImage: "sparkles")
+                    .font(TBTypography.caption())
+                    .foregroundStyle(TBColor.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .transition(.opacity)
+            }
+        }
+    }
+
     private var lifeAreaOptions: [String] {
         let custom = customLifeAreasRaw
             .components(separatedBy: "|")
@@ -343,7 +350,8 @@ struct SetGoalModal: View {
         dueDate = goal.dueDate
         deadlineIncludesTime = goal.deadlineIncludesTime
         goalType = GoalType(rawValue: goal.goalType) ?? .shortTerm
-        category = goal.category
+        goalKind = GoalKind(storedValue: goal.category)
+        customGoalKind = goalKind == .other ? goal.category : ""
         lifeArea = goal.lifeArea
         quarter = goal.quarter
         targetHours = goal.targetMinutes / 60
@@ -366,9 +374,11 @@ struct SetGoalModal: View {
         guard isValid else { return }
 
         do {
+            let baseUpdatedAt = goal?.updatedAt
             let savedGoal = try saveGoal()
             try replaceMilestones(for: savedGoal)
             try modelContext.save()
+            try syncCoordinator.enqueueGoal(savedGoal, baseUpdatedAt: baseUpdatedAt)
             dismiss()
         } catch {
             saveError = "Unable to save this goal. Please try again."
@@ -385,7 +395,7 @@ struct SetGoalModal: View {
             goal.dueDate = dueDate
             goal.deadlineIncludesTime = deadlineIncludesTime
             goal.goalType = goalType.title
-            goal.category = category
+            goal.category = storedGoalKind
             goal.lifeArea = lifeArea
             goal.quarter = normalizedQuarter
             goal.targetMinutes = targetHours * 60
@@ -402,7 +412,7 @@ struct SetGoalModal: View {
         let goal = Goal(
             title: cleanTitle,
             description: description,
-            category: category,
+            category: storedGoalKind,
             lifeArea: lifeArea,
             goalType: goalType.title,
             startDate: startDate,
@@ -426,6 +436,12 @@ struct SetGoalModal: View {
     private var normalizedQuarter: String {
         let cleanQuarter = quarter.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
         return cleanQuarter.isEmpty ? Date.currentQuarterIdentifier : cleanQuarter
+    }
+
+    private var storedGoalKind: String {
+        guard goalKind == .other else { return goalKind.rawValue }
+        let cleanCustomKind = customGoalKind.trimmingCharacters(in: .whitespacesAndNewlines)
+        return cleanCustomKind.isEmpty ? GoalKind.other.rawValue : cleanCustomKind
     }
 
     private func fetchMilestoneTitles(goalId: UUID) -> [String] {
@@ -479,6 +495,61 @@ private enum GoalType: String, CaseIterable, Identifiable {
 
 enum LifeAreaCatalog {
     static let defaults = ["Faith", "Fitness/Health", "Finance", "Fun", "Family", "Friends", "Work"]
+
+    static func color(for area: String) -> Color {
+        switch normalized(area) {
+        case "faith":
+            return Color(red: 0.70, green: 0.53, blue: 0.98)
+        case "fitness/health", "fitness", "health":
+            return TBColor.gold
+        case "finance":
+            return Color(red: 0.34, green: 0.82, blue: 0.62)
+        case "fun":
+            return Color(red: 0.98, green: 0.52, blue: 0.38)
+        case "family":
+            return Color(red: 0.92, green: 0.47, blue: 0.82)
+        case "friends":
+            return Color(red: 0.39, green: 0.77, blue: 0.98)
+        case "work", "build":
+            return TBColor.primaryAccent
+        case "reading":
+            return Color(red: 0.50, green: 0.74, blue: 0.98)
+        case "creative", "sketching":
+            return Color(red: 0.98, green: 0.62, blue: 0.78)
+        default:
+            let index = area.unicodeScalars.reduce(0) { $0 + Int($1.value) } % WorkLabel.palette.count
+            return WorkLabel.palette[index]
+        }
+    }
+
+    static func icon(for area: String) -> String {
+        switch normalized(area) {
+        case "faith":
+            return "sparkles"
+        case "fitness/health", "fitness", "health":
+            return "figure.strengthtraining.traditional"
+        case "finance":
+            return "dollarsign.circle.fill"
+        case "fun":
+            return "party.popper.fill"
+        case "family":
+            return "house.fill"
+        case "friends":
+            return "person.2.fill"
+        case "work", "build":
+            return "hammer.fill"
+        case "reading":
+            return "book.fill"
+        case "creative", "sketching":
+            return "pencil.and.outline"
+        default:
+            return "circle.grid.2x2.fill"
+        }
+    }
+
+    static func normalized(_ area: String) -> String {
+        area.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+    }
 }
 
 #if DEBUG

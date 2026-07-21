@@ -6,12 +6,12 @@ Submission target: iOS MVP review build for July 15, 2026.
 
 | Data Type | Collected | Purpose | Linked to User | Used for Tracking |
 | --- | --- | --- | --- | --- |
-| Contact Info | No | Not collected in MVP navigation. | No | No |
+| Contact Info | Optional | Apple relay or account email used for authentication and support. | Yes | No |
 | Health and Fitness | Optional | Connect activity or recovery minutes with goal summaries when Health permission is granted. | No backend account in MVP. | No |
-| Financial Info | No | Finance surfaces are not part of the habit-centric MVP unless explicitly re-enabled. | No | No |
-| User Content | On device only | Store goals, daily intents, sessions, notes, reflections, weekly summaries, and monthly summaries locally. | No backend account in MVP. | No |
-| Identifiers | No | Not collected in MVP navigation. | No | No |
-| Usage Data | On device only | Maintain local streaks, completion counts, monthly calendar state, and lightweight dashboard summaries. | No backend account in MVP. | No |
+| Financial Info | Optional | Linked account metadata, balances, and transactions power user-requested Finance features through Plaid. | Yes | No |
+| User Content | Yes | Synchronize goals, actions, sessions, finance goals, notes, and progress across devices. | Yes | No |
+| Identifiers | Yes | Maintain the private TimeBite account, Apple subject mapping, and security sessions. | Yes | No |
+| Usage Data | Yes | Synchronize completion and session state needed for app functionality. | Yes | No |
 | Diagnostics | No | No production diagnostics collector is active in the MVP navigation. | No | No |
 
 ## Permissions
@@ -23,6 +23,6 @@ Submission target: iOS MVP review build for July 15, 2026.
 
 ## AI And External APIs
 
-No external AI model calls are active from the MVP primary navigation. AI/agent model objects remain in the codebase for future gated features, but entry points are hidden behind Settings -> Coming Soon or admin-only development access.
+No external AI model calls are active from the beta navigation. The API uses MongoDB Atlas, Sign in with Apple, and Plaid Sandbox. Plaid handles institution credentials; TimeBite never receives them. Plaid access tokens are encrypted by the backend and never returned to iOS.
 
 Future AI features must disclose what content is sent, why it is sent, who processes it, and require explicit user action before transmission.

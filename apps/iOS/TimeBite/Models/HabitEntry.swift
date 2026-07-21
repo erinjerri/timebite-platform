@@ -29,6 +29,15 @@ struct HabitEntry: Identifiable, Hashable {
 }
 
 extension HabitEntry {
+    static let starter: [HabitEntry] = [
+        .init(title: "Deep work sprint", minutes: 85, completed: true, category: "Work", accent: LifeAreaCatalog.color(for: "Work"), note: "Polish the main shell."),
+        .init(title: "Walk and reset", minutes: 25, completed: true, category: "Fitness/Health", accent: LifeAreaCatalog.color(for: "Fitness/Health"), note: "Keep energy smooth."),
+        .init(title: "Finance review", minutes: 20, completed: false, category: "Finance", accent: LifeAreaCatalog.color(for: "Finance"), note: "Check the next money move."),
+        .init(title: "Reading block", minutes: 30, completed: false, category: "Reading", accent: LifeAreaCatalog.color(for: "Reading"), note: "Set up the next idea."),
+        .init(title: "Sketch new ideas", minutes: 20, completed: false, category: "Creative", accent: LifeAreaCatalog.color(for: "Creative"), note: "Low-pressure, open-ended.")
+    ]
+
+#if DEBUG
     static let mock: [HabitEntry] = [
         .init(title: "Deep work sprint", minutes: 85, completed: true, category: "Build", accent: TBColor.primaryAccent, note: "Polish the main shell."),
         .init(title: "Walk and reset", minutes: 25, completed: true, category: "Health", accent: TBColor.gold, note: "Keep energy smooth."),
@@ -36,5 +45,5 @@ extension HabitEntry {
         .init(title: "Reading block", minutes: 30, completed: false, category: "Growth", accent: Color(red: 0.39, green: 0.77, blue: 0.98), note: "Set up the next idea."),
         .init(title: "Sketch new ideas", minutes: 20, completed: false, category: "Creative", accent: Color(red: 0.92, green: 0.47, blue: 0.82), note: "Low-pressure, open-ended.")
     ]
+#endif
 }
-

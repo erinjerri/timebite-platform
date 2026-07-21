@@ -5,15 +5,16 @@ struct TrackView: View {
     @Query(sort: \Goal.dueDate, order: .forward) private var goals: [Goal]
     @Query(sort: \GoalProgressEntry.date, order: .forward) private var progressEntries: [GoalProgressEntry]
     @State private var selectedPeriod: TrackPeriod = .daily
-    @State private var habits: [HabitEntry] = HabitEntry.mock
+    @State private var habits: [HabitEntry] = []
     @State private var showingAddHabit = false
     @State private var draftTitle = ""
     @State private var draftCategory = "Focus"
 
     private let weekMinutes = [58, 71, 66, 94, 82, 49, 61]
+    private let weeklyAreas = ["Faith", "Fitness/Health", "Finance", "Fun", "Family", "Friends", "Work"]
     /// Pre-aggregated by RollupSvc. The client renders these values without
     /// recomputing time totals or percentages.
-    private let labelRollups = LabelTimeRollup.serverSamples
+    private let labelRollups: [LabelTimeRollup] = []
 
     private var completionCalendarModel: CompletionCalendarModel {
         CompletionCalendarModel(goal: goals.first, progressEntries: progressEntries)
@@ -112,11 +113,11 @@ struct TrackView: View {
         VStack(spacing: 12) {
             labelRollupCard
 
-            ForEach(habits) { habit in
+            ForEach(habits.isEmpty ? HabitEntry.starter : habits) { habit in
                 TBCard {
                     HStack(alignment: .top, spacing: 12) {
                         VStack(spacing: 6) {
-                            Image(systemName: habit.completed ? "checkmark.circle.fill" : "clock.badge.questionmark")
+                            Image(systemName: habit.completed ? "checkmark.circle.fill" : LifeAreaCatalog.icon(for: habit.category))
                                 .foregroundStyle(habit.completed ? TBColor.primaryAccent : habit.accent)
                                 .font(.system(size: 20, weight: .semibold))
                                 .frame(width: 32, height: 32)
@@ -133,7 +134,7 @@ struct TrackView: View {
                                     .font(TBTypography.body(.semibold))
                                     .foregroundStyle(TBColor.textPrimary)
                                 Spacer()
-                                Text("\(habit.minutes) min")
+                                Text(durationText(habit.minutes))
                                     .font(TBTypography.caption(.semibold))
                                     .foregroundStyle(habit.completed ? TBColor.primaryAccent : TBColor.textSecondary)
                             }
@@ -162,7 +163,7 @@ struct TrackView: View {
                 HStack(alignment: .top) {
                     sectionHeader(title: "Time by Work Label", subtitle: "Today · server aggregated")
                     Spacer()
-                    Text("\(labelRollups.map(\.minutes).reduce(0, +))m")
+                    Text(durationText(labelRollups.map(\.minutes).reduce(0, +)))
                         .font(TBTypography.caption(.semibold))
                         .foregroundStyle(TBColor.textPrimary)
                 }
@@ -172,7 +173,7 @@ struct TrackView: View {
                         HStack {
                             sharpLabel(rollup.label)
                             Spacer()
-                            Text("\(rollup.minutes) min")
+                            Text(durationText(rollup.minutes))
                                 .font(TBTypography.caption(.semibold))
                                 .foregroundStyle(TBColor.textSecondary)
                         }
@@ -206,14 +207,19 @@ struct TrackView: View {
 
                 HStack(alignment: .bottom, spacing: 10) {
                     ForEach(Array(weekMinutes.enumerated()), id: \.offset) { index, value in
+                        let area = weeklyAreas[index % weeklyAreas.count]
+                        let tint = LifeAreaCatalog.color(for: area)
                         VStack(spacing: 8) {
                             RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                .fill(TBColor.accentGradient)
+                                .fill(tint)
                                 .frame(height: max(CGFloat(value) * 1.5, 28))
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                        .stroke(TBColor.primaryAccent.opacity(0.18), lineWidth: 1)
+                                        .stroke(tint.opacity(0.24), lineWidth: 1)
                                 )
+                            Image(systemName: LifeAreaCatalog.icon(for: area))
+                                .font(.system(size: 11, weight: .semibold))
+                                .foregroundStyle(tint)
                             Text(weekday(index))
                                 .font(TBTypography.caption(.semibold))
                                 .foregroundStyle(TBColor.textSecondary)
@@ -224,9 +230,9 @@ struct TrackView: View {
                 .frame(height: 190)
 
                 HStack {
-                    labelPill("Momentum is up", tint: TBColor.primaryAccent)
+                    labelPill("Categories visible", tint: TBColor.primaryAccent)
                     Spacer()
-                    Text("412 min total")
+                    Text(durationText(weekMinutes.reduce(0, +)))
                         .font(TBTypography.caption(.semibold))
                         .foregroundStyle(TBColor.textSecondary)
                 }
@@ -253,7 +259,7 @@ struct TrackView: View {
             minutes: 15,
             completed: false,
             category: draftCategory,
-            accent: TBColor.primaryAccent,
+            accent: LifeAreaCatalog.color(for: draftCategory),
             note: "Locally added from the MVP sheet."
         )
         habits.insert(habit, at: 0)
@@ -264,6 +270,14 @@ struct TrackView: View {
 
     private func weekday(_ index: Int) -> String {
         ["M", "T", "W", "T", "F", "S", "S"][index]
+    }
+
+    private func durationText(_ totalMinutes: Int) -> String {
+        let minutes = max(totalMinutes, 0)
+        guard minutes >= 60 else { return "\(minutes) min" }
+        let hours = minutes / 60
+        let remainder = minutes % 60
+        return remainder == 0 ? "\(hours) hr" : "\(hours) hr \(remainder) min"
     }
 
     private func labelPill(_ text: String, tint: Color) -> some View {

@@ -1,6 +1,7 @@
 import Foundation
 import SwiftData
 
+#if DEBUG
 @MainActor
 enum GoalPreviewData {
     static let sampleGoalId = UUID(uuidString: "3ED04DDD-77EB-4F49-A07A-A04E80F7821A")!
@@ -122,3 +123,4 @@ enum GoalPreviewData {
         try? modelContext.save()
     }
 }
+#endif

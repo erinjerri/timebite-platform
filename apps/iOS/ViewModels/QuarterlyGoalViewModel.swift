@@ -20,7 +20,7 @@ final class QuarterlyGoalViewModel: ObservableObject {
     init(
         quarter: String = Date.currentQuarterIdentifier,
         goals: [QuarterlyGoalRollup] = [],
-        baseURL: URL = URL(string: "http://localhost:8000")!,
+        baseURL: URL = APIEnvironment.baseURL,
         session: URLSession = .shared,
         allowsMockFallback: Bool = false
     ) {

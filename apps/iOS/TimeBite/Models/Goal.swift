@@ -86,3 +86,45 @@ extension Date {
         return "\(components.year ?? 2026)-Q\(quarter)"
     }
 }
+
+enum GoalKind: String, CaseIterable, Identifiable {
+    case work = "Work"
+    case personal = "Personal"
+    case health = "Health"
+    case debt = "Debt Payoff"
+    case savings = "Savings"
+    case investing = "Investing"
+    case other = "Other"
+
+    var id: String { rawValue }
+    var title: String { rawValue }
+
+    var symbolName: String {
+        switch self {
+        case .work: "briefcase.fill"
+        case .personal: "person.fill"
+        case .health: "heart.fill"
+        case .debt: "creditcard.fill"
+        case .savings: "banknote.fill"
+        case .investing: "chart.line.uptrend.xyaxis"
+        case .other: "ellipsis.circle.fill"
+        }
+    }
+
+    var isFinanceRelated: Bool {
+        self == .debt || self == .savings || self == .investing
+    }
+
+    init(storedValue: String) {
+        let normalized = storedValue.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        switch normalized {
+        case "work", "career", "build", "growth": self = .work
+        case "personal": self = .personal
+        case "health", "fitness", "fitness/health": self = .health
+        case "debt", "debt payoff": self = .debt
+        case "savings", "saving", "emergency savings": self = .savings
+        case "investing", "investment", "investments": self = .investing
+        default: self = .other
+        }
+    }
+}
