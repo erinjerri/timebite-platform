@@ -329,7 +329,6 @@ struct GoalsView: View {
     private func complete(_ goal: Goal) {
         withAnimation(.spring(response: 0.32, dampingFraction: 0.88)) {
             goal.status = "Completed"
-            goal.progress = 1
             goal.updatedAt = .now
             try? modelContext.save()
         }
@@ -523,16 +522,14 @@ private struct GoalDashboardCard: View {
     }
 
     private var categoryBadge: some View {
-        Text(goal.category)
+        let area = GoalLifeArea(name: goal.lifeArea)
+        return Text(area.title)
             .font(TBTypography.caption(.semibold))
-            .foregroundStyle(TBColor.primaryAccent)
+            .foregroundStyle(area.color)
             .padding(.vertical, 6)
             .padding(.horizontal, 10)
-            .background(
-                Capsule(style: .continuous)
-                    .fill(TBColor.primaryAccent.opacity(0.12))
-                    .overlay(Capsule(style: .continuous).stroke(TBColor.primaryAccent.opacity(0.25), lineWidth: 1))
-            )
+            .background(area.color.opacity(0.12))
+            .overlay(Rectangle().stroke(area.color.opacity(0.34), lineWidth: 1))
     }
 
     private var statusBadge: some View {
@@ -662,6 +659,7 @@ private struct GoalDashboardItem: Identifiable, Hashable {
     var title: String
     var dueDate: String
     var category: String
+    var lifeArea: String
     var status: GoalDashboardStatus
     var progress: Double
     var nextMilestone: String
@@ -669,8 +667,11 @@ private struct GoalDashboardItem: Identifiable, Hashable {
     init(goal: Goal, nextMilestone: String) {
         self.id = goal.id
         self.title = goal.title
-        self.dueDate = goal.dueDate.formatted(.dateTime.month(.abbreviated).day())
+        self.dueDate = goal.deadlineIncludesTime
+            ? goal.dueDate.formatted(.dateTime.month(.abbreviated).day().hour().minute())
+            : goal.dueDate.formatted(.dateTime.month(.abbreviated).day())
         self.category = goal.category.ifEmpty("General")
+        self.lifeArea = goal.lifeArea.ifEmpty("Work")
         self.status = GoalDashboardStatus(goalStatus: goal.status)
         self.progress = min(max(goal.progress, 0), 1)
         self.nextMilestone = nextMilestone
@@ -725,9 +726,12 @@ private struct GoalsTimelineView: View {
     private let laneWidth: CGFloat = 116
     private let rowHeight: CGFloat = 58
 
-    private var categories: [GoalCategory] {
-        GoalCategory.allCases.filter { category in
-            goals.contains { GoalCategory(name: $0.category) == category }
+    private var categories: [GoalLifeArea] {
+        goals.reduce(into: []) { result, goal in
+            let area = GoalLifeArea(name: goal.lifeArea)
+            if !result.contains(area) {
+                result.append(area)
+            }
         }
     }
 
@@ -796,7 +800,7 @@ private struct GoalsTimelineView: View {
 
     private var laneColumn: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("Category")
+            Text("Life Area")
                 .font(TBTypography.caption(.semibold))
                 .foregroundStyle(TBColor.textSecondary)
                 .frame(width: laneWidth, height: 48, alignment: .leading)
@@ -849,8 +853,8 @@ private struct GoalsTimelineView: View {
         }
     }
 
-    private func categoryGoals(_ category: GoalCategory) -> some View {
-        let laneGoals = goals.filter { GoalCategory(name: $0.category) == category }
+    private func categoryGoals(_ category: GoalLifeArea) -> some View {
+        let laneGoals = goals.filter { GoalLifeArea(name: $0.lifeArea) == category }
 
         return ZStack(alignment: .topLeading) {
             ForEach(laneGoals) { goal in
@@ -859,7 +863,7 @@ private struct GoalsTimelineView: View {
         }
     }
 
-    private func goalBar(_ goal: Goal, category: GoalCategory) -> some View {
+    private func goalBar(_ goal: Goal, category: GoalLifeArea) -> some View {
         let laneIndex = CGFloat(categories.firstIndex(of: category) ?? 0)
         let startX = xPosition(for: max(goal.startDate, visibleRange.start))
         let endX = xPosition(for: min(goal.dueDate, visibleRange.end))
@@ -941,8 +945,8 @@ private struct GoalListView: View {
                     onSelectGoal(goal)
                 } label: {
                     HStack(spacing: 12) {
-                        RoundedRectangle(cornerRadius: 4, style: .continuous)
-                            .fill(GoalCategory(name: goal.category).color)
+                        Rectangle()
+                            .fill(GoalLifeArea(name: goal.lifeArea).color)
                             .frame(width: 5, height: 52)
 
                         VStack(alignment: .leading, spacing: 5) {
@@ -951,7 +955,7 @@ private struct GoalListView: View {
                                 .foregroundStyle(TBColor.textPrimary)
                                 .lineLimit(1)
 
-                            Text("\(GoalCategory(name: goal.category).title)  ·  \(goal.dueDate.formatted(.dateTime.month(.abbreviated).day()))")
+                            Text("\(GoalLifeArea(name: goal.lifeArea).title)  ·  \(goal.dueDate.formatted(.dateTime.month(.abbreviated).day()))")
                                 .font(TBTypography.caption())
                                 .foregroundStyle(TBColor.textSecondary)
                         }
@@ -1005,7 +1009,7 @@ private struct GoalDetailDrawer: View {
                             .foregroundStyle(TBColor.textPrimary)
 
                         HStack(spacing: 8) {
-                            drawerChip(GoalCategory(name: goal.category).title, tint: GoalCategory(name: goal.category).color)
+                            lifeAreaBox(GoalLifeArea(name: goal.lifeArea))
                             drawerChip(GoalDashboardStatus(goalStatus: goal.status).title, tint: GoalDashboardStatus(goalStatus: goal.status).tint)
                         }
                     }
@@ -1023,7 +1027,7 @@ private struct GoalDetailDrawer: View {
 
                 HStack(spacing: 12) {
                     dateBlock("Start", date: goal.startDate)
-                    dateBlock("Due", date: goal.dueDate)
+                    dateBlock("Deadline", date: goal.dueDate, includesTime: goal.deadlineIncludesTime)
                 }
 
                 Chart {
@@ -1031,7 +1035,7 @@ private struct GoalDetailDrawer: View {
                         x: .value("Progress", goal.progress),
                         y: .value("Goal", "Progress")
                     )
-                    .foregroundStyle(GoalCategory(name: goal.category).color)
+                    .foregroundStyle(GoalLifeArea(name: goal.lifeArea).color)
                 }
                 .chartXScale(domain: 0...1)
                 .chartXAxis(.hidden)
@@ -1042,6 +1046,10 @@ private struct GoalDetailDrawer: View {
 
                 drawerSection("Next Action", text: goal.nextAction.ifEmpty("No next action set."))
                 drawerSection("Success Criteria", text: goal.successCriteria.ifEmpty("No success criteria set."))
+                drawerSection(
+                    "Dependencies / Blockers / Resources",
+                    text: goal.dependenciesResources.ifEmpty([goal.blockers, goal.resources].filter { !$0.isEmpty }.joined(separator: "\n\n").ifEmpty("None recorded."))
+                )
 
                 VStack(alignment: .leading, spacing: 10) {
                     Text("Milestones")
@@ -1056,7 +1064,7 @@ private struct GoalDetailDrawer: View {
                         ForEach(milestones) { milestone in
                             HStack(spacing: 10) {
                                 Diamond()
-                                    .fill(GoalCategory(name: goal.category).color)
+                                    .fill(GoalLifeArea(name: goal.lifeArea).color)
                                     .frame(width: 12, height: 12)
 
                                 VStack(alignment: .leading, spacing: 3) {
@@ -1103,13 +1111,15 @@ private struct GoalDetailDrawer: View {
         .background(drawerPanel)
     }
 
-    private func dateBlock(_ title: String, date: Date) -> some View {
+    private func dateBlock(_ title: String, date: Date, includesTime: Bool = false) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(title)
                 .font(TBTypography.caption(.semibold))
                 .foregroundStyle(TBColor.textSecondary)
 
-            Text(date.formatted(.dateTime.month(.abbreviated).day().year()))
+            Text(includesTime
+                ? date.formatted(.dateTime.month(.abbreviated).day().year().hour().minute())
+                : date.formatted(.dateTime.month(.abbreviated).day().year()))
                 .font(TBTypography.body(.semibold))
                 .foregroundStyle(TBColor.textPrimary)
         }
@@ -1125,6 +1135,16 @@ private struct GoalDetailDrawer: View {
             .padding(.vertical, 6)
             .padding(.horizontal, 10)
             .background(Capsule(style: .continuous).fill(tint.opacity(0.12)))
+    }
+
+    private func lifeAreaBox(_ area: GoalLifeArea) -> some View {
+        Text(area.title)
+            .font(TBTypography.caption(.semibold))
+            .foregroundStyle(area.color)
+            .padding(.vertical, 6)
+            .padding(.horizontal, 10)
+            .background(area.color.opacity(0.12))
+            .overlay(Rectangle().stroke(area.color.opacity(0.34), lineWidth: 1))
     }
 }
 
@@ -1249,6 +1269,39 @@ private enum TimelineScale: String, CaseIterable, Identifiable {
             return date.formatted(.dateTime.month(.abbreviated))
         case .year:
             return date.formatted(.dateTime.month(.abbreviated))
+        }
+    }
+}
+
+private struct GoalLifeArea: Identifiable, Hashable {
+    let title: String
+
+    init(name: String) {
+        let clean = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        title = clean.isEmpty ? "Work" : clean
+    }
+
+    var id: String { title.lowercased() }
+
+    var color: Color {
+        switch id {
+        case "faith":
+            return Color(red: 0.70, green: 0.53, blue: 0.98)
+        case "fitness/health", "fitness", "health":
+            return TBColor.gold
+        case "finance":
+            return Color(red: 0.34, green: 0.82, blue: 0.62)
+        case "fun":
+            return Color(red: 0.98, green: 0.52, blue: 0.38)
+        case "family":
+            return Color(red: 0.92, green: 0.47, blue: 0.82)
+        case "friends":
+            return Color(red: 0.39, green: 0.77, blue: 0.98)
+        case "work":
+            return TBColor.primaryAccent
+        default:
+            let index = title.unicodeScalars.reduce(0) { $0 + Int($1.value) } % WorkLabel.palette.count
+            return WorkLabel.palette[index]
         }
     }
 }

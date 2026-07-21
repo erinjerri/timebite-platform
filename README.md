@@ -1,263 +1,121 @@
 # TimeBite Platform
 
-TimeBite is a **cycle-based time system** for modeling how time is actually spent across life categories — not just planned.
+TimeBite is a calm, habit-centric goal loop for turning intent into completed focus sessions, lightweight reflection, streak reinforcement, and useful insights.
+
+The MVP is intentionally not analytics-first. Analytics serve the loop after the user has built a rhythm.
 
 Built across:
 
-- **iOS** (primary product surface)
-- **visionOS** (spatial computing + torus visualization)
-- **macOS** (future productivity + debugging interface)
+- **iOS** as the primary MVP surface
+- **visionOS** for future spatial ritual and completion review
+- **macOS** for future productivity and debugging workflows
 
 ---
 
 ## TL;DR
 
-- **What:** A system that shows how your time is distributed in reality
-- **Core:** Cycle Matrix → Cycles Dashboard → Feedback loop
-- **Agent:** Constrained assistant (tight RAG, not open chat)
-- **Status:** Active development + research monorepo
+- **What:** A daily ritual for choosing an intent, completing a focused session, reflecting briefly, and seeing continuity over time.
+- **Core:** Goal Loop -> Execution -> Reflection -> Streak -> Insights.
+- **MVP priority:** Goal Loop, Daily Intent, Timer, Reflection, Monthly Completion Calendar, Dashboard, Analytics, AI features.
+- **Assistant:** Future constrained assistant only; not part of the primary MVP loop.
+- **Status:** Active development and product pivot toward a calmer goal practice.
 
 ---
 
-## Core concepts
+## Product Direction
 
-### Cycle Matrix (backend)
+TimeBite should feel like a quiet daily ritual, not a command center. The app helps the user answer five low-friction questions:
 
-- Source of truth for time allocation
-- Structure:
-  - rows → time segments
-  - columns → categories
-  - values → time spent
+1. What matters today?
+2. What session will I do now?
+3. Did I complete it?
+4. What did I notice?
+5. How is my streak and month shaping up?
 
-### TimeBite Cycles (UI)
-
-- User-facing representation of time distribution
-- Includes:
-  - category allocation (bars)
-  - contribution grid (GitHub-style history)
-  - cycle score + feedback
-  - quarterly goal progress from completed task time
-
-### Quarterly Goal Chart
-
-- Goals belong to a quarter and carry a target time budget
-- Completed tasks fill goal progress using captured time
-- `percent_complete` is server-computed; clients render the rollup but never submit progress percentages
-- Notion mirrors quarterly rollups read-only, consistent with TimeBite's write-primary rule
-
-### Constrained assistant (tight RAG)
-
-- Not a general chatbot
-- Only:
-  - executes **allowed UI actions**
-  - retrieves documentation
+The interaction patterns are completion checkmarks, gentle streak reinforcement, quick journaling, a monthly completion calendar, and minimal cognitive load. We are inspired by calm ritual products, but TimeBite must retain its own identity and avoid cloning any existing UI.
 
 ---
 
-## Cycles dashboard (UI concept)
+## Core Concepts
 
-TimeBite surfaces time as a **structured system**, not just tasks.
+### Goal Loop
 
-### Daily cycles (example)
+The Goal is the durable habit object. It carries the user's intent, category, frequency, sessions, completion history, reflections, current streak, longest streak, weekly summary, monthly summary, and tags.
 
-```text
-[ Today ]
+### Daily Intent
 
-Engineering — 3h 20m ███████░░
-Writing     — 1h 45m ████░░░░░
-Health      — 0h 50m ██░░░░░░░
-Admin       — 2h 10m █████░░░░
-Personal    — 0h 30m █░░░░░░░░
-```
+The first meaningful action each day is choosing one or a few goals that matter today. The intent can be tiny and plain-language.
 
-### Quarterly Goal Chart (example)
+### Execution
 
-```text
-[ Q3 2026 ]
-Ship TimeBite MVP — 42h of 60h ███████░░░ 70%  (18/24 tasks)
-Book pitch draft  —  6h of 20h ███░░░░░░░ 30%  (3/10 tasks)
-```
+Execution is a focused timer session tied to a goal. The user should be able to start, pause, complete, or skip without handling analytics decisions.
+
+### Reflection
+
+After completion, TimeBite asks for a lightweight reflection. Reflection is optional, short, and ritual-like: one line is enough.
+
+### Streak
+
+Streaks reinforce continuity without shaming. The product should celebrate return, recovery, and consistency over perfect behavior.
+
+### Insights
+
+Insights summarize patterns after enough completion and reflection data exists. Analytics are a later layer, not the primary MVP.
 
 ---
 
-## Repository layout (current)
+## MVP Navigation
 
-What exists in this repo today (high level):
+The MVP should bias toward fewer surfaces:
+
+- **Today:** Daily intent, active timer, completion checkmarks, quick reflection.
+- **Goals:** Goal setup, frequency, tags, streak status, recent sessions.
+- **Calendar:** Monthly completion calendar and reflection markers.
+- **Dashboard:** Calm rollup of streaks, weekly summary, monthly summary, and light insights.
+- **Settings:** Privacy, reminders, export, and gated future features.
+
+---
+
+## Repository Layout
 
 ```text
 timebite-platform/
-├── apps/                    # Placeholder targets: iOS, visionOS, macOS
-├── docs/                    # e.g. system-architecture.md
-├── specs/                   # e.g. torus_environment.md
-├── schemas/                 # Shared JSON shapes for tasks, goals, and quarterly rollups
-├── backend/                 # Services and API routes for cycles and goal rollups
-├── research/
-│   └── auto_research/       # Research CLI, autoresearch package, outputs
-├── README.md
-└── .gitignore
+├── apps/                    # iOS, visionOS, macOS, website surfaces
+├── backend/                 # Services for goals, cycles, assistant, telemetry
+├── docs/                    # Product, architecture, roadmap, sprint docs
+├── schemas/                 # Shared JSON shapes for goals, tasks, rollups
+├── shared/                  # Shared domain code
+├── specs/                   # Focused product and platform specifications
+├── research/                # Research experiments and outputs
+└── README.md
 ```
-
----
-### Target platform layout (planned)
-
-Full monorepo layout (clients, backend, scripts). Expand to view.
-
-<details>
-<summary><strong>Full directory tree (planned)</strong></summary>
-
-```text
-timebite-platform/
-│
-├── apps/
-│   ├── ios/
-│   │   └── timebite-ios/
-│   │       ├── App/
-│   │       │   ├── TimeBiteApp.swift
-│   │       │   ├── RootView.swift
-│   │       │   ├── AppState.swift
-│   │       │   └── Navigation/
-│   │       │       ├── TabRouter.swift
-│   │       │       └── RouteDefinitions.swift
-│   │       │
-│   │       ├── Features/
-│   │       │   ├── cycles/
-│   │       │   │   ├── Views/
-│   │       │   │   │   ├── CyclesDashboardView.swift
-│   │       │   │   │   ├── CycleRowView.swift
-│   │       │   │   │   ├── CycleBarView.swift
-│   │       │   │   │   ├── CycleScoreCard.swift
-│   │       │   │   │   ├── RealityCheckView.swift
-│   │       │   │   │   └── DailySummaryView.swift
-│   │       │   │   ├── ViewModels/
-│   │       │   │   │   ├── CyclesViewModel.swift
-│   │       │   │   │   └── CycleComputation.swift
-│   │       │   │   ├── Models/
-│   │       │   │   │   ├── Cycle.swift
-│   │       │   │   │   ├── Category.swift
-│   │       │   │   │   └── CycleSnapshot.swift
-│   │       │   │   └── Components/
-│   │       │   │       ├── ProgressBar.swift
-│   │       │   │       └── PercentageLabel.swift
-│   │       │   │
-│   │       │   ├── tasks/
-│   │       │   ├── goals/
-│   │       │   │   ├── Views/
-│   │       │   │   │   └── QuarterlyGoalChartView.swift
-│   │       │   │   └── ViewModels/
-│   │       │   │       └── QuarterlyGoalViewModel.swift
-│   │       │   ├── planner/
-│   │       │   ├── insights/
-│   │       │   └── assistant/
-│   │       │
-│   │       ├── Services/
-│   │       │   ├── API/
-│   │       │   ├── Storage/
-│   │       │   ├── Assistant/
-│   │       │   └── Integrations/
-│   │       │
-│   │       └── Shared/
-│   │
-│   ├── visionos/
-│   │   └── timebite-visionos/
-│   │       ├── App/
-│   │       │   ├── TimeBiteVisionApp.swift
-│   │       │   └── SpatialRootView.swift
-│   │       │
-│   │       ├── Features/
-│   │       │   ├── torus/
-│   │       │   │   ├── Views/
-│   │       │   │   │   ├── TorusView.swift
-│   │       │   │   │   ├── Ring3DView.swift
-│   │       │   │   │   └── SpatialCyclesView.swift
-│   │       │   │   ├── Models/
-│   │       │   │   └── ViewModels/
-│   │       │   │
-│   │       │   └── gestures/
-│   │       │       ├── HandTrackingManager.swift
-│   │       │       └── GestureRouter.swift
-│   │       │
-│   │       └── Shared/
-│   │
-│   ├── macos/
-│   │   └── timebite-macos/
-│   │       ├── App/
-│   │       │   ├── TimeBiteMacApp.swift
-│   │       │   └── DesktopRootView.swift
-│   │       │
-│   │       ├── Features/
-│   │       │   ├── cycles/
-│   │       │   ├── planner/
-│   │       │   ├── insights/
-│   │       │   └── debug/
-│   │       │       ├── TelemetryView.swift
-│   │       │       └── LogsViewer.swift
-│   │       │
-│   │       └── Services/
-│   │
-│   └── web/
-│       └── timebite-web/
-│
-├── backend/
-│   ├── services/
-│   │   ├── cycles/
-│   │   │   ├── cycle_matrix.py
-│   │   │   ├── cycle_engine.py
-│   │   │   └── scoring.py
-│   │   │
-│   │   ├── goals/
-│   │   │   ├── quarterly_rollup.py
-│   │   │   └── task_completion_handler.py
-│   │   │
-│   │   ├── agents/
-│   │   │   ├── green_agent/
-│   │   │   ├── purple_agent/
-│   │   │   └── shared/
-│   │   │
-│   │   ├── assistant/
-│   │   │   ├── orchestrator.py
-│   │   │   ├── intent_classifier.py
-│   │   │   ├── ui_action_whitelist.py
-│   │   │   └── documentation_router.py
-│   │   │
-│   │   ├── retrieval/
-│   │   │   ├── ingest_docs.py
-│   │   │   ├── chunking.py
-│   │   │   ├── embeddings.py
-│   │   │   ├── vector_store.py
-│   │   │   └── retriever.py
-│   │   │
-│   │   └── telemetry/
-│   │
-│   └── api/
-│       └── goals_quarterly.py
-│
-├── shared/
-├── docs/
-├── schemas/
-│   ├── task_schema.json
-│   ├── goal_schema.json
-│   └── quarterly_rollup_schema.json
-├── research/
-└── scripts/
-```
-
-</details>
 
 ---
 
 ## Documentation
 
-- [System architecture](docs/system-architecture.md) — flow diagram and component relationships
-- [Torus environment](specs/torus_environment.md) — state and actions sketch
+- [Goal Loop specification](docs/goal-loop-specification.md)
+- [System architecture](docs/system-architecture.md)
+- [UI architecture](docs/ui-architecture.md)
+- [Dashboard specification](docs/dashboard-specification.md)
+- [Roadmap](docs/roadmap.md)
+- [Sprint plan and backlog](docs/sprint-plan.md)
+- [Feature checklist](docs/feature-checklist.md)
+- [Migration checklist](docs/migration-checklist.md)
+- [Implementation roadmap](docs/implementation-roadmap.md)
+- [Notion export docs](docs/notion-export.md)
+- [Torus environment](specs/torus_environment.md)
+
+`docs/to-do-list.md` now points to the sprint plan so backlog work has one source of truth.
 
 ---
 
-## License
+## Privacy
 
-No `LICENSE` file is in the repo yet. Add one at the repo root (for example MIT or Apache-2.0) when you are ready to share terms.
+The MVP should remain local-first where possible. Reflections, goals, sessions, and streak history are user content. External AI and analytics features must remain gated until explicit privacy and user-consent flows exist.
 
 ---
 
 ## Security
 
-Do not commit API keys, tokens, or production endpoints. Use a local `.env` (ignored by git) for secrets.
+Do not commit API keys, tokens, or production endpoints. Use a local `.env` ignored by git for secrets.

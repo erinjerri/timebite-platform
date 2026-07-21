@@ -14,14 +14,16 @@ final class GoalStore {
         title: String,
         description: String = "",
         category: String = "",
+        lifeArea: String = "Work",
         goalType: String = "",
         startDate: Date = .now,
         dueDate: Date,
-        progress: Double = 0,
+        deadlineIncludesTime: Bool = false,
         status: String = "Not Started",
         considerations: String = "",
         blockers: String = "",
         resources: String = "",
+        dependenciesResources: String = "",
         successCriteria: String = "",
         nextAction: String = ""
     ) throws -> Goal {
@@ -29,14 +31,17 @@ final class GoalStore {
             title: title,
             description: description,
             category: category,
+            lifeArea: lifeArea,
             goalType: goalType,
             startDate: startDate,
             dueDate: dueDate,
-            progress: progress,
+            deadlineIncludesTime: deadlineIncludesTime,
+            progress: 0,
             status: status,
             considerations: considerations,
             blockers: blockers,
             resources: resources,
+            dependenciesResources: dependenciesResources,
             successCriteria: successCriteria,
             nextAction: nextAction
         )
@@ -67,14 +72,16 @@ final class GoalStore {
         title: String? = nil,
         description: String? = nil,
         category: String? = nil,
+        lifeArea: String? = nil,
         goalType: String? = nil,
         startDate: Date? = nil,
         dueDate: Date? = nil,
-        progress: Double? = nil,
+        deadlineIncludesTime: Bool? = nil,
         status: String? = nil,
         considerations: String? = nil,
         blockers: String? = nil,
         resources: String? = nil,
+        dependenciesResources: String? = nil,
         successCriteria: String? = nil,
         nextAction: String? = nil
     ) throws {
@@ -87,6 +94,9 @@ final class GoalStore {
         if let category {
             goal.category = category
         }
+        if let lifeArea {
+            goal.lifeArea = lifeArea
+        }
         if let goalType {
             goal.goalType = goalType
         }
@@ -96,8 +106,8 @@ final class GoalStore {
         if let dueDate {
             goal.dueDate = dueDate
         }
-        if let progress {
-            goal.progress = progress
+        if let deadlineIncludesTime {
+            goal.deadlineIncludesTime = deadlineIncludesTime
         }
         if let status {
             goal.status = status
@@ -110,6 +120,9 @@ final class GoalStore {
         }
         if let resources {
             goal.resources = resources
+        }
+        if let dependenciesResources {
+            goal.dependenciesResources = dependenciesResources
         }
         if let successCriteria {
             goal.successCriteria = successCriteria

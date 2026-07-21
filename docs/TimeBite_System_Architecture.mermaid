@@ -1,0 +1,34 @@
+flowchart TB
+    subgraph Client["iOS Client (SwiftUI)"]
+        ActionsTab["Actions Tab<br>Hero Ring + Upcoming Rail"]
+        GoalsTab["Goals Tab<br>Deadline Setter + Gantt"]
+        TrackTab["Track Tab<br>Label Rollup Viz"]
+        WorkLabels["Work Labels Screen<br>(user-defined project tags)"]
+        HealthKitBridge["HealthKit Bridge<br>(read-only: steps, activity rings)"]
+    end
+
+    subgraph Backend["Backend (Supabase)"]
+        TaskSvc["Task Service<br>(elapsed/percent_complete compute)"]
+        GoalSvc["Goal Service<br>(deadline, % complete, dependencies)"]
+        RollupSvc["Rollup Service<br>(time-by-label, time-by-life-area)"]
+        SentimentSvc["Sentiment Scoring<br>(async, server-only)"]
+        AgentLog["AgentActionEvent Log<br>(tagged_by audit trail)"]
+    end
+
+    subgraph Mirror["Notion (read-only mirror)"]
+        NotionSync["Idempotent Sync<br>(@notionhq/client, upsert by<br>notion_page_id, 3 req/sec)"]
+    end
+
+    HealthKitBridge -- "steps, active minutes" --> GoalSvc
+    ActionsTab -- "log time against task+label" --> TaskSvc
+    WorkLabels -- "label CRUD" --> TaskSvc
+    TaskSvc -- "elapsed, percent_complete" --> RollupSvc
+    GoalSvc -- "life_area, deadline, %complete" --> RollupSvc
+    RollupSvc -- "aggregated totals" --> TrackTab
+    TaskSvc -- "server-computed state" --> ActionsTab
+    GoalSvc -- "server-computed state" --> GoalsTab
+    TaskSvc --> SentimentSvc
+    TaskSvc --> AgentLog
+    GoalSvc --> AgentLog
+    TaskSvc -- "one-way, write-primary" --> NotionSync
+    GoalSvc -- "one-way, write-primary" --> NotionSync

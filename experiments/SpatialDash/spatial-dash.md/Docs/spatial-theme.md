@@ -8,7 +8,7 @@
 - Keep opacity between `0.70` and `1.0`.
 - Keep motion duration between `0.15` and `0.60`.
 - Use the known enum values for intent, mood, style, energy, density, and brightness.
-- Do not remove Actions, Goals, Track, or Dashboard.
+- Do not remove Today, Goals, Calendar, or Dashboard.
 - Keep `preserve_torus_geometry` enabled.
 
 ## Light Example

@@ -1,15 +1,67 @@
 {
   "goal_id": "uuid",
-  "title": "string",
-  "pillar": "work | personal | admin",
-  "category": "work | personal | admin",
-  "quarter": "string (format YYYY-QN, example: 2026-Q3)",
-  "target_minutes": "integer",
-  "status": "active | completed | archived",
+  "intent": "string",
+  "category": "health | work | creative | relationships | home | finance | learning | personal | custom",
+  "life_area": "faith | fitness/health | finance | fun | family | friends | work | user-defined extension",
+  "dependencies_blockers_resources": "string",
+  "deadline": {
+    "value": "ISO 8601 date or timestamp",
+    "includes_time": "boolean"
+  },
+  "frequency": {
+    "type": "daily | weekly | monthly | custom",
+    "target_count": "integer",
+    "days_of_week": ["mon | tue | wed | thu | fri | sat | sun"],
+    "rest_days_allowed": "integer"
+  },
+  "sessions": [
+    {
+      "session_id": "uuid",
+      "planned_minutes": "integer",
+      "actual_minutes": "integer | null",
+      "status": "planned | running | paused | completed | skipped",
+      "started_at": "ISO 8601 timestamp | null",
+      "completed_at": "ISO 8601 timestamp | null"
+    }
+  ],
+  "completion_history": [
+    {
+      "date": "ISO 8601 date",
+      "status": "completed | partial | skipped | rest",
+      "session_ids": ["uuid"],
+      "completed_count": "integer"
+    }
+  ],
+  "reflections": [
+    {
+      "reflection_id": "uuid",
+      "session_id": "uuid | null",
+      "date": "ISO 8601 date",
+      "prompt": "string | null",
+      "body": "string",
+      "mood": "string | null",
+      "created_at": "ISO 8601 timestamp"
+    }
+  ],
+  "current_streak": "integer",
+  "longest_streak": "integer",
+  "percent_complete": "number (server-computed by RollupSvc; read-only to clients)",
+  "weekly_summary": {
+    "week_start": "ISO 8601 date",
+    "completed_days": "integer",
+    "completed_sessions": "integer",
+    "reflection_count": "integer",
+    "summary_text": "string"
+  },
+  "monthly_summary": {
+    "month": "string (format YYYY-MM)",
+    "completed_days": "integer",
+    "completed_sessions": "integer",
+    "reflection_count": "integer",
+    "summary_text": "string"
+  },
+  "tags": ["string"],
+  "status": "active | paused | completed | archived",
   "created_at": "ISO 8601 timestamp",
-  "target_date": "ISO 8601 date",
-  "derived_server_computed": {
-    "logged_minutes": "integer (sum of completed child task time_spent_minutes, falling back to time_allotted_minutes)",
-    "percent_complete": "number (logged_minutes / target_minutes; never accepted from client submissions)"
-  }
+  "updated_at": "ISO 8601 timestamp"
 }

@@ -7,14 +7,19 @@ final class Goal {
     var title: String
     var goalDescription: String
     var category: String
+    var lifeArea: String = "Work"
     var goalType: String
     var startDate: Date
     var dueDate: Date
+    var deadlineIncludesTime: Bool = false
+    /// Canonical time-based percentage returned by GoalSvc/RollupSvc.
+    /// Client forms render this value read-only.
     var progress: Double
     var status: String
     var considerations: String
     var blockers: String
     var resources: String
+    var dependenciesResources: String = ""
     var successCriteria: String
     var nextAction: String
     var quarter: String
@@ -27,14 +32,17 @@ final class Goal {
         title: String,
         description: String = "",
         category: String = "",
+        lifeArea: String = "Work",
         goalType: String = "",
         startDate: Date = .now,
         dueDate: Date = .now,
+        deadlineIncludesTime: Bool = false,
         progress: Double = 0,
         status: String = "Not Started",
         considerations: String = "",
         blockers: String = "",
         resources: String = "",
+        dependenciesResources: String = "",
         successCriteria: String = "",
         nextAction: String = "",
         quarter: String = Date.currentQuarterIdentifier,
@@ -46,14 +54,17 @@ final class Goal {
         self.title = title
         self.goalDescription = description
         self.category = category
+        self.lifeArea = lifeArea
         self.goalType = goalType
         self.startDate = startDate
         self.dueDate = dueDate
+        self.deadlineIncludesTime = deadlineIncludesTime
         self.progress = progress
         self.status = status
         self.considerations = considerations
         self.blockers = blockers
         self.resources = resources
+        self.dependenciesResources = dependenciesResources
         self.successCriteria = successCriteria
         self.nextAction = nextAction
         self.quarter = quarter
