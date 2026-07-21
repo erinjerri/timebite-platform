@@ -3,35 +3,47 @@ import SwiftUI
 
 struct ActionView: View {
     @State private var action = ActionItem.mock
+    @State private var queue = ActionQueueItem.samples
+    @State private var labels = WorkLabel.samples
     @State private var isRunning = false
     @State private var elapsedSeconds = ActionItem.mock.elapsedMinutes * 60
-    @State private var steps: [ActionStep] = [
-        .init(title: "Tighten the hero ring layout", minutes: 8, isDone: true),
-        .init(title: "Polish timer controls and states", minutes: 12, isDone: false),
-        .init(title: "Add one more pass of realism", minutes: 10, isDone: false)
-    ]
-    @State private var completionCapture: TaskCompletionCapture?
+    @State private var now = Date()
+    @State private var ringMode: ActionRingMode = .focus
+    @State private var showingWorkLabels = false
 
     private let tick = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    private let workLabelsStorageKey = "timebite.workLabels"
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    heroCard
-                    if let completionCapture {
-                        inlineCompletionCapture(completionCapture)
-                    }
+                    executionCard
                     timerCard
-                    subtasksCard
                 }
                 .padding(16)
             }
             .background(background)
             .navigationTitle("Action")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showingWorkLabels = true
+                    } label: {
+                        Label("Work Labels", systemImage: "tag")
+                            .font(TBTypography.caption(.semibold))
+                    }
+                    .foregroundStyle(TBColor.primaryAccent)
+                }
+            }
         }
-        .onReceive(tick) { _ in
+        .sheet(isPresented: $showingWorkLabels) {
+            WorkLabelsView(labels: $labels)
+                .preferredColorScheme(.dark)
+        }
+        .onReceive(tick) { value in
+            now = value
             guard isRunning else { return }
             let maxSeconds = action.targetMinutes * 60
             if elapsedSeconds < maxSeconds {
@@ -40,123 +52,235 @@ struct ActionView: View {
                 isRunning = false
             }
         }
+        .onAppear(perform: loadWorkLabels)
+        .onChange(of: labels) { _, newLabels in
+            guard let data = try? JSONEncoder().encode(newLabels) else { return }
+            UserDefaults.standard.set(data, forKey: workLabelsStorageKey)
+        }
     }
 
-    private var heroCard: some View {
+    private var executionCard: some View {
         TBCard {
-            VStack(alignment: .leading, spacing: 18) {
-                VStack(alignment: .leading, spacing: 10) {
-                    Text("Today’s action")
-                        .font(TBTypography.caption(.semibold))
-                        .tracking(1.2)
-                        .foregroundStyle(TBColor.textSecondary)
+            HStack(alignment: .top, spacing: 14) {
+                upcomingRail
+                    .frame(width: 128, height: 344)
 
-                    TextField("Action title", text: $action.title)
-                        .font(TBTypography.title(.title2, weight: .semibold))
-                        .foregroundStyle(TBColor.textPrimary)
-                        .textInputAutocapitalization(.sentences)
+                Divider()
+                    .overlay(TBColor.border)
 
-                    HStack(spacing: 8) {
-                        pill(label: action.category, systemName: "sparkles")
-                        pill(label: "\(action.streakDays)-day streak", systemName: "flame.fill", tint: TBColor.gold)
-                    }
-                }
-
-                ZStack {
-                    Circle()
-                        .stroke(TBColor.surfaceElevated, lineWidth: 20)
-
-                    Circle()
-                        .trim(from: 0, to: action.progress)
-                        .stroke(
-                            TBColor.accentGradient,
-                            style: StrokeStyle(lineWidth: 20, lineCap: .round)
-                        )
-                        .rotationEffect(.degrees(-90))
-                        .shadow(color: action.accent.opacity(0.25), radius: 14)
-
-                    VStack(spacing: 8) {
-                        Text(timeText)
-                            .font(.system(size: 34, weight: .bold, design: .rounded))
-                            .foregroundStyle(TBColor.textPrimary)
-
-                        Text("\(action.elapsedMinutes) / \(action.targetMinutes) min")
-                            .font(TBTypography.caption())
-                            .foregroundStyle(TBColor.textSecondary)
-                    }
-                }
-                .frame(maxWidth: .infinity)
-                .frame(height: 220)
-
-                Text(action.note)
-                    .font(TBTypography.caption())
-                    .foregroundStyle(TBColor.textSecondary)
+                heroContent
+                    .frame(maxWidth: .infinity, alignment: .center)
             }
         }
+    }
+
+    private var upcomingRail: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("CURRENT TASK")
+                .font(.system(size: 9, weight: .bold, design: .rounded))
+                .tracking(1.05)
+                .foregroundStyle(TBColor.textSecondary)
+
+            VStack(alignment: .leading, spacing: 7) {
+                Text(action.title)
+                    .font(TBTypography.caption(.semibold))
+                    .foregroundStyle(TBColor.textPrimary)
+                    .lineLimit(2)
+
+                Menu {
+                    ForEach(labels) { workLabel in
+                        Button(workLabel.displayName) {
+                            action.labelID = workLabel.id
+                        }
+                    }
+                } label: {
+                    workLabelBox(label(for: action.labelID))
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(10)
+            .background(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(action.accent.opacity(0.14))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .stroke(action.accent.opacity(0.7), lineWidth: 1)
+                    )
+            )
+
+            Text("UPCOMING")
+                .font(.system(size: 9, weight: .bold, design: .rounded))
+                .tracking(1.05)
+                .foregroundStyle(TBColor.textSecondary)
+
+            ScrollView(.vertical, showsIndicators: true) {
+                LazyVStack(spacing: 8) {
+                    ForEach($queue) { $item in
+                        queueRow(item: $item)
+                    }
+                }
+            }
+        }
+    }
+
+    private func queueRow(item: Binding<ActionQueueItem>) -> some View {
+        HStack(spacing: 8) {
+            queueProgress(item.wrappedValue)
+
+            VStack(alignment: .leading, spacing: 3) {
+                Text(item.wrappedValue.title)
+                    .font(.system(size: 11, weight: .semibold, design: .rounded))
+                    .foregroundStyle(TBColor.textPrimary)
+                    .lineLimit(2)
+
+                Text("\(item.wrappedValue.estimatedDurationMinutes)m")
+                    .font(.system(size: 9, weight: .medium, design: .rounded))
+                    .foregroundStyle(TBColor.textSecondary)
+
+                Menu {
+                    ForEach(labels) { workLabel in
+                        Button(workLabel.displayName) {
+                            item.wrappedValue.labelID = workLabel.id
+                        }
+                    }
+                } label: {
+                    workLabelBox(label(for: item.wrappedValue.labelID))
+                }
+            }
+
+            Spacer(minLength: 0)
+        }
+        .padding(8)
+        .background(TBColor.surfaceElevated.opacity(0.72))
+        .overlay(Rectangle().stroke(TBColor.border, lineWidth: 1))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(item.wrappedValue.title), \(Int(item.wrappedValue.progress * 100)) percent complete")
+    }
+
+    @ViewBuilder
+    private func queueProgress(_ item: ActionQueueItem) -> some View {
+        if item.isComplete {
+            Image(systemName: "checkmark.square.fill")
+                .font(.system(size: 27, weight: .bold))
+                .foregroundStyle(item.color)
+                .frame(width: 30, height: 30)
+                .transition(.scale.combined(with: .opacity))
+        } else {
+            ZStack {
+                Circle()
+                    .stroke(item.color.opacity(0.18), lineWidth: 4)
+                Circle()
+                    .trim(from: 0, to: item.progress)
+                    .stroke(item.color, style: StrokeStyle(lineWidth: 4, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+            }
+            .frame(width: 30, height: 30)
+            .animation(.spring(response: 0.3, dampingFraction: 0.85), value: item.progress)
+        }
+    }
+
+    private var heroContent: some View {
+        VStack(alignment: .center, spacing: 12) {
+            VStack(alignment: .leading, spacing: 7) {
+                Text("TODAY’S ACTION")
+                    .font(.system(size: 10, weight: .bold, design: .rounded))
+                    .tracking(1.2)
+                    .foregroundStyle(TBColor.textSecondary)
+
+                TextField("Action title", text: $action.title)
+                    .font(TBTypography.title(.headline, weight: .semibold))
+                    .foregroundStyle(TBColor.textPrimary)
+                    .multilineTextAlignment(.center)
+                    .textInputAutocapitalization(.sentences)
+            }
+
+            Picker("Ring mode", selection: $ringMode) {
+                ForEach(ActionRingMode.allCases) { mode in
+                    Text(mode.title).tag(mode)
+                }
+            }
+            .pickerStyle(.segmented)
+
+            ZStack {
+                Circle()
+                    .stroke(TBColor.surfaceElevated, lineWidth: 15)
+
+                Circle()
+                    .trim(from: 0, to: action.progress)
+                    .stroke(
+                        ringMode == .focus ? AnyShapeStyle(TBColor.accentGradient) : AnyShapeStyle(action.accent),
+                        style: StrokeStyle(lineWidth: 15, lineCap: .round, dash: ringMode == .cycles ? [18, 7] : [])
+                    )
+                    .rotationEffect(.degrees(-90))
+                    .shadow(color: action.accent.opacity(0.25), radius: 12)
+
+                VStack(spacing: 5) {
+                    Image(systemName: "hourglass")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(action.accent)
+                    Text(consumedTimeText)
+                        .font(.system(size: 24, weight: .bold, design: .rounded))
+                        .foregroundStyle(TBColor.textPrimary)
+                    Text("time consumed")
+                        .font(.system(size: 9, weight: .semibold, design: .rounded))
+                        .foregroundStyle(TBColor.textSecondary)
+                }
+            }
+            .frame(width: 154, height: 154)
+            .accessibilityLabel("Current task \(Int(action.progress * 100)) percent complete")
+
+            VStack(spacing: 7) {
+                Text("\(action.elapsedMinutes) / \(action.targetMinutes) min")
+                    .font(TBTypography.caption(.semibold))
+                    .foregroundStyle(TBColor.textPrimary)
+
+                timeReadout(title: "Time Now", value: clockText)
+                timeReadout(title: "Est. Time Complete", value: estimatedCompletionText)
+            }
+
+            Text(action.note)
+                .font(TBTypography.caption())
+                .foregroundStyle(TBColor.textSecondary)
+                .multilineTextAlignment(.center)
+        }
+    }
+
+    private func timeReadout(title: String, value: String) -> some View {
+        HStack(spacing: 5) {
+            Text(title)
+                .font(.system(size: 9, weight: .semibold, design: .rounded))
+                .foregroundStyle(TBColor.textSecondary)
+            Text(value)
+                .font(.system(size: 10, weight: .bold, design: .rounded))
+                .foregroundStyle(TBColor.textPrimary)
+        }
+        .frame(maxWidth: .infinity)
     }
 
     private var timerCard: some View {
         TBCard {
             VStack(alignment: .leading, spacing: 14) {
-                sectionHeader(title: "Timer", subtitle: "Keep the flow visible")
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Hourglass controls")
+                        .font(TBTypography.title(.headline, weight: .semibold))
+                        .foregroundStyle(TBColor.textPrimary)
+                    Text("Progress is rendered from TaskSvc; controls change the running session only.")
+                        .font(TBTypography.caption())
+                        .foregroundStyle(TBColor.textSecondary)
+                }
 
                 HStack(spacing: 10) {
                     timerButton(label: isRunning ? "Pause" : "Start", systemName: isRunning ? "pause.fill" : "play.fill") {
                         isRunning.toggle()
                     }
 
-                    timerButton(label: "Reset", systemName: "arrow.counterclockwise") {
+                    timerButton(label: "Restart", systemName: "arrow.counterclockwise") {
                         isRunning = false
-                        elapsedSeconds = 0
-                        action.elapsedMinutes = 0
+                        elapsedSeconds = action.elapsedMinutes * 60
                     }
 
-                    timerButton(label: "-5", systemName: "minus") {
-                        elapsedSeconds = max(0, elapsedSeconds - 5 * 60)
-                        action.elapsedMinutes = max(0, elapsedSeconds / 60)
-                    }
-
-                    timerButton(label: "+5", systemName: "plus") {
-                        elapsedSeconds = min(action.targetMinutes * 60, elapsedSeconds + 5 * 60)
-                        action.elapsedMinutes = elapsedSeconds / 60
-                    }
-                }
-            }
-        }
-    }
-
-    private var subtasksCard: some View {
-        TBCard {
-            VStack(alignment: .leading, spacing: 10) {
-                sectionHeader(title: "Micro-subtasks", subtitle: "Three believable next moves")
-
-                ForEach(steps) { step in
-                    Button {
-                        toggle(step)
-                    } label: {
-                        HStack(alignment: .top, spacing: 12) {
-                            Image(systemName: step.isDone ? "checkmark.circle.fill" : "circle")
-                                .font(.system(size: 20, weight: .semibold))
-                                .foregroundStyle(step.isDone ? TBColor.primaryAccent : TBColor.textSecondary)
-
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(step.title)
-                                    .font(TBTypography.body(.semibold))
-                                    .foregroundStyle(TBColor.textPrimary)
-                                    .strikethrough(step.isDone, color: TBColor.textSecondary)
-                                Text("\(step.minutes) min micro-task")
-                                    .font(TBTypography.caption())
-                                    .foregroundStyle(TBColor.textSecondary)
-                            }
-
-                            Spacer()
-                        }
-                        .padding(.vertical, 8)
-                    }
-                    .buttonStyle(.plain)
-
-                    if step.id != steps.last?.id {
-                        Divider().overlay(TBColor.border)
+                    timerButton(label: "Labels", systemName: "tag") {
+                        showingWorkLabels = true
                     }
                 }
             }
@@ -166,18 +290,13 @@ struct ActionView: View {
     private var background: some View {
         ZStack {
             TBColor.background
-
             RadialGradient(
-                colors: [
-                    action.accent.opacity(0.22),
-                    .clear
-                ],
+                colors: [action.accent.opacity(0.22), .clear],
                 center: .topTrailing,
                 startRadius: 20,
                 endRadius: 420
             )
             .blendMode(.screen)
-
             LinearGradient(
                 colors: [TBColor.background, TBColor.surface.opacity(0.4), TBColor.background],
                 startPoint: .top,
@@ -187,78 +306,56 @@ struct ActionView: View {
         .ignoresSafeArea()
     }
 
-    private var timeText: String {
-        let remaining = max(action.targetMinutes * 60 - elapsedSeconds, 0)
-        return String(format: "%02d:%02d", remaining / 60, remaining % 60)
+    private var consumedTimeText: String {
+        String(format: "%02d:%02d", elapsedSeconds / 60, elapsedSeconds % 60)
     }
 
-    private func toggle(_ step: ActionStep) {
-        guard let index = steps.firstIndex(where: { $0.id == step.id }) else { return }
-        steps[index].isDone.toggle()
-
-        if steps[index].isDone {
-            let capture = TaskCompletionCapture(
-                goalID: "goal-timebite",
-                goalTitle: "Ship TimeBite Quarterly Chart",
-                minutes: step.minutes
-            )
-            withAnimation(.spring(response: 0.28, dampingFraction: 0.86)) {
-                completionCapture = capture
-            }
-            NotificationCenter.default.post(
-                name: .timeBiteTaskCompleted,
-                object: nil,
-                userInfo: [
-                    "goalID": capture.goalID,
-                    "goalTitle": capture.goalTitle,
-                    "minutes": capture.minutes
-                ]
-            )
-
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
-                withAnimation(.easeOut(duration: 0.22)) {
-                    completionCapture = nil
-                }
-            }
-        }
+    private var clockText: String {
+        let time = now.formatted(date: .omitted, time: .shortened)
+        let zone = TimeZone.current.abbreviation() ?? ""
+        return zone.isEmpty ? time : "\(time) \(zone)"
     }
 
-    private func inlineCompletionCapture(_ capture: TaskCompletionCapture) -> some View {
-        HStack(spacing: 10) {
-            Image(systemName: "checkmark.circle.fill")
-                .font(.system(size: 16, weight: .bold))
-                .foregroundStyle(TBColor.primaryAccent)
-
-            Text("+\(capture.minutes)m -> \(capture.goalTitle)")
-                .font(TBTypography.caption(.semibold))
-                .foregroundStyle(TBColor.textPrimary)
-
-            Spacer()
-        }
-        .padding(12)
-        .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(TBColor.primaryAccent.opacity(0.12))
-                .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(TBColor.primaryAccent.opacity(0.24), lineWidth: 1))
-        )
-        .transition(.move(edge: .top).combined(with: .opacity))
+    private var estimatedCompletionText: String {
+        let remainingMinutes = max(action.targetMinutes - action.elapsedMinutes, 0)
+        let completion = Calendar.current.date(byAdding: .minute, value: remainingMinutes, to: now) ?? now
+        let time = completion.formatted(date: .omitted, time: .shortened)
+        let zone = TimeZone.current.abbreviation() ?? ""
+        return zone.isEmpty ? time : "\(time) \(zone)"
     }
 
-    private func pill(label: String, systemName: String, tint: Color? = nil) -> some View {
-        HStack(spacing: 6) {
-            Image(systemName: systemName)
-                .font(.caption.weight(.semibold))
-            Text(label)
-                .font(TBTypography.caption(.semibold))
+    private func label(for id: UUID?) -> WorkLabel? {
+        labels.first { $0.id == id }
+    }
+
+    private func loadWorkLabels() {
+        guard
+            let data = UserDefaults.standard.data(forKey: workLabelsStorageKey),
+            let storedLabels = try? JSONDecoder().decode([WorkLabel].self, from: data),
+            !storedLabels.isEmpty
+        else { return }
+        labels = storedLabels
+    }
+
+    @ViewBuilder
+    private func workLabelBox(_ label: WorkLabel?) -> some View {
+        if let label {
+            Text(label.displayName)
+                .font(.system(size: 8, weight: .bold, design: .rounded))
+                .foregroundStyle(label.color)
+                .lineLimit(1)
+                .padding(.vertical, 3)
+                .padding(.horizontal, 5)
+                .background(label.color.opacity(0.12))
+                .overlay(Rectangle().stroke(label.color.opacity(0.38), lineWidth: 1))
+        } else {
+            Text("+ label")
+                .font(.system(size: 8, weight: .bold, design: .rounded))
+                .foregroundStyle(TBColor.textSecondary)
+                .padding(.vertical, 3)
+                .padding(.horizontal, 5)
+                .overlay(Rectangle().stroke(TBColor.border, lineWidth: 1))
         }
-        .foregroundStyle(tint ?? TBColor.primaryAccent)
-        .padding(.vertical, 8)
-        .padding(.horizontal, 12)
-        .background(
-            Capsule(style: .continuous)
-                .fill((tint ?? TBColor.primaryAccent).opacity(0.12))
-                .overlay(Capsule(style: .continuous).stroke((tint ?? TBColor.primaryAccent).opacity(0.22), lineWidth: 1))
-        )
     }
 
     private func timerButton(label: String, systemName: String, action: @escaping () -> Void) -> some View {
@@ -280,24 +377,65 @@ struct ActionView: View {
         }
         .buttonStyle(.plain)
     }
-
-    private func sectionHeader(title: String, subtitle: String) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(title)
-                .font(TBTypography.title(.headline, weight: .semibold))
-                .foregroundStyle(TBColor.textPrimary)
-            Text(subtitle)
-                .font(TBTypography.caption())
-                .foregroundStyle(TBColor.textSecondary)
-        }
-    }
 }
 
-private struct ActionStep: Identifiable {
-    let id = UUID()
-    var title: String
-    var minutes: Int
-    var isDone: Bool
+private enum ActionRingMode: String, CaseIterable, Identifiable {
+    case focus
+    case cycles
+
+    var id: String { rawValue }
+    var title: String { self == .focus ? "Focus" : "Cycles" }
+}
+
+private struct WorkLabelsView: View {
+    @Environment(\.dismiss) private var dismiss
+    @Binding var labels: [WorkLabel]
+    @State private var draftName = ""
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Section {
+                    ForEach($labels) { $label in
+                        HStack(spacing: 12) {
+                            Rectangle()
+                                .fill(label.color)
+                                .frame(width: 10, height: 32)
+                            TextField("project", text: $label.name)
+                                .textInputAutocapitalization(.never)
+                        }
+                    }
+                    .onDelete { labels.remove(atOffsets: $0) }
+                } header: {
+                    Text("User-defined project tags")
+                } footer: {
+                    Text("Work Labels power server-aggregated Track rollups. They are separate from Goal Life Areas.")
+                }
+
+                Section("Add label") {
+                    HStack {
+                        TextField("#research", text: $draftName)
+                            .textInputAutocapitalization(.never)
+                        Button("Add") {
+                            let cleanName = draftName.trimmingCharacters(in: .whitespacesAndNewlines)
+                            guard !cleanName.isEmpty else { return }
+                            labels.append(.init(name: cleanName, colorIndex: labels.count))
+                            draftName = ""
+                        }
+                        .disabled(draftName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    }
+                }
+            }
+            .scrollContentBackground(.hidden)
+            .background(TBColor.background)
+            .navigationTitle("Work Labels")
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") { dismiss() }
+                }
+            }
+        }
+    }
 }
 
 #if DEBUG

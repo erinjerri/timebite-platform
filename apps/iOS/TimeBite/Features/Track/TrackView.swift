@@ -1,6 +1,9 @@
+import SwiftData
 import SwiftUI
 
 struct TrackView: View {
+    @Query(sort: \Goal.dueDate, order: .forward) private var goals: [Goal]
+    @Query(sort: \GoalProgressEntry.date, order: .forward) private var progressEntries: [GoalProgressEntry]
     @State private var selectedPeriod: TrackPeriod = .daily
     @State private var habits: [HabitEntry] = HabitEntry.mock
     @State private var showingAddHabit = false
@@ -8,13 +11,13 @@ struct TrackView: View {
     @State private var draftCategory = "Focus"
 
     private let weekMinutes = [58, 71, 66, 94, 82, 49, 61]
-    private let heatmap = [
-        [0.10, 0.18, 0.26, 0.44, 0.58, 0.42, 0.30],
-        [0.12, 0.20, 0.34, 0.52, 0.68, 0.54, 0.40],
-        [0.08, 0.15, 0.24, 0.37, 0.60, 0.47, 0.31],
-        [0.11, 0.22, 0.38, 0.51, 0.72, 0.57, 0.43],
-        [0.07, 0.16, 0.29, 0.45, 0.63, 0.49, 0.33]
-    ]
+    /// Pre-aggregated by RollupSvc. The client renders these values without
+    /// recomputing time totals or percentages.
+    private let labelRollups = LabelTimeRollup.serverSamples
+
+    private var completionCalendarModel: CompletionCalendarModel {
+        CompletionCalendarModel(goal: goals.first, progressEntries: progressEntries)
+    }
 
     var body: some View {
         NavigationStack {
@@ -107,6 +110,8 @@ struct TrackView: View {
 
     private var dailyCard: some View {
         VStack(spacing: 12) {
+            labelRollupCard
+
             ForEach(habits) { habit in
                 TBCard {
                     HStack(alignment: .top, spacing: 12) {
@@ -151,6 +156,49 @@ struct TrackView: View {
         }
     }
 
+    private var labelRollupCard: some View {
+        TBCard {
+            VStack(alignment: .leading, spacing: 14) {
+                HStack(alignment: .top) {
+                    sectionHeader(title: "Time by Work Label", subtitle: "Today · server aggregated")
+                    Spacer()
+                    Text("\(labelRollups.map(\.minutes).reduce(0, +))m")
+                        .font(TBTypography.caption(.semibold))
+                        .foregroundStyle(TBColor.textPrimary)
+                }
+
+                ForEach(labelRollups) { rollup in
+                    VStack(alignment: .leading, spacing: 7) {
+                        HStack {
+                            sharpLabel(rollup.label)
+                            Spacer()
+                            Text("\(rollup.minutes) min")
+                                .font(TBTypography.caption(.semibold))
+                                .foregroundStyle(TBColor.textSecondary)
+                        }
+
+                        GeometryReader { proxy in
+                            ZStack(alignment: .leading) {
+                                Rectangle()
+                                    .fill(rollup.label.color.opacity(0.12))
+                                Rectangle()
+                                    .fill(rollup.label.color)
+                                    .frame(width: proxy.size.width * min(max(rollup.serverPercentOfDay, 0), 1))
+                            }
+                        }
+                        .frame(height: 9)
+                    }
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("\(rollup.label.displayName), \(rollup.minutes) minutes")
+                }
+
+                Text("Work Labels are user-defined project tags. They are not Goal Life Areas.")
+                    .font(TBTypography.caption())
+                    .foregroundStyle(TBColor.textSecondary)
+            }
+        }
+    }
+
     private var weeklyCard: some View {
         TBCard {
             VStack(alignment: .leading, spacing: 14) {
@@ -187,42 +235,7 @@ struct TrackView: View {
     }
 
     private var monthlyCard: some View {
-        TBCard {
-            VStack(alignment: .leading, spacing: 14) {
-                sectionHeader(title: "Monthly heatmap", subtitle: "A calm, believable overview")
-
-                VStack(spacing: 8) {
-                    ForEach(Array(heatmap.enumerated()), id: \.offset) { _, row in
-                        HStack(spacing: 8) {
-                            ForEach(Array(row.enumerated()), id: \.offset) { _, value in
-                                RoundedRectangle(cornerRadius: 8, style: .continuous)
-                                    .fill(TBColor.primaryAccent.opacity(0.10 + value * 0.75))
-                                    .frame(height: 22)
-                            }
-                        }
-                    }
-                }
-                .frame(height: 150)
-
-                HStack(spacing: 8) {
-                    Text("Low")
-                        .font(TBTypography.caption())
-                        .foregroundStyle(TBColor.textSecondary)
-                    ForEach([0.12, 0.28, 0.48, 0.68, 0.88], id: \.self) { value in
-                        RoundedRectangle(cornerRadius: 6, style: .continuous)
-                            .fill(TBColor.primaryAccent.opacity(value))
-                            .frame(width: 18, height: 8)
-                    }
-                    Text("High")
-                        .font(TBTypography.caption())
-                        .foregroundStyle(TBColor.textSecondary)
-                    Spacer()
-                    Text("30-day streaks are visible here")
-                        .font(TBTypography.caption())
-                        .foregroundStyle(TBColor.textSecondary)
-                }
-            }
-        }
+        CompletionCalendarView(model: completionCalendarModel)
     }
 
     private var background: some View {
@@ -264,6 +277,16 @@ struct TrackView: View {
                     .fill(tint.opacity(0.12))
                     .overlay(Capsule(style: .continuous).stroke(tint.opacity(0.25), lineWidth: 1))
             )
+    }
+
+    private func sharpLabel(_ label: WorkLabel) -> some View {
+        Text(label.displayName)
+            .font(TBTypography.caption(.semibold))
+            .foregroundStyle(label.color)
+            .padding(.vertical, 6)
+            .padding(.horizontal, 9)
+            .background(label.color.opacity(0.12))
+            .overlay(Rectangle().stroke(label.color.opacity(0.34), lineWidth: 1))
     }
 
     private func sectionHeader(title: String, subtitle: String) -> some View {
@@ -331,4 +354,3 @@ struct TrackView_Previews: PreviewProvider {
     }
 }
 #endif
-

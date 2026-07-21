@@ -1,6 +1,6 @@
 # spatial-dash.md
 
-`spatial-dash.md` describes dashboard-specific layout and behavior for TimeBite surfaces. It can sit beside a broader environment config and tell the renderer how each panel should express the active environment.
+`spatial-dash.md` describes spatial layout and behavior for TimeBite ritual surfaces. It can sit beside a broader environment config and tell the renderer how each panel should express the active environment.
 
 ## Dashboard Schema
 
@@ -11,21 +11,21 @@ dashboard:
   preserve_torus_geometry: true
   panels:
     left:
-      type: data_viz
-      emphasis: productivity_rhythm
+      type: calendar
+      emphasis: monthly_completion
     center:
       type: torus_timer
-      emphasis: active_cycle
+      emphasis: active_session
     right:
-      type: ambient
-      emphasis: music_placeholder
+      type: reflection
+      emphasis: lightweight_journal
 ```
 
 ## Panel Layout Rules
 
 - The active timer remains the visual anchor.
-- Data visualization can become denser in operator environments.
-- Ambient and music panels should soften in flow environments.
+- Calendar and summary panels can become slightly denser in operator environments.
+- Reflection panels should soften in flow environments.
 - Panel count should remain stable across environments.
 - Motion should support state changes, not distract from work.
 - Card radius, spacing, and shadow come from design tokens.
@@ -38,43 +38,44 @@ dashboard:
   density: balanced
   panels:
     left:
-      type: data_viz
-      title: Rhythm
+      type: calendar
+      title: Month
       metrics:
-        - focus_minutes
-        - cycle_count
-        - goal_progress
+        - completed_days
+        - current_streak
+        - reflection_count
     center:
       type: torus_timer
-      title: Active Timer
+      title: Active Session
       preserve_geometry: true
     right:
-      type: ambient
-      title: Ambient
+      type: reflection
+      title: Reflection
       controls:
-        - play_pause
-        - focus_mix
+        - add_note
+        - save_reflection
 ```
 
 ## Surface Expression
 
 The same `SpatialEnvironment` can express itself differently per tab:
 
-- Actions: prioritize current timer and daily action items.
-- Goals: prioritize focus areas and weekly targets.
-- Track: prioritize cycle history, logs, telemetry, and progress visualization.
-- Dashboard: prioritize summary metrics and spatial balance.
+- Today: prioritize daily intent, active session, and completion checkmarks.
+- Goals: prioritize intent, frequency, streaks, tags, and recent sessions.
+- Calendar: prioritize monthly completion and day detail.
+- Dashboard: prioritize streaks, summaries, reflections, and light insights.
 
-For TimeBite, the dashboard should feel like a command view in Operator, a calm overview in Light, and a reflective studio in Dark.
+For TimeBite, the spatial surface should feel like a focused ritual in Operator, a calm overview in Light, and a reflective studio in Dark.
 
 ## Generative Spatial Dashboard Layer
 
 The spatial dashboard is not a freeform AI-generated interface. It is a structured visualization system.
 
 The data model remains canonical:
-- DailyPlan
-- FocusLane
-- CycleLog
+- Goal
+- DailyIntent
+- Session
+- CompletionHistory
 - Reflection
 
 GenAI may transform:
@@ -85,7 +86,7 @@ GenAI may transform:
 - prioritization
 
 GenAI may NOT transform:
-- raw task data
+- raw goal data
 - logged time
 - completion status
 - reflection records

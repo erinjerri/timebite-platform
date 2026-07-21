@@ -1,11 +1,23 @@
 {
+  "schema_status": "legacy_compatible",
+  "note": "New MVP work should use goal_schema.sessions. This task shape remains for migration from older timer/task records.",
   "task_id": "string",
   "title": "string",
-  "category": "work | personal | admin",
+  "category": "health | work | creative | relationships | home | finance | learning | personal | custom",
+  "label_id": "uuid | null (foreign key to a user-defined Work Label; distinct from Goal life_area)",
   "duration_minutes": "number",
-  "status": "pending | running | complete",
-  "time_allotted_minutes": "integer (required, planned duration)",
+  "status": "pending | running | complete | skipped",
+  "time_allotted_minutes": "integer (planned duration)",
   "time_spent_minutes": "integer | null (actual duration on completion)",
   "goal_id": "uuid | null (foreign key to goal_schema.goal_id)",
-  "completed_at": "ISO 8601 timestamp | null"
+  "completed_at": "ISO 8601 timestamp | null",
+  "derived_server_computed": {
+    "elapsed_minutes": "integer",
+    "percent_complete": "number (elapsed_minutes / time_allotted_minutes; never accepted from client submissions)"
+  },
+  "migration_target": {
+    "goal_field": "sessions",
+    "completion_field": "completion_history",
+    "reflection_field": "reflections"
+  }
 }

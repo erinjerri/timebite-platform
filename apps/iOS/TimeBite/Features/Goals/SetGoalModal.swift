@@ -11,13 +11,18 @@ struct SetGoalModal: View {
     @State private var description = ""
     @State private var startDate = Date()
     @State private var dueDate = Date()
+    @State private var deadlineIncludesTime = false
     @State private var goalType = GoalType.shortTerm
     @State private var category = ""
+    @State private var lifeArea = "Work"
+    @State private var customLifeArea = ""
+    @AppStorage("timebite.customLifeAreas") private var customLifeAreasRaw = ""
     @State private var quarter = Date.currentQuarterIdentifier
     @State private var targetHours = 0
     @State private var considerations = ""
     @State private var blockers = ""
     @State private var resources = ""
+    @State private var dependenciesResources = ""
     @State private var successCriteria = ""
     @State private var nextAction = ""
     @State private var milestones = ""
@@ -46,14 +51,21 @@ struct SetGoalModal: View {
                         styledEditor(text: $description, minHeight: 86)
                     }
 
-                    HStack(spacing: 12) {
-                        goalField("Start Date") {
-                            styledDatePicker(selection: $startDate)
-                        }
+                    goalField("Start Date") {
+                        styledDatePicker(selection: $startDate, includesTime: false)
+                    }
 
-                        goalField("Due Date", isRequired: true) {
-                            styledDatePicker(selection: $dueDate)
+                    goalField("Deadline", isRequired: true) {
+                        VStack(alignment: .leading, spacing: 10) {
+                            Toggle("Include a time-of-day", isOn: $deadlineIncludesTime)
+                                .font(TBTypography.body(.semibold))
+                                .foregroundStyle(TBColor.textPrimary)
+                                .tint(TBColor.primaryAccent)
+
+                            styledDatePicker(selection: $dueDate, includesTime: deadlineIncludesTime)
                         }
+                        .padding(12)
+                        .background(inputBackground)
                     }
 
                     goalField("Goal Type") {
@@ -65,8 +77,27 @@ struct SetGoalModal: View {
                         .pickerStyle(.segmented)
                     }
 
-                    goalField("Category") {
+                    goalField("Goal Category (optional)") {
                         styledTextField("Build, Growth, Health", text: $category)
+                    }
+
+                    goalField("Life Area") {
+                        lifeAreaSelector
+                    }
+
+                    goalField("% Complete") {
+                        HStack {
+                            Text("\(Int(min(max(goal?.progress ?? 0, 0), 1) * 100))%")
+                                .font(TBTypography.body(.semibold))
+                                .foregroundStyle(TBColor.textPrimary)
+                            Spacer()
+                            Label("Server computed", systemImage: "lock.fill")
+                                .font(TBTypography.caption(.semibold))
+                                .foregroundStyle(TBColor.textSecondary)
+                        }
+                        .padding(14)
+                        .background(inputBackground)
+                        .accessibilityHint("Read-only progress supplied by TimeBite servers")
                     }
 
                     HStack(spacing: 12) {
@@ -88,12 +119,8 @@ struct SetGoalModal: View {
                         styledEditor(text: $considerations, minHeight: 74)
                     }
 
-                    goalField("Blockers") {
-                        styledEditor(text: $blockers, minHeight: 74)
-                    }
-
-                    goalField("Resources") {
-                        styledEditor(text: $resources, minHeight: 74)
+                    goalField("Dependencies / Blockers / Resources") {
+                        styledEditor(text: $dependenciesResources, minHeight: 118)
                     }
 
                     goalField("Success Criteria") {
@@ -223,14 +250,63 @@ struct SetGoalModal: View {
             .background(inputBackground)
     }
 
-    private func styledDatePicker(selection: Binding<Date>) -> some View {
-        DatePicker("", selection: selection, displayedComponents: .date)
+    private func styledDatePicker(selection: Binding<Date>, includesTime: Bool) -> some View {
+        DatePicker("", selection: selection, displayedComponents: includesTime ? [.date, .hourAndMinute] : [.date])
             .labelsHidden()
             .datePickerStyle(.compact)
             .tint(TBColor.primaryAccent)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(12)
             .background(inputBackground)
+    }
+
+    private var lifeAreaSelector: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 112), spacing: 8)], spacing: 8) {
+                ForEach(lifeAreaOptions, id: \.self) { option in
+                    Button {
+                        lifeArea = option
+                    } label: {
+                        Text(option)
+                            .font(TBTypography.caption(.semibold))
+                            .foregroundStyle(lifeArea == option ? Color.black.opacity(0.86) : TBColor.textPrimary)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 9)
+                            .background(lifeArea == option ? TBColor.primaryAccent : TBColor.surfaceElevated)
+                            .overlay(Rectangle().stroke(lifeArea == option ? TBColor.primaryAccent : TBColor.border, lineWidth: 1))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+
+            HStack {
+                TextField("Add another Life Area", text: $customLifeArea)
+                    .font(TBTypography.caption(.semibold))
+                    .textInputAutocapitalization(.words)
+                Button("Add") { addCustomLifeArea() }
+                    .font(TBTypography.caption(.semibold))
+                    .disabled(customLifeArea.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            }
+            .padding(10)
+            .overlay(Rectangle().stroke(TBColor.border, lineWidth: 1))
+        }
+    }
+
+    private var lifeAreaOptions: [String] {
+        let custom = customLifeAreasRaw
+            .components(separatedBy: "|")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+        return Array(NSOrderedSet(array: LifeAreaCatalog.defaults + custom)) as? [String] ?? LifeAreaCatalog.defaults
+    }
+
+    private func addCustomLifeArea() {
+        let clean = customLifeArea.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !clean.isEmpty else { return }
+        let custom = lifeAreaOptions.filter { !LifeAreaCatalog.defaults.contains($0) } + [clean]
+        customLifeAreasRaw = Array(NSOrderedSet(array: custom)).compactMap { $0 as? String }.joined(separator: "|")
+        lifeArea = clean
+        customLifeArea = ""
     }
 
     private var inputBackground: some View {
@@ -265,13 +341,19 @@ struct SetGoalModal: View {
         description = goal.goalDescription
         startDate = goal.startDate
         dueDate = goal.dueDate
+        deadlineIncludesTime = goal.deadlineIncludesTime
         goalType = GoalType(rawValue: goal.goalType) ?? .shortTerm
         category = goal.category
+        lifeArea = goal.lifeArea
         quarter = goal.quarter
         targetHours = goal.targetMinutes / 60
         considerations = goal.considerations
         blockers = goal.blockers
         resources = goal.resources
+        let legacyDependencies = [goal.blockers, goal.resources].filter { !$0.isEmpty }.joined(separator: "\n\n")
+        dependenciesResources = goal.dependenciesResources.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            ? legacyDependencies
+            : goal.dependenciesResources
         successCriteria = goal.successCriteria
         nextAction = goal.nextAction
         milestones = fetchMilestoneTitles(goalId: goal.id).joined(separator: "\n")
@@ -301,13 +383,16 @@ struct SetGoalModal: View {
             goal.goalDescription = description
             goal.startDate = startDate
             goal.dueDate = dueDate
+            goal.deadlineIncludesTime = deadlineIncludesTime
             goal.goalType = goalType.title
             goal.category = category
+            goal.lifeArea = lifeArea
             goal.quarter = normalizedQuarter
             goal.targetMinutes = targetHours * 60
             goal.considerations = considerations
             goal.blockers = blockers
             goal.resources = resources
+            goal.dependenciesResources = dependenciesResources
             goal.successCriteria = successCriteria
             goal.nextAction = nextAction
             goal.updatedAt = .now
@@ -318,14 +403,17 @@ struct SetGoalModal: View {
             title: cleanTitle,
             description: description,
             category: category,
+            lifeArea: lifeArea,
             goalType: goalType.title,
             startDate: startDate,
             dueDate: dueDate,
+            deadlineIncludesTime: deadlineIncludesTime,
             progress: 0,
             status: "Pending",
             considerations: considerations,
             blockers: blockers,
             resources: resources,
+            dependenciesResources: dependenciesResources,
             successCriteria: successCriteria,
             nextAction: nextAction,
             quarter: normalizedQuarter,
@@ -387,6 +475,10 @@ private enum GoalType: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
     var title: String { rawValue }
+}
+
+enum LifeAreaCatalog {
+    static let defaults = ["Faith", "Fitness/Health", "Finance", "Fun", "Family", "Friends", "Work"]
 }
 
 #if DEBUG

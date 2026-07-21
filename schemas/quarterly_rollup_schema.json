@@ -1,4 +1,6 @@
 {
+  "schema_status": "deprecated_for_mvp",
+  "note": "Quarterly rollups are future analytics projections. MVP dashboard work should use Goal Loop weekly_summary, monthly_summary, completion_history, and streak fields.",
   "quarter": "string (format YYYY-QN, example: 2026-Q3)",
   "goals": [
     {

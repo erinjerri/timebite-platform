@@ -24,6 +24,9 @@ class Goal:
     quarter: str
     target_minutes: int
     status: str
+    life_area: str = "Work"
+    dependencies_blockers_resources: str = ""
+    deadline_includes_time: bool = False
     created_at: datetime | None = None
     target_date: date | None = None
 
@@ -37,6 +40,7 @@ class Task:
     status: str
     time_allotted_minutes: int
     goal_id: str | None = None
+    label_id: str | None = None
     time_spent_minutes: int | None = None
     completed_at: datetime | None = None
 
