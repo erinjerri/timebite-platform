@@ -15,6 +15,7 @@ struct GoalsView: View {
     @State private var selectedTimelineScale: TimelineScale = .quarter
     @State private var selectedDetailGoal: Goal?
     @State private var showingGoalMomentum = true
+    @State private var selectedLifeArea = "Finance"
 
     private var activeGoals: [Goal] {
         goals.filter { GoalDashboardStatus(goalStatus: $0.status) == .active }
@@ -33,17 +34,18 @@ struct GoalsView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
                     header
-                    QuarterlyGoalChartView()
-                    modeControls
+                    setupGoalButton
+                    lifeAreaOverview
 
                     if goals.isEmpty {
                         emptyState
                     }
 
-                    content
+                    selectedLifeAreaDetail
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 16)
+                .padding(.bottom, 118)
             }
             .background(background)
             .navigationTitle("Goals")
@@ -134,25 +136,189 @@ struct GoalsView: View {
                 }
 
                 Spacer()
-
-                Text("\(completedGoals.count)/\(goals.count)")
-                    .font(.system(size: 18, weight: .bold, design: .rounded))
-                    .foregroundStyle(TBColor.primaryAccent)
-                    .frame(width: 58, height: 58)
-                    .background(
-                        Circle()
-                            .fill(TBColor.primaryAccent.opacity(0.12))
-                            .overlay(Circle().stroke(TBColor.primaryAccent.opacity(0.28), lineWidth: 1))
-                    )
-            }
-
-            HStack(spacing: 10) {
-                statusSummary(title: "Pending", count: pendingGoals.count, tint: TBColor.gold)
-                statusSummary(title: "Active", count: activeGoals.count, tint: TBColor.primaryAccent)
-                statusSummary(title: "Done", count: completedGoals.count, tint: Color(red: 0.39, green: 0.77, blue: 0.98))
             }
         }
         .padding(.bottom, 2)
+    }
+
+    private var setupGoalButton: some View {
+        Button {
+            editingGoal = nil
+            showingSetGoal = true
+        } label: {
+            HStack(spacing: 12) {
+                Image(systemName: "plus")
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundStyle(Color.black.opacity(0.84))
+                    .frame(width: 34, height: 34)
+                    .background(Circle().fill(Color.black.opacity(0.10)))
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Set up a goal")
+                        .font(TBTypography.body(.semibold))
+                        .foregroundStyle(Color.black.opacity(0.88))
+                    Text("Choose a life area first, then define the specific goal.")
+                        .font(TBTypography.caption())
+                        .foregroundStyle(Color.black.opacity(0.62))
+                }
+
+                Spacer()
+            }
+            .padding(16)
+            .background(
+                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                    .fill(TBColor.primaryAccent)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var lifeAreaOverview: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            sectionLabel("Wheel of Life")
+
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 142), spacing: 12)], spacing: 12) {
+                ForEach(LifeAreaCatalog.defaults, id: \.self) { area in
+                    lifeAreaCard(area)
+                }
+            }
+        }
+    }
+
+    private func lifeAreaCard(_ area: String) -> some View {
+        let areaGoals = goals.filter {
+            LifeAreaCatalog.normalized($0.lifeArea) == LifeAreaCatalog.normalized(area)
+        }
+        let progress = areaGoals.isEmpty ? 0 : areaGoals.map(\.progress).reduce(0, +) / Double(areaGoals.count)
+        let tint = LifeAreaCatalog.color(for: area)
+
+        return Button {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.86)) {
+                selectedLifeArea = area
+            }
+        } label: {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Image(systemName: LifeAreaCatalog.icon(for: area))
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(tint)
+                        .frame(width: 34, height: 34)
+                        .background(Circle().fill(tint.opacity(0.14)))
+
+                    Spacer()
+
+                    Text("\(areaGoals.count)")
+                        .font(TBTypography.caption(.semibold))
+                        .foregroundStyle(TBColor.textSecondary)
+                }
+
+                Text(area)
+                    .font(TBTypography.body(.semibold))
+                    .foregroundStyle(TBColor.textPrimary)
+
+                ProgressView(value: progress)
+                    .tint(tint)
+            }
+            .padding(14)
+            .background(
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .fill(selectedLifeArea == area ? tint.opacity(0.16) : TBColor.surface.opacity(0.82))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 20, style: .continuous)
+                            .stroke(selectedLifeArea == area ? tint.opacity(0.48) : TBColor.border, lineWidth: 1)
+                    )
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var selectedLifeAreaDetail: some View {
+        let areaGoals = goals.filter {
+            LifeAreaCatalog.normalized($0.lifeArea) == LifeAreaCatalog.normalized(selectedLifeArea)
+        }
+        let tint = LifeAreaCatalog.color(for: selectedLifeArea)
+
+        return VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                sectionLabel("\(selectedLifeArea) overview")
+                Spacer()
+
+                if selectedLifeArea == "Finance" {
+                    NavigationLink {
+                        FinanceDashboardView()
+                    } label: {
+                        Label("Open Finance", systemImage: "chevron.right")
+                            .font(TBTypography.caption(.semibold))
+                            .foregroundStyle(tint)
+                    }
+                }
+            }
+
+            if areaGoals.isEmpty {
+                emptyAreaCard(selectedLifeArea)
+            } else {
+                ForEach(areaGoals) { goal in
+                    lifeAreaGoalRow(goal, tint: tint)
+                }
+            }
+        }
+    }
+
+    private func emptyAreaCard(_ area: String) -> some View {
+        TBCard {
+            VStack(alignment: .leading, spacing: 10) {
+                Image(systemName: LifeAreaCatalog.icon(for: area))
+                    .foregroundStyle(LifeAreaCatalog.color(for: area))
+                Text("No \(area.lowercased()) goals yet")
+                    .font(TBTypography.body(.semibold))
+                    .foregroundStyle(TBColor.textPrimary)
+                Text("Add one goal here and its monthly checkmarks will inherit this area color.")
+                    .font(TBTypography.caption())
+                    .foregroundStyle(TBColor.textSecondary)
+            }
+        }
+    }
+
+    private func lifeAreaGoalRow(_ goal: Goal, tint: Color) -> some View {
+        Button {
+            selectedDetailGoal = goal
+        } label: {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    Text(goal.title)
+                        .font(TBTypography.body(.semibold))
+                        .foregroundStyle(TBColor.textPrimary)
+                    Spacer()
+                    Text("\(Int(goal.progress * 100))%")
+                        .font(TBTypography.caption(.semibold))
+                        .foregroundStyle(tint)
+                }
+
+                ProgressView(value: goal.progress)
+                    .tint(tint)
+
+                Text(goal.nextAction.ifEmpty("Add the next concrete action"))
+                    .font(TBTypography.caption())
+                    .foregroundStyle(TBColor.textSecondary)
+            }
+            .padding(14)
+            .background(
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .fill(TBColor.surface.opacity(0.82))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 18, style: .continuous)
+                            .stroke(tint.opacity(0.22), lineWidth: 1)
+                    )
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func sectionLabel(_ title: String) -> some View {
+        Text(title)
+            .font(TBTypography.caption(.semibold))
+            .foregroundStyle(TBColor.textSecondary)
+            .textCase(.uppercase)
     }
 
     private var modeControls: some View {
@@ -1284,32 +1450,16 @@ private struct GoalLifeArea: Identifiable, Hashable {
     var id: String { title.lowercased() }
 
     var color: Color {
-        switch id {
-        case "faith":
-            return Color(red: 0.70, green: 0.53, blue: 0.98)
-        case "fitness/health", "fitness", "health":
-            return TBColor.gold
-        case "finance":
-            return Color(red: 0.34, green: 0.82, blue: 0.62)
-        case "fun":
-            return Color(red: 0.98, green: 0.52, blue: 0.38)
-        case "family":
-            return Color(red: 0.92, green: 0.47, blue: 0.82)
-        case "friends":
-            return Color(red: 0.39, green: 0.77, blue: 0.98)
-        case "work":
-            return TBColor.primaryAccent
-        default:
-            let index = title.unicodeScalars.reduce(0) { $0 + Int($1.value) } % WorkLabel.palette.count
-            return WorkLabel.palette[index]
-        }
+        LifeAreaCatalog.color(for: title)
     }
 }
 
 private enum GoalCategory: String, CaseIterable, Identifiable {
     case career
+    case personal
     case personalBrand
     case health
+    case finance
     case writing
     case timeBite
     case faster
@@ -1317,12 +1467,16 @@ private enum GoalCategory: String, CaseIterable, Identifiable {
     init(name: String) {
         let normalized = name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         switch normalized {
-        case "career":
+        case "career", "work", "build", "growth":
             self = .career
+        case "personal":
+            self = .personal
         case "personal brand", "brand":
             self = .personalBrand
         case "health":
             self = .health
+        case "finance", "debt", "debt payoff", "savings", "investing", "investment", "investments":
+            self = .finance
         case "writing":
             self = .writing
         case "timebite", "time bite":
@@ -1340,10 +1494,14 @@ private enum GoalCategory: String, CaseIterable, Identifiable {
         switch self {
         case .career:
             return "Career"
+        case .personal:
+            return "Personal"
         case .personalBrand:
             return "Personal Brand"
         case .health:
             return "Health"
+        case .finance:
+            return "Finance"
         case .writing:
             return "Writing"
         case .timeBite:
@@ -1357,10 +1515,14 @@ private enum GoalCategory: String, CaseIterable, Identifiable {
         switch self {
         case .career:
             return Color(red: 0.39, green: 0.77, blue: 0.98)
+        case .personal:
+            return Color(red: 0.92, green: 0.47, blue: 0.82)
         case .personalBrand:
             return Color(red: 0.92, green: 0.47, blue: 0.82)
         case .health:
             return TBColor.gold
+        case .finance:
+            return Color(red: 0.34, green: 0.82, blue: 0.62)
         case .writing:
             return Color(red: 0.70, green: 0.53, blue: 0.98)
         case .timeBite:

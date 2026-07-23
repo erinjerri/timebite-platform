@@ -13,7 +13,8 @@ struct SetGoalModal: View {
     @State private var dueDate = Date()
     @State private var deadlineIncludesTime = false
     @State private var goalType = GoalType.shortTerm
-    @State private var category = ""
+    @State private var goalKind = GoalKind.work
+    @State private var customGoalKind = ""
     @State private var lifeArea = "Work"
     @State private var customLifeArea = ""
     @AppStorage("timebite.customLifeAreas") private var customLifeAreasRaw = ""
@@ -43,8 +44,16 @@ struct SetGoalModal: View {
                 VStack(alignment: .leading, spacing: 16) {
                     intro
 
+                    goalField("Life Area") {
+                        lifeAreaSelector
+                    }
+
+                    goalField("Goal Focus") {
+                        goalKindSelector
+                    }
+
                     goalField("Title", isRequired: true) {
-                        styledTextField("Launch TimeBite MVP", text: $title)
+                        styledTextField("Build an emergency fund", text: $title)
                     }
 
                     goalField("Description") {
@@ -75,14 +84,6 @@ struct SetGoalModal: View {
                             }
                         }
                         .pickerStyle(.segmented)
-                    }
-
-                    goalField("Goal Category (optional)") {
-                        styledTextField("Build, Growth, Health", text: $category)
-                    }
-
-                    goalField("Life Area") {
-                        lifeAreaSelector
                     }
 
                     goalField("% Complete") {
@@ -292,6 +293,53 @@ struct SetGoalModal: View {
         }
     }
 
+    private var goalKindSelector: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 126), spacing: 8)], spacing: 8) {
+                ForEach(GoalKind.allCases) { kind in
+                    Button {
+                        withAnimation(.spring(response: 0.28, dampingFraction: 0.86)) {
+                            goalKind = kind
+                            if kind.isFinanceRelated {
+                                lifeArea = "Finance"
+                            }
+                        }
+                    } label: {
+                        Label(kind.title, systemImage: kind.symbolName)
+                            .font(TBTypography.caption(.semibold))
+                            .foregroundStyle(goalKind == kind ? TBColor.financeModalButtonText : TBColor.textPrimary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 12)
+                            .frame(minHeight: 44)
+                            .background(
+                                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                    .fill(goalKind == kind ? TBColor.primaryAccent : TBColor.surfaceElevated)
+                            )
+                            .overlay {
+                                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                    .stroke(goalKind == kind ? TBColor.primaryAccent : TBColor.border, lineWidth: 1)
+                            }
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityAddTraits(goalKind == kind ? .isSelected : [])
+                }
+            }
+
+            if goalKind == .other {
+                styledTextField("Describe this goal type", text: $customGoalKind)
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+            }
+
+            if goalKind.isFinanceRelated {
+                Label("This helps TimeBite personalize Finance when you’re ready.", systemImage: "sparkles")
+                    .font(TBTypography.caption())
+                    .foregroundStyle(TBColor.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .transition(.opacity)
+            }
+        }
+    }
+
     private var lifeAreaOptions: [String] {
         let custom = customLifeAreasRaw
             .components(separatedBy: "|")
@@ -343,7 +391,8 @@ struct SetGoalModal: View {
         dueDate = goal.dueDate
         deadlineIncludesTime = goal.deadlineIncludesTime
         goalType = GoalType(rawValue: goal.goalType) ?? .shortTerm
-        category = goal.category
+        goalKind = GoalKind(storedValue: goal.category)
+        customGoalKind = goalKind == .other ? goal.category : ""
         lifeArea = goal.lifeArea
         quarter = goal.quarter
         targetHours = goal.targetMinutes / 60
@@ -385,7 +434,7 @@ struct SetGoalModal: View {
             goal.dueDate = dueDate
             goal.deadlineIncludesTime = deadlineIncludesTime
             goal.goalType = goalType.title
-            goal.category = category
+            goal.category = storedGoalKind
             goal.lifeArea = lifeArea
             goal.quarter = normalizedQuarter
             goal.targetMinutes = targetHours * 60
@@ -402,7 +451,7 @@ struct SetGoalModal: View {
         let goal = Goal(
             title: cleanTitle,
             description: description,
-            category: category,
+            category: storedGoalKind,
             lifeArea: lifeArea,
             goalType: goalType.title,
             startDate: startDate,
@@ -426,6 +475,12 @@ struct SetGoalModal: View {
     private var normalizedQuarter: String {
         let cleanQuarter = quarter.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
         return cleanQuarter.isEmpty ? Date.currentQuarterIdentifier : cleanQuarter
+    }
+
+    private var storedGoalKind: String {
+        guard goalKind == .other else { return goalKind.rawValue }
+        let cleanCustomKind = customGoalKind.trimmingCharacters(in: .whitespacesAndNewlines)
+        return cleanCustomKind.isEmpty ? GoalKind.other.rawValue : cleanCustomKind
     }
 
     private func fetchMilestoneTitles(goalId: UUID) -> [String] {
@@ -477,8 +532,80 @@ private enum GoalType: String, CaseIterable, Identifiable {
     var title: String { rawValue }
 }
 
+enum GoalKind: String, CaseIterable, Identifiable {
+    case work = "Work"
+    case personal = "Personal"
+    case health = "Health"
+    case debt = "Debt Payoff"
+    case savings = "Savings"
+    case investing = "Investing"
+    case other = "Other"
+
+    var id: String { rawValue }
+    var title: String { rawValue }
+
+    var symbolName: String {
+        switch self {
+        case .work: "briefcase.fill"
+        case .personal: "person.fill"
+        case .health: "heart.fill"
+        case .debt: "creditcard.fill"
+        case .savings: "banknote.fill"
+        case .investing: "chart.line.uptrend.xyaxis"
+        case .other: "ellipsis.circle.fill"
+        }
+    }
+
+    var isFinanceRelated: Bool {
+        self == .debt || self == .savings || self == .investing
+    }
+
+    init(storedValue: String) {
+        switch storedValue.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
+        case "work", "career", "build", "growth": self = .work
+        case "personal": self = .personal
+        case "health", "fitness", "fitness/health": self = .health
+        case "debt", "debt payoff": self = .debt
+        case "savings", "saving", "emergency savings": self = .savings
+        case "investing", "investment", "investments": self = .investing
+        default: self = .other
+        }
+    }
+}
+
 enum LifeAreaCatalog {
     static let defaults = ["Faith", "Fitness/Health", "Finance", "Fun", "Family", "Friends", "Work"]
+
+    static func color(for area: String) -> Color {
+        switch normalized(area) {
+        case "faith": Color(red: 0.70, green: 0.53, blue: 0.98)
+        case "fitness/health", "fitness", "health": TBColor.gold
+        case "finance": Color(red: 0.34, green: 0.82, blue: 0.62)
+        case "fun": Color(red: 0.98, green: 0.52, blue: 0.38)
+        case "family": Color(red: 0.92, green: 0.47, blue: 0.82)
+        case "friends": Color(red: 0.39, green: 0.77, blue: 0.98)
+        case "work", "build": TBColor.primaryAccent
+        default:
+            WorkLabel.palette[area.unicodeScalars.reduce(0) { $0 + Int($1.value) } % WorkLabel.palette.count]
+        }
+    }
+
+    static func icon(for area: String) -> String {
+        switch normalized(area) {
+        case "faith": "sparkles"
+        case "fitness/health", "fitness", "health": "figure.strengthtraining.traditional"
+        case "finance": "dollarsign.circle.fill"
+        case "fun": "party.popper.fill"
+        case "family": "house.fill"
+        case "friends": "person.2.fill"
+        case "work", "build": "hammer.fill"
+        default: "circle.grid.2x2.fill"
+        }
+    }
+
+    static func normalized(_ area: String) -> String {
+        area.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+    }
 }
 
 #if DEBUG

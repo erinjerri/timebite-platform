@@ -11,6 +11,7 @@ struct FinanceDashboardView: View {
     @State private var showingMonthlyReview = false
     @State private var completedReviewGoalIDs: Set<UUID> = []
     @State private var celebratingGoalID: UUID?
+    @State private var showingPlaidConnect = false
 
     private var engine: CapitalAllocationEngine {
         CapitalAllocationEngine(goals: goals, debts: debtAccounts)
@@ -20,6 +21,7 @@ struct FinanceDashboardView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
+                    financeGoalLauncher
                     header
                     nextDollarCard
                     incomeAllocator
@@ -39,6 +41,13 @@ struct FinanceDashboardView: View {
                     .presentationDetents([.large])
                     .preferredColorScheme(.dark)
             }
+            .sheet(isPresented: $showingPlaidConnect) {
+                PlaidConnectModal {
+                    showingPlaidConnect = false
+                }
+                .presentationDetents([.large])
+                .presentationDragIndicator(.hidden)
+            }
             .overlay {
                 if let goal = goals.first(where: { $0.id == celebratingGoalID }) {
                     celebrationOverlay(for: goal)
@@ -53,6 +62,65 @@ struct FinanceDashboardView: View {
                 goals.forEach(FinanceNotificationScheduler.scheduleGoalReminder)
             }
         }
+    }
+
+    private var financeGoalLauncher: some View {
+        TBCard {
+            VStack(alignment: .leading, spacing: 16) {
+                HStack(alignment: .top, spacing: 14) {
+                    Image(systemName: "target")
+                        .font(.system(size: 24, weight: .semibold))
+                        .foregroundStyle(TBColor.primaryAccent)
+                        .frame(width: 48, height: 48)
+                        .background(Circle().fill(TBColor.primaryAccent.opacity(0.14)))
+                        .accessibilityHidden(true)
+
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Build your financial plan")
+                            .font(TBTypography.title(.title2, weight: .bold))
+                            .foregroundStyle(TBColor.textPrimary)
+
+                        Text("Start with a Finance goal, then connect an account when automation becomes useful.")
+                            .font(TBTypography.body())
+                            .foregroundStyle(TBColor.textSecondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+
+                HStack(spacing: 8) {
+                    financeGoalChip("Save", symbol: "banknote.fill")
+                    financeGoalChip("Pay down debt", symbol: "creditcard.fill")
+                    financeGoalChip("Invest", symbol: "chart.line.uptrend.xyaxis")
+                }
+
+                Button {
+                    showingPlaidConnect = true
+                } label: {
+                    Label("Connect an Account", systemImage: "building.columns.fill")
+                        .font(TBTypography.body(.semibold))
+                        .foregroundStyle(TBColor.financeModalButtonText)
+                        .frame(maxWidth: .infinity, minHeight: 50)
+                        .background(
+                            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                .fill(TBColor.primaryAccent)
+                        )
+                }
+                .buttonStyle(.plain)
+                .accessibilityHint("Opens the Plaid account connection modal")
+            }
+        }
+    }
+
+    private func financeGoalChip(_ title: String, symbol: String) -> some View {
+        Label(title, systemImage: symbol)
+            .font(TBTypography.caption(.semibold))
+            .foregroundStyle(TBColor.textSecondary)
+            .lineLimit(1)
+            .minimumScaleFactor(0.72)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 8)
+            .background(Capsule(style: .continuous).fill(TBColor.surfaceElevated))
+            .accessibilityHidden(true)
     }
 
     private var header: some View {
@@ -639,6 +707,115 @@ private struct AllocationRecommendation: Identifiable {
     let amount: Decimal
     let reason: String
     let tint: Color
+}
+
+private struct PlaidConnectModal: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.colorScheme) private var colorScheme
+    @State private var isVisible = false
+    @State private var showingIntegrationNote = false
+
+    let onDismiss: () -> Void
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 0) {
+                Spacer(minLength: 24)
+
+                VStack(spacing: 24) {
+                    ZStack {
+                        Circle()
+                            .fill(TBColor.accentGradient.opacity(0.16))
+                            .frame(width: 112, height: 112)
+                        Circle()
+                            .stroke(TBColor.primaryAccent.opacity(0.2), lineWidth: 1)
+                            .frame(width: 88, height: 88)
+                        Image(systemName: "creditcard.and.123")
+                            .font(.system(size: 40, weight: .medium))
+                            .symbolRenderingMode(.hierarchical)
+                            .foregroundStyle(TBColor.primaryAccent)
+                    }
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel("Secure bank account connection")
+
+                    VStack(spacing: 12) {
+                        Text("Make your plan automatic")
+                            .font(TBTypography.title(.title, weight: .bold))
+                            .foregroundStyle(TBColor.financeModalTextPrimary(for: colorScheme))
+                            .multilineTextAlignment(.center)
+
+                        Text("Connect one checking account to automatically track spending, calculate available cash, and keep your Finance goals up to date.")
+                            .font(TBTypography.body())
+                            .foregroundStyle(TBColor.financeModalTextSecondary(for: colorScheme))
+                            .multilineTextAlignment(.center)
+                            .lineSpacing(3)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+
+                    VStack(spacing: 10) {
+                        Button {
+                            showingIntegrationNote = true
+                        } label: {
+                            Text("Continue with Plaid")
+                                .font(TBTypography.body(.semibold))
+                                .foregroundStyle(TBColor.financeModalButtonText)
+                                .frame(maxWidth: .infinity, minHeight: 52)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                        .fill(TBColor.primaryAccent)
+                                )
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityHint("Continues to the secure Plaid connection flow")
+
+                        Button("Not Now", action: onDismiss)
+                            .font(TBTypography.body(.semibold))
+                            .foregroundStyle(TBColor.financeModalTextSecondary(for: colorScheme))
+                            .frame(maxWidth: .infinity, minHeight: 48)
+                    }
+
+                    Label {
+                        Text("Your bank credentials are securely handled by Plaid. TimeBite never stores your login.")
+                            .fixedSize(horizontal: false, vertical: true)
+                    } icon: {
+                        Image(systemName: "lock.shield.fill")
+                    }
+                    .font(TBTypography.caption())
+                    .foregroundStyle(TBColor.financeModalTextSecondary(for: colorScheme))
+                }
+                .padding(.horizontal, 24)
+                .padding(.vertical, 28)
+                .background(
+                    RoundedRectangle(cornerRadius: 28, style: .continuous)
+                        .fill(TBColor.financeModalSurface(for: colorScheme))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                                .stroke(TBColor.financeModalBorder(for: colorScheme), lineWidth: 1)
+                        }
+                        .shadow(color: TBColor.financeModalShadow(for: colorScheme), radius: 24, y: 12)
+                )
+                .scaleEffect(isVisible ? 1 : 0.96)
+                .opacity(isVisible ? 1 : 0)
+
+                Spacer(minLength: 24)
+            }
+            .frame(maxWidth: 560)
+            .frame(maxWidth: .infinity, minHeight: 620)
+            .padding(.horizontal, 20)
+        }
+        .scrollBounceBehavior(.basedOnSize)
+        .background(TBColor.financeModalBackground(for: colorScheme).ignoresSafeArea())
+        .onAppear {
+            withAnimation(reduceMotion ? nil : .spring(response: 0.52, dampingFraction: 0.82)) {
+                isVisible = true
+            }
+        }
+        .alert("Plaid Link setup required", isPresented: $showingIntegrationNote) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("The connection UI is restored. Add the Plaid LinkKit package and backend link-token endpoint before enabling live bank connections.")
+        }
+    }
 }
 
 private extension FinancialGoal {

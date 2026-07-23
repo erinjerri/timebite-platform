@@ -20,6 +20,7 @@ struct ActionView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     executionCard
                     timerCard
+                    releaseCard
                 }
                 .padding(16)
             }
@@ -136,6 +137,21 @@ struct ActionView: View {
                 Text("\(item.wrappedValue.estimatedDurationMinutes)m")
                     .font(.system(size: 9, weight: .medium, design: .rounded))
                     .foregroundStyle(TBColor.textSecondary)
+
+                Text("\(item.wrappedValue.status) • \(item.wrappedValue.dueText)")
+                    .font(.system(size: 8, weight: .bold, design: .rounded))
+                    .foregroundStyle(item.wrappedValue.color)
+                    .lineLimit(1)
+
+                Text(item.wrappedValue.epic)
+                    .font(.system(size: 8, weight: .medium, design: .rounded))
+                    .foregroundStyle(TBColor.textSecondary)
+                    .lineLimit(1)
+
+                Text(item.wrappedValue.repoName)
+                    .font(.system(size: 8, weight: .medium, design: .monospaced))
+                    .foregroundStyle(TBColor.textSecondary)
+                    .lineLimit(1)
 
                 Menu {
                     ForEach(labels) { workLabel in
@@ -285,6 +301,54 @@ struct ActionView: View {
                 }
             }
         }
+    }
+
+    private var releaseCard: some View {
+        TBCard {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(alignment: .firstTextBaseline) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("RELEASE COMMAND CENTER")
+                            .font(.system(size: 10, weight: .bold, design: .rounded))
+                            .tracking(1.1)
+                            .foregroundStyle(TBColor.textSecondary)
+                        Text("Ship TimeBite on iOS + visionOS")
+                            .font(TBTypography.title(.headline, weight: .semibold))
+                            .foregroundStyle(TBColor.textPrimary)
+                    }
+                    Spacer()
+                    Text("\(queue.count + 1) tasks")
+                        .font(TBTypography.caption(.semibold))
+                        .foregroundStyle(TBColor.primaryAccent)
+                }
+
+                HStack(spacing: 10) {
+                    releaseDeadline(label: "TESTFLIGHT", date: "JUL 25", tint: TBColor.gold)
+                    releaseDeadline(label: "SUBMISSION", date: "JUL 30", tint: TBColor.primaryAccent)
+                }
+
+                Text("Notion is the planning mirror. This queue is seeded from the same real release work so the app can dogfood its own execution loop.")
+                    .font(TBTypography.caption())
+                    .foregroundStyle(TBColor.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+    }
+
+    private func releaseDeadline(label: String, date: String, tint: Color) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(label)
+                .font(.system(size: 8, weight: .bold, design: .rounded))
+                .tracking(0.9)
+                .foregroundStyle(TBColor.textSecondary)
+            Text(date)
+                .font(.system(size: 17, weight: .bold, design: .rounded))
+                .foregroundStyle(tint)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(12)
+        .background(TBColor.surfaceElevated)
+        .overlay(Rectangle().stroke(tint.opacity(0.35), lineWidth: 1))
     }
 
     private var background: some View {

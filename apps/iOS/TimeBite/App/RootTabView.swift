@@ -83,11 +83,11 @@ struct RootTabView: View {
             ActionView()
         case .goals:
             GoalsView()
-        case .finance:
-            FinanceDashboardView()
         case .track:
             TrackView()
-        case .settings:
+        case .chatbot:
+            ChatbotView()
+        case .profile:
             SettingsView()
         case .admin:
             AdminView(onLock: {
@@ -140,21 +140,105 @@ struct RootTabView: View {
 private struct RootTabView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
-            RootTabView(initialTab: .settings)
+            RootTabView(initialTab: .profile)
                 .preferredColorScheme(.dark)
                 .previewDevice("iPhone 16e")
-                .previewDisplayName("Settings - iPhone 16e")
+                .previewDisplayName("Profile - iPhone 16e")
 
-            RootTabView(initialTab: .settings)
+            RootTabView(initialTab: .profile)
                 .preferredColorScheme(.dark)
                 .previewDevice("iPhone 16 Pro")
-                .previewDisplayName("Settings - iPhone 16 Pro")
+                .previewDisplayName("Profile - iPhone 16 Pro")
 
-            RootTabView(initialTab: .settings)
+            RootTabView(initialTab: .profile)
                 .preferredColorScheme(.dark)
                 .previewDevice("iPhone 17 Pro")
-                .previewDisplayName("Settings - iPhone 17 Pro")
+                .previewDisplayName("Profile - iPhone 17 Pro")
         }
+    }
+}
+
+private struct ChatbotView: View {
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 18) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Goal Capture")
+                        .font(TBTypography.title(.largeTitle, weight: .bold))
+                        .foregroundStyle(TBColor.textPrimary)
+
+                    Text("Talk through a goal, scan a paper planner, or confirm what TimeBite captured.")
+                        .font(TBTypography.body())
+                        .foregroundStyle(TBColor.textSecondary)
+                }
+
+                HStack(spacing: 12) {
+                    captureMode(title: "Camera", icon: "camera.fill", detail: "Scan a planner page")
+                    captureMode(title: "Planner", icon: "book.pages.fill", detail: "Sync paper notes")
+                }
+
+                TBCard {
+                    VStack(alignment: .leading, spacing: 14) {
+                        Label("Agent draft", systemImage: "text.bubble.fill")
+                            .font(TBTypography.body(.semibold))
+                            .foregroundStyle(TBColor.textPrimary)
+
+                        Text("Finance goal detected: Build a $5,000 emergency fund by December. Next action: move $150 this Friday.")
+                            .font(TBTypography.body())
+                            .foregroundStyle(TBColor.textSecondary)
+                            .fixedSize(horizontal: false, vertical: true)
+
+                        HStack(spacing: 12) {
+                            confirmationButton(systemName: "xmark", label: "Reject", tint: Color(red: 0.98, green: 0.55, blue: 0.46))
+                            confirmationButton(systemName: "checkmark", label: "Confirm", tint: TBColor.primaryAccent)
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 78)
+            .padding(.bottom, 118)
+        }
+        .background(TBColor.background.ignoresSafeArea())
+    }
+
+    private func captureMode(title: String, icon: String, detail: String) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Image(systemName: icon)
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundStyle(TBColor.primaryAccent)
+                .frame(width: 38, height: 38)
+                .background(Circle().fill(TBColor.primaryAccent.opacity(0.13)))
+            Text(title)
+                .font(TBTypography.body(.semibold))
+                .foregroundStyle(TBColor.textPrimary)
+            Text(detail)
+                .font(TBTypography.caption())
+                .foregroundStyle(TBColor.textSecondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .fill(TBColor.surfaceElevated.opacity(0.78))
+                .overlay(RoundedRectangle(cornerRadius: 22, style: .continuous).stroke(TBColor.border, lineWidth: 1))
+        )
+    }
+
+    private func confirmationButton(systemName: String, label: String, tint: Color) -> some View {
+        Button {} label: {
+            Label(label, systemImage: systemName)
+                .font(TBTypography.caption(.semibold))
+                .foregroundStyle(tint)
+                .frame(maxWidth: .infinity)
+                .frame(height: 44)
+                .background(
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .fill(tint.opacity(0.12))
+                        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(tint.opacity(0.38), lineWidth: 1))
+                )
+        }
+        .buttonStyle(.plain)
     }
 }
 
@@ -238,9 +322,9 @@ private struct AdminUnlockSheet: View {
 fileprivate enum TimeBiteTab: String, CaseIterable, Identifiable {
     case actions
     case goals
-    case finance
     case track
-    case settings
+    case chatbot
+    case profile
     case admin
 
     var id: String { rawValue }
@@ -251,12 +335,12 @@ fileprivate enum TimeBiteTab: String, CaseIterable, Identifiable {
             return "Actions"
         case .goals:
             return "Goals"
-        case .finance:
-            return "Finance"
         case .track:
             return "Track"
-        case .settings:
-            return "Settings"
+        case .chatbot:
+            return "Chatbot"
+        case .profile:
+            return "Profile"
         case .admin:
             return "Admin"
         }
@@ -343,14 +427,16 @@ private struct TimeBiteTabItem: View {
             tabIconShape(ActionSparkIcon(), lineWidth: lineWidth)
         case .goals:
             tabIconShape(GoalRingsIcon(), lineWidth: lineWidth)
-        case .finance:
-            Image(systemName: "creditcard.fill")
-                .font(.system(size: 17, weight: .semibold))
-                .foregroundStyle(isSelected ? AnyShapeStyle(activeGradient) : AnyShapeStyle(Color(hex: 0x5A6072)))
         case .track:
             tabIconShape(TrackWaveIcon(), lineWidth: lineWidth)
-        case .settings:
-            tabIconShape(SettingsGearIcon(), lineWidth: lineWidth)
+        case .chatbot:
+            Image(systemName: "bubble.left.and.text.bubble.right.fill")
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(isSelected ? AnyShapeStyle(activeGradient) : AnyShapeStyle(Color(hex: 0x5A6072)))
+        case .profile:
+            Image(systemName: "person.crop.circle.fill")
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundStyle(isSelected ? AnyShapeStyle(activeGradient) : AnyShapeStyle(Color(hex: 0x5A6072)))
         case .admin:
             tabIconShape(AdminKeyIcon(), lineWidth: lineWidth)
         }

@@ -25,6 +25,12 @@ Notion export is a mirror of TimeBite's Goal Loop, not a source of truth.
 - Reflections require user opt-in before export.
 - Streaks are exported as derived display values.
 - Completion events remain the source for streak and calendar state.
+- PM task sync is implemented by `tools/notion-pm/sync-release-tasks.mjs`.
+- PM rows are upserted by stable `external_id`, with the resolved `notion_page_id`
+  persisted in `.notion-sync-state.json` and an exact title + milestone fallback.
+- Notion requests are limited to three per second.
+- Failed writes append an `AgentActionEvent` with `outcome="failed"` to the
+  telemetry JSONL log.
 
 ---
 

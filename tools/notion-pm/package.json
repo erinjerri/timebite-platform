@@ -1,0 +1,14 @@
+{
+  "name": "timebite-notion-pm-sync",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "sync": "node sync-release-tasks.mjs"
+  },
+  "dependencies": {
+    "@notionhq/client": "5.23.2"
+  }
+}

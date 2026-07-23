@@ -14,6 +14,33 @@ enum TBColor {
 
     static let border = Color.white.opacity(0.08)
 
+    static func financeModalBackground(for colorScheme: ColorScheme) -> Color {
+        colorScheme == .dark ? background : Color(red: 0.96, green: 0.97, blue: 0.98)
+    }
+
+    static func financeModalSurface(for colorScheme: ColorScheme) -> Color {
+        colorScheme == .dark ? surface : .white
+    }
+
+    static func financeModalTextPrimary(for colorScheme: ColorScheme) -> Color {
+        colorScheme == .dark ? textPrimary : Color(red: 0.08, green: 0.10, blue: 0.14)
+    }
+
+    static func financeModalTextSecondary(for colorScheme: ColorScheme) -> Color {
+        colorScheme == .dark ? Color(red: 0.68, green: 0.70, blue: 0.74) : textSecondary
+    }
+
+    static func financeModalBorder(for colorScheme: ColorScheme) -> Color {
+        colorScheme == .dark ? border : Color.black.opacity(0.06)
+    }
+
+    static func financeModalShadow(for colorScheme: ColorScheme) -> Color {
+        Color.black.opacity(colorScheme == .dark ? 0.3 : 0.1)
+    }
+
+    static let financeModalButtonText = Color(red: 0.02, green: 0.12, blue: 0.11)
+    static let financeModalError = Color(red: 0.90, green: 0.25, blue: 0.28)
+
     static let heroGradient = LinearGradient(
         colors: [
             Color(red: 0.05, green: 0.06, blue: 0.12),
@@ -30,4 +57,3 @@ enum TBColor {
         endPoint: .bottomTrailing
     )
 }
-

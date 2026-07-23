@@ -72,10 +72,10 @@ struct WorkLabel: Identifiable, Hashable, Codable {
     ]
 
     static let samples: [WorkLabel] = [
-        .init(id: UUID(uuidString: "071E74DA-EAA1-4DF7-9E03-000000000001")!, name: "product", colorIndex: 0),
-        .init(id: UUID(uuidString: "071E74DA-EAA1-4DF7-9E03-000000000002")!, name: "growth", colorIndex: 1),
-        .init(id: UUID(uuidString: "071E74DA-EAA1-4DF7-9E03-000000000003")!, name: "mobile app", colorIndex: 2),
-        .init(id: UUID(uuidString: "071E74DA-EAA1-4DF7-9E03-000000000004")!, name: "bugs", colorIndex: 3)
+        .init(id: UUID(uuidString: "071E74DA-EAA1-4DF7-9E03-000000000001")!, name: "timebite-platform", colorIndex: 0),
+        .init(id: UUID(uuidString: "071E74DA-EAA1-4DF7-9E03-000000000002")!, name: "timebite-core", colorIndex: 1),
+        .init(id: UUID(uuidString: "071E74DA-EAA1-4DF7-9E03-000000000003")!, name: "timebite-vision", colorIndex: 2),
+        .init(id: UUID(uuidString: "071E74DA-EAA1-4DF7-9E03-000000000004")!, name: "app-review", colorIndex: 3)
     ]
 }
 
@@ -88,6 +88,10 @@ struct ActionQueueItem: Identifiable, Hashable {
     var serverPercentComplete: Double
     var colorIndex: Int
     var labelID: UUID?
+    var epic: String
+    var status: String
+    var dueText: String
+    var repoName: String
 
     init(
         id: UUID = UUID(),
@@ -96,7 +100,11 @@ struct ActionQueueItem: Identifiable, Hashable {
         elapsedMinutes: Int = 0,
         serverPercentComplete: Double = 0,
         colorIndex: Int,
-        labelID: UUID? = nil
+        labelID: UUID? = nil,
+        epic: String,
+        status: String = "Not Started",
+        dueText: String,
+        repoName: String
     ) {
         self.id = id
         self.title = title
@@ -105,6 +113,10 @@ struct ActionQueueItem: Identifiable, Hashable {
         self.serverPercentComplete = serverPercentComplete
         self.colorIndex = colorIndex
         self.labelID = labelID
+        self.epic = epic
+        self.status = status
+        self.dueText = dueText
+        self.repoName = repoName
     }
 
     var progress: Double { min(max(serverPercentComplete, 0), 1) }
@@ -112,10 +124,20 @@ struct ActionQueueItem: Identifiable, Hashable {
     var color: Color { WorkLabel.palette[colorIndex % WorkLabel.palette.count] }
 
     static let samples: [ActionQueueItem] = [
-        .init(title: "Prototype Code", estimatedDurationMinutes: 40, serverPercentComplete: 0.22, colorIndex: 1, labelID: WorkLabel.samples[2].id),
-        .init(title: "Ship Code", estimatedDurationMinutes: 30, colorIndex: 2, labelID: WorkLabel.samples[0].id),
-        .init(title: "Write Docs", estimatedDurationMinutes: 25, colorIndex: 3, labelID: WorkLabel.samples[0].id),
-        .init(title: "User Testing", estimatedDurationMinutes: 45, colorIndex: 4, labelID: WorkLabel.samples[1].id)
+        .init(title: "Refactor iOS to consume timebite-core", estimatedDurationMinutes: 180, colorIndex: 1, labelID: WorkLabel.samples[0].id, epic: "visionOS Companion Setup", dueText: "Jul 23", repoName: "timebite-platform"),
+        .init(title: "Create timebite-vision app repo", estimatedDurationMinutes: 60, colorIndex: 2, labelID: WorkLabel.samples[2].id, epic: "visionOS Companion Setup", dueText: "Jul 23", repoName: "timebite-vision"),
+        .init(title: "Add timebite-core to visionOS", estimatedDurationMinutes: 60, colorIndex: 3, labelID: WorkLabel.samples[2].id, epic: "visionOS Companion Setup", dueText: "Jul 23", repoName: "timebite-vision"),
+        .init(title: "Implement auth handoff", estimatedDurationMinutes: 240, colorIndex: 4, labelID: WorkLabel.samples[1].id, epic: "visionOS Companion Setup", dueText: "Jul 24", repoName: "shared"),
+        .init(title: "Verify Plaid visionOS support", estimatedDurationMinutes: 60, colorIndex: 5, labelID: WorkLabel.samples[1].id, epic: "visionOS Companion Setup", dueText: "Jul 23", repoName: "timebite-core"),
+        .init(title: "Port P6 ring + task rail", estimatedDurationMinutes: 360, colorIndex: 0, labelID: WorkLabel.samples[2].id, epic: "visionOS Companion Setup", dueText: "Jul 24", repoName: "timebite-vision"),
+        .init(title: "Set up visionOS 26+ CI", estimatedDurationMinutes: 120, colorIndex: 1, labelID: WorkLabel.samples[2].id, epic: "visionOS Companion Setup", dueText: "Jul 24", repoName: "timebite-vision"),
+        .init(title: "Decide App Store record strategy", estimatedDurationMinutes: 60, colorIndex: 2, labelID: WorkLabel.samples[3].id, epic: "visionOS Companion Setup", dueText: "Jul 24", repoName: "App Store Connect"),
+        .init(title: "Start visionOS TestFlight soak", estimatedDurationMinutes: 60, colorIndex: 3, labelID: WorkLabel.samples[2].id, epic: "visionOS Companion Setup", dueText: "Jul 23", repoName: "timebite-vision"),
+        .init(title: "Finalize demo account + Review Notes", estimatedDurationMinutes: 120, colorIndex: 4, labelID: WorkLabel.samples[3].id, epic: "App Review Consistency", dueText: "Jul 25", repoName: "shared"),
+        .init(title: "Reconcile privacy labels", estimatedDurationMinutes: 120, colorIndex: 5, labelID: WorkLabel.samples[3].id, epic: "App Review Consistency", dueText: "Jul 26", repoName: "shared"),
+        .init(title: "Align Coming Soon gates", estimatedDurationMinutes: 120, colorIndex: 0, labelID: WorkLabel.samples[3].id, epic: "App Review Consistency", dueText: "Jul 26", repoName: "shared"),
+        .init(title: "Verify screenshots + metadata", estimatedDurationMinutes: 180, colorIndex: 1, labelID: WorkLabel.samples[3].id, epic: "App Review Consistency", dueText: "Jul 27", repoName: "shared"),
+        .init(title: "Verify visionOS 26 SDK archive", estimatedDurationMinutes: 60, colorIndex: 2, labelID: WorkLabel.samples[3].id, epic: "App Review Consistency", dueText: "Jul 25", repoName: "timebite-vision")
     ]
 }
 
@@ -136,14 +158,14 @@ struct LabelTimeRollup: Identifiable, Hashable {
 
 extension ActionItem {
     static let mock = ActionItem(
-        title: "Ship the TimeBite MVP shell",
-        targetMinutes: 45,
-        elapsedMinutes: 18,
-        serverPercentComplete: 0.4,
+        title: "Extract shared services into timebite-core",
+        targetMinutes: 240,
+        elapsedMinutes: 0,
+        serverPercentComplete: 0,
         streakDays: 12,
-        category: "Build",
-        labelID: WorkLabel.samples[0].id,
+        category: "visionOS Companion Setup",
+        labelID: WorkLabel.samples[1].id,
         accent: TBColor.primaryAccent,
-        note: "One focused session to polish the core loop."
+        note: "TestFlight Jul 25 • App submission Jul 30 • timebite-core"
     )
 }

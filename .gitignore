@@ -231,3 +231,4 @@ xcuserdata/
 
 # Local agent/worktree metadata
 .claude/
+.notion-sync-state.json
