@@ -42,9 +42,9 @@ struct FinanceDashboardView: View {
                     .preferredColorScheme(.dark)
             }
             .sheet(isPresented: $showingPlaidConnect) {
-                PlaidConnectModal {
-                    showingPlaidConnect = false
-                }
+                PlaidConnectModal(
+                    onDismiss: { showingPlaidConnect = false }
+                )
                 .presentationDetents([.large])
                 .presentationDragIndicator(.hidden)
             }
@@ -709,13 +709,19 @@ private struct AllocationRecommendation: Identifiable {
     let tint: Color
 }
 
-private struct PlaidConnectModal: View {
+struct PlaidConnectModal: View {
+    @Environment(\.modelContext) private var modelContext
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.colorScheme) private var colorScheme
     @State private var isVisible = false
-    @State private var showingIntegrationNote = false
+    @State private var isLinking = false
+    @State private var linkError: String?
+    @StateObject private var plaidLinkService = PlaidLinkService()
 
+    var contextCopy = "Connect one checking account to automatically track spending, calculate available cash, and keep your Finance goals up to date."
     let onDismiss: () -> Void
+    var onLinked: (() -> Void)?
+    var dismissAfterLink = true
 
     var body: some View {
         ScrollView {
@@ -744,7 +750,7 @@ private struct PlaidConnectModal: View {
                             .foregroundStyle(TBColor.financeModalTextPrimary(for: colorScheme))
                             .multilineTextAlignment(.center)
 
-                        Text("Connect one checking account to automatically track spending, calculate available cash, and keep your Finance goals up to date.")
+                        Text(contextCopy)
                             .font(TBTypography.body())
                             .foregroundStyle(TBColor.financeModalTextSecondary(for: colorScheme))
                             .multilineTextAlignment(.center)
@@ -754,24 +760,47 @@ private struct PlaidConnectModal: View {
 
                     VStack(spacing: 10) {
                         Button {
-                            showingIntegrationNote = true
+                            startLink()
                         } label: {
-                            Text("Continue with Plaid")
-                                .font(TBTypography.body(.semibold))
-                                .foregroundStyle(TBColor.financeModalButtonText)
-                                .frame(maxWidth: .infinity, minHeight: 52)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                        .fill(TBColor.primaryAccent)
-                                )
+                            HStack(spacing: 10) {
+                                if isLinking {
+                                    ProgressView()
+                                        .tint(TBColor.financeModalButtonText)
+                                }
+                                Text(isLinking ? "Connecting…" : "Continue with Plaid")
+                                    .font(TBTypography.body(.semibold))
+                            }
+                            .foregroundStyle(TBColor.financeModalButtonText)
+                            .frame(maxWidth: .infinity, minHeight: 52)
+                            .background(
+                                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                    .fill(TBColor.primaryAccent)
+                            )
                         }
                         .buttonStyle(.plain)
+                        .disabled(isLinking)
                         .accessibilityHint("Continues to the secure Plaid connection flow")
 
                         Button("Not Now", action: onDismiss)
                             .font(TBTypography.body(.semibold))
                             .foregroundStyle(TBColor.financeModalTextSecondary(for: colorScheme))
                             .frame(maxWidth: .infinity, minHeight: 48)
+                    }
+
+                    if let linkError {
+                        Text(linkError)
+                            .font(TBTypography.caption(.semibold))
+                            .foregroundStyle(TBColor.financeModalError)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(12)
+                            .background(
+                                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                    .fill(TBColor.financeModalError.opacity(0.1))
+                                    .overlay {
+                                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                            .stroke(TBColor.financeModalError.opacity(0.24), lineWidth: 1)
+                                    }
+                            )
                     }
 
                     Label {
@@ -806,14 +835,46 @@ private struct PlaidConnectModal: View {
         .scrollBounceBehavior(.basedOnSize)
         .background(TBColor.financeModalBackground(for: colorScheme).ignoresSafeArea())
         .onAppear {
+            plaidLinkService.onLinked = { transactions in
+                do {
+                    try plaidLinkService.upsert(transactions, in: modelContext)
+                    isLinking = false
+                    onLinked?()
+                    if dismissAfterLink {
+                        onDismiss()
+                    }
+                } catch {
+                    isLinking = false
+                    linkError = "Your account linked, but transactions could not be saved locally."
+                }
+            }
+            plaidLinkService.onExit = { message in
+                isLinking = false
+                if let message {
+                    linkError = message
+                }
+            }
             withAnimation(reduceMotion ? nil : .spring(response: 0.52, dampingFraction: 0.82)) {
                 isVisible = true
             }
         }
-        .alert("Plaid Link setup required", isPresented: $showingIntegrationNote) {
-            Button("OK", role: .cancel) {}
-        } message: {
-            Text("The connection UI is restored. Add the Plaid LinkKit package and backend link-token endpoint before enabling live bank connections.")
+        .sheet(isPresented: $plaidLinkService.isPresentingLink) {
+            plaidLinkService.linkSheet()
+                .ignoresSafeArea()
+        }
+    }
+
+    private func startLink() {
+        isLinking = true
+        linkError = nil
+        Task {
+            do {
+                let token = try await plaidLinkService.createLinkToken()
+                try plaidLinkService.presentLink(token: token)
+            } catch {
+                isLinking = false
+                linkError = error.localizedDescription
+            }
         }
     }
 }

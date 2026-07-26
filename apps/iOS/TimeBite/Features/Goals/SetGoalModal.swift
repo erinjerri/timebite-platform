@@ -29,6 +29,8 @@ struct SetGoalModal: View {
     @State private var milestones = ""
     @State private var showValidation = false
     @State private var saveError: String?
+    @State private var followUpGoal: Goal?
+    @State private var savingsSetupGoal: Goal?
 
     private var isEditing: Bool {
         goal != nil
@@ -116,38 +118,57 @@ struct SetGoalModal: View {
                         }
                     }
 
-                    goalField("Considerations") {
-                        styledEditor(text: $considerations, minHeight: 74)
-                    }
-
-                    goalField("Dependencies / Blockers / Resources") {
-                        styledEditor(text: $dependenciesResources, minHeight: 118)
-                    }
-
-                    goalField("Success Criteria") {
-                        styledEditor(text: $successCriteria, minHeight: 74)
-                    }
-
-                    goalField("Next Action") {
-                        styledEditor(text: $nextAction, minHeight: 74)
-                    }
-
-                    goalField("Milestones") {
-                        VStack(alignment: .leading, spacing: 8) {
-                            styledEditor(text: $milestones, minHeight: 104)
-
-                            Text("Add one milestone per line.")
-                                .font(TBTypography.caption())
-                                .foregroundStyle(TBColor.textSecondary)
-                        }
-                    }
-
                     if showValidation && !isValid {
                         validationMessage("Title is required.")
                     }
 
                     if let saveError {
                         validationMessage(saveError)
+                    }
+
+                    VStack(spacing: 8) {
+                        Button {
+                            _ = save(dismissAfterSave: true)
+                        } label: {
+                            Text("Save Goal")
+                                .font(TBTypography.body(.semibold))
+                                .foregroundStyle(TBColor.financeModalButtonText)
+                                .frame(maxWidth: .infinity, minHeight: 52)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                        .fill(TBColor.primaryAccent)
+                                )
+                        }
+                        .buttonStyle(.plain)
+
+                        Button {
+                            guard let savedGoal = save(dismissAfterSave: false) else { return }
+                            if goalKind == .savings {
+                                savingsSetupGoal = savedGoal
+                            } else {
+                                followUpGoal = savedGoal
+                            }
+                        } label: {
+                            HStack {
+                                Text("Add considerations, blockers, and next steps")
+                                    .font(TBTypography.caption(.semibold))
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .foregroundStyle(TBColor.primaryAccent)
+                            }
+                            .foregroundStyle(TBColor.textSecondary)
+                            .padding(.horizontal, 14)
+                            .frame(maxWidth: .infinity, minHeight: 48)
+                            .background(
+                                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                    .fill(TBColor.surface.opacity(0.55))
+                                    .overlay {
+                                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                            .stroke(TBColor.border, lineWidth: 1)
+                                    }
+                            )
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
                 .padding(16)
@@ -164,15 +185,19 @@ struct SetGoalModal: View {
                     .foregroundStyle(TBColor.textSecondary)
                 }
 
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
-                        save()
-                    }
-                    .fontWeight(.semibold)
-                    .foregroundStyle(TBColor.primaryAccent)
-                }
             }
             .onAppear(perform: load)
+            .sheet(item: $followUpGoal) { savedGoal in
+                GoalConsiderationsModal(goal: savedGoal)
+                    .presentationDetents([.large])
+                    .preferredColorScheme(.dark)
+            }
+            .sheet(item: $savingsSetupGoal) { savedGoal in
+                SavingsGoalSetupFlow(goal: savedGoal)
+                    .presentationDetents([.large])
+                    .presentationDragIndicator(.hidden)
+                    .preferredColorScheme(.dark)
+            }
         }
     }
 
@@ -408,19 +433,24 @@ struct SetGoalModal: View {
         milestones = fetchMilestoneTitles(goalId: goal.id).joined(separator: "\n")
     }
 
-    private func save() {
+    @discardableResult
+    private func save(dismissAfterSave: Bool) -> Goal? {
         showValidation = true
         saveError = nil
 
-        guard isValid else { return }
+        guard isValid else { return nil }
 
         do {
             let savedGoal = try saveGoal()
             try replaceMilestones(for: savedGoal)
             try modelContext.save()
-            dismiss()
+            if dismissAfterSave {
+                dismiss()
+            }
+            return savedGoal
         } catch {
             saveError = "Unable to save this goal. Please try again."
+            return nil
         }
     }
 

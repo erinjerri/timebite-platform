@@ -21,7 +21,9 @@ struct TimeBiteApp: App {
             DailyAIReflection.self,
             FinancialGoal.self,
             CapitalAllocation.self,
-            DebtAccount.self
+            DebtAccount.self,
+            PlaidAccount.self,
+            PlaidTransaction.self
         ])
     }
 }
