@@ -86,6 +86,34 @@ enum GoalPreviewData {
         )
         modelContext.insert(
             AgentSession(
+                startTime: calendar.date(byAdding: .day, value: -5, to: now) ?? now,
+                endTime: calendar.date(byAdding: .day, value: -5, to: calendar.date(byAdding: .hour, value: 1, to: now) ?? now) ?? now,
+                toolName: "Codex",
+                repository: "timebite-platform",
+                taskName: "Model goal progress",
+                promptCount: 6,
+                completionStatus: "Completed",
+                estimatedTokens: 28000,
+                estimatedCost: 1.12,
+                interventionCount: 2
+            )
+        )
+        modelContext.insert(
+            AgentSession(
+                startTime: calendar.date(byAdding: .day, value: -2, to: now) ?? now,
+                endTime: calendar.date(byAdding: .day, value: -2, to: calendar.date(byAdding: .minute, value: 75, to: now) ?? now) ?? now,
+                toolName: "Codex",
+                repository: "timebite-platform",
+                taskName: "Polish Goals dashboard",
+                promptCount: 8,
+                completionStatus: "In Progress",
+                estimatedTokens: 36000,
+                estimatedCost: 1.44,
+                interventionCount: 4
+            )
+        )
+        modelContext.insert(
+            AgentSession(
                 startTime: calendar.date(byAdding: .hour, value: -4, to: now) ?? now,
                 endTime: calendar.date(byAdding: .minute, value: -165, to: now) ?? now,
                 toolName: "Codex",

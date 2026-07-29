@@ -1,3 +1,4 @@
+import Charts
 import SwiftData
 import SwiftUI
 
@@ -138,6 +139,9 @@ struct FinanceDashboardView: View {
 
     private var nextDollarCard: some View {
         let recommendation = engine.nextDollarRecommendation
+        let soonestProjection = engine.debtProjections.min {
+            $0.points.count < $1.points.count
+        }
 
         return TBCard {
             VStack(alignment: .leading, spacing: 14) {
@@ -168,6 +172,34 @@ struct FinanceDashboardView: View {
                         Label(reason, systemImage: "checkmark.circle.fill")
                             .font(TBTypography.caption(.semibold))
                             .foregroundStyle(TBColor.textSecondary)
+                    }
+                }
+
+                if let soonestProjection {
+                    HStack(alignment: .center, spacing: 14) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Debt-free estimate")
+                                .font(TBTypography.caption(.semibold))
+                                .foregroundStyle(TBColor.textSecondary)
+                            Text(engine.estimatedDebtPayoffDate.formatted(date: .abbreviated, time: .omitted))
+                                .font(TBTypography.title(.headline, weight: .bold))
+                                .foregroundStyle(TBColor.textPrimary)
+                            Text("\(soonestProjection.accountName) pays off first")
+                                .font(TBTypography.caption())
+                                .foregroundStyle(TBColor.textSecondary)
+                        }
+
+                        Chart(soonestProjection.points) { point in
+                            LineMark(
+                                x: .value("Month", point.month),
+                                y: .value("Balance", point.balanceDouble)
+                            )
+                            .foregroundStyle(TBColor.primaryAccent)
+                            .lineStyle(StrokeStyle(lineWidth: 5.5, lineCap: .round, lineJoin: .round))
+                        }
+                        .chartXAxis(.hidden)
+                        .chartYAxis(.hidden)
+                        .frame(height: 58)
                     }
                 }
             }
@@ -300,9 +332,59 @@ struct FinanceDashboardView: View {
     }
 
     private var debtRecoveryCard: some View {
-        TBCard {
+        let displayedProjections = Array(engine.debtProjections.prefix(4))
+        let seriesNames = displayedProjections.map(\.accountName)
+        let seriesColors = Array([
+            TBColor.primaryAccent,
+            TBColor.blue,
+            TBColor.secondaryAccent,
+            TBColor.gold
+        ].prefix(displayedProjections.count))
+
+        return TBCard {
             VStack(alignment: .leading, spacing: 14) {
                 sectionHeader("Financial Recovery", subtitle: "Hybrid Snowball + Avalanche payoff order.")
+
+                if !displayedProjections.isEmpty {
+                    Chart {
+                        ForEach(displayedProjections) { projection in
+                            ForEach(projection.points) { point in
+                                LineMark(
+                                    x: .value("Month", point.month),
+                                    y: .value("Balance", point.balanceDouble),
+                                    series: .value("Account", projection.accountName)
+                                )
+                                .foregroundStyle(by: .value("Account", projection.accountName))
+                                .lineStyle(StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
+                            }
+                        }
+                    }
+                    .chartForegroundStyleScale(domain: seriesNames, range: seriesColors)
+                    .chartLegend(position: .bottom, alignment: .leading, spacing: 10)
+                    .chartXAxis {
+                        AxisMarks(values: .automatic(desiredCount: 4)) {
+                            AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
+                                .foregroundStyle(TBColor.border)
+                            AxisValueLabel()
+                                .foregroundStyle(TBColor.textSecondary)
+                        }
+                    }
+                    .chartYAxis {
+                        AxisMarks(values: .automatic(desiredCount: 4)) {
+                            AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
+                                .foregroundStyle(TBColor.border)
+                            AxisValueLabel()
+                                .foregroundStyle(TBColor.textSecondary)
+                        }
+                    }
+                    .frame(height: 190)
+
+                    if debtAccounts.count > displayedProjections.count {
+                        Text("\(debtAccounts.count - displayedProjections.count) more account\(debtAccounts.count - displayedProjections.count == 1 ? "" : "s") listed below.")
+                            .font(TBTypography.caption())
+                            .foregroundStyle(TBColor.textSecondary)
+                    }
+                }
 
                 ForEach(debtAccounts) { account in
                     HStack {
@@ -639,10 +721,43 @@ private struct CapitalAllocationEngine {
     }
 
     var estimatedDebtPayoffDate: Date {
-        guard let debtGoal = goals.first(where: { $0.category == FinancialGoalCategory.debt.rawValue }) else { return .now }
-        let payment = max(debtGoal.recommendedMonthly, 1)
-        let months = Int(ceil(NSDecimalNumber(decimal: debtGoal.remainingAmount / payment).doubleValue))
+        guard let debtGoal else { return .now }
+        let months = Int(ceil(NSDecimalNumber(decimal: debtGoal.remainingAmount / monthlyDebtPayment).doubleValue))
         return Calendar.current.date(byAdding: .month, value: max(months, 1), to: .now) ?? .now
+    }
+
+    var debtProjections: [DebtAccountProjection] {
+        debts.map { account in
+            DebtAccountProjection(
+                accountID: account.id,
+                accountName: account.name,
+                points: projection(for: account)
+            )
+        }
+    }
+
+    func projection(for account: DebtAccount) -> [DebtBalanceProjection] {
+        var balance = max(account.balance, 0)
+        let accountPayment = max(
+            account.minimumPayment,
+            monthlyDebtPayment / Decimal(max(debts.count, 1))
+        )
+        let monthlyRate = Decimal(account.annualPercentageRate / 1200)
+        var points = [DebtBalanceProjection(month: 0, balance: balance)]
+        var month = 0
+
+        while balance > 0 && month < 600 {
+            month += 1
+            let interest = balance * monthlyRate
+            balance = max(balance + interest - accountPayment, 0)
+            points.append(DebtBalanceProjection(month: month, balance: balance))
+
+            if accountPayment <= interest {
+                break
+            }
+        }
+
+        return points
     }
 
     func allocationPlan(for income: Decimal) -> [AllocationRecommendation] {
@@ -692,6 +807,30 @@ private struct CapitalAllocationEngine {
         }
         return (lhs.dueDate ?? .distantFuture) < (rhs.dueDate ?? .distantFuture)
     }
+
+    private var debtGoal: FinancialGoal? {
+        goals.first(where: { $0.category == FinancialGoalCategory.debt.rawValue })
+    }
+
+    private var monthlyDebtPayment: Decimal {
+        max(debtGoal?.recommendedMonthly ?? 1, 1)
+    }
+}
+
+private struct DebtAccountProjection: Identifiable {
+    let accountID: UUID
+    let accountName: String
+    let points: [DebtBalanceProjection]
+
+    var id: UUID { accountID }
+}
+
+private struct DebtBalanceProjection: Identifiable {
+    let month: Int
+    let balance: Decimal
+
+    var id: Int { month }
+    var balanceDouble: Double { NSDecimalNumber(decimal: balance).doubleValue }
 }
 
 private struct NextDollarRecommendation {

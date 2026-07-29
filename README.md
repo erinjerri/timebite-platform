@@ -78,22 +78,35 @@ The MVP should bias toward fewer surfaces:
 
 ## Repository Layout
 
+TimeBite is moving from a single client monorepo toward a macOS-first product
+family. This repository is the platform, services, schema, integration, and
+migration home. The canonical desktop product lives in `timebite-macos`, and
+platform-specific clients consume components extracted from that app.
+Its initial system architecture, design specification, and lo-fi wireframe
+form the macOS product baseline once they are committed to that repository's
+default branch.
+
 ```text
 timebite-platform/
-├── apps/                    # iOS, visionOS, macOS, website surfaces
+├── apps/                    # Existing clients while extraction is in progress
 ├── backend/                 # Services for goals, cycles, assistant, telemetry
 ├── docs/                    # Product, architecture, roadmap, sprint docs
 ├── schemas/                 # Shared JSON shapes for goals, tasks, rollups
-├── shared/                  # Shared domain code
+├── shared/                  # Shared code awaiting TimeBiteKit extraction
 ├── specs/                   # Focused product and platform specifications
 ├── research/                # Research experiments and outputs
 └── README.md
 ```
 
+See [Repository and product architecture](docs/repository-architecture.md) for
+the canonical ownership map and migration order.
+
 ---
 
 ## Documentation
 
+- [Repository and product architecture](docs/repository-architecture.md)
+- [User research](docs/user-research.md)
 - [Goal Loop specification](docs/goal-loop-specification.md)
 - [System architecture](docs/system-architecture.md)
 - [UI architecture](docs/ui-architecture.md)

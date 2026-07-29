@@ -6,6 +6,7 @@ struct GoalsView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \Goal.dueDate, order: .forward) private var goals: [Goal]
     @Query(sort: \Milestone.dueDate, order: .forward) private var milestones: [Milestone]
+    @Query(sort: \GoalProgressEntry.date, order: .forward) private var goalProgressEntries: [GoalProgressEntry]
     @Query private var goalImpacts: [GoalImpact]
     @Query(sort: \AgentSession.startTime, order: .reverse) private var agentSessions: [AgentSession]
 
@@ -39,8 +40,11 @@ struct GoalsView: View {
 
                     if goals.isEmpty {
                         emptyState
+                    } else {
+                        goalMomentumSection
                     }
 
+                    aiLeverageSection
                     selectedLifeAreaDetail
                 }
                 .padding(.horizontal, 16)
@@ -435,7 +439,11 @@ struct GoalsView: View {
             if showingGoalMomentum {
                 VStack(spacing: 10) {
                     ForEach(goals.prefix(3)) { goal in
-                        GoalMomentumRow(goal: goal, metrics: metrics(for: goal))
+                        GoalMomentumRow(
+                            goal: goal,
+                            metrics: metrics(for: goal),
+                            trend: progressTrend(for: goal)
+                        )
                     }
                 }
             }
@@ -447,6 +455,40 @@ struct GoalsView: View {
                 .overlay(
                     RoundedRectangle(cornerRadius: 22, style: .continuous)
                         .stroke(TBColor.primaryAccent.opacity(0.16), lineWidth: 1)
+                )
+        )
+    }
+
+    private var aiLeverageSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("AI Leverage")
+                .font(TBTypography.title(.headline, weight: .semibold))
+                .foregroundStyle(TBColor.textPrimary)
+
+            if agentSessions.isEmpty {
+                HStack(alignment: .top, spacing: 12) {
+                    Image(systemName: "cpu")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundStyle(TBColor.primaryAccent)
+                        .frame(width: 36, height: 36)
+                        .background(Circle().fill(TBColor.primaryAccent.opacity(0.12)))
+
+                    Text("Connect an AI coding tool to see session insights here.")
+                        .font(TBTypography.caption())
+                        .foregroundStyle(TBColor.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            } else {
+                AILeverageChart(sessions: agentSessions)
+            }
+        }
+        .padding(14)
+        .background(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .fill(TBColor.surface.opacity(0.80))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 22, style: .continuous)
+                        .stroke(TBColor.border, lineWidth: 1)
                 )
         )
     }
@@ -539,9 +581,26 @@ struct GoalsView: View {
             aiAssistedTasks: max(aiImpacts.count, Int(goal.progress * 8)),
             timeSavedHours: max(estimatedTimeSaved, goal.progress * 24),
             completionVelocity: max(velocity, goal.progress * 16),
-            progressTrend: [0.18, 0.24, 0.31, 0.46, 0.58, goal.progress],
             projectedCompletionDate: projectedCompletionDate(for: goal)
         )
+    }
+
+    private func progressTrend(for goal: Goal) -> [GoalProgressTrendPoint] {
+        goalProgressEntries
+            .filter { $0.goalId == goal.id }
+            .sorted { $0.date < $1.date }
+            .map { entry in
+                let duration = goal.dueDate.timeIntervalSince(goal.startDate)
+                let elapsed = entry.date.timeIntervalSince(goal.startDate)
+                let plannedProgress = duration > 0 ? min(max(elapsed / duration, 0), 1) : 1
+
+                return GoalProgressTrendPoint(
+                    id: entry.id,
+                    date: entry.date,
+                    actual: min(max(entry.progressValue, 0), 1),
+                    plan: plannedProgress
+                )
+            }
     }
 
     private func projectedCompletionDate(for goal: Goal) -> Date {
@@ -734,6 +793,7 @@ private struct GoalDashboardCard: View {
 private struct GoalMomentumRow: View {
     let goal: Goal
     let metrics: GoalOutcomeMetrics
+    let trend: [GoalProgressTrendPoint]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -755,10 +815,56 @@ private struct GoalMomentumRow: View {
                     .foregroundStyle(TBColor.primaryAccent)
             }
 
-            HStack(spacing: 12) {
-                Sparkline(values: metrics.progressTrend, tint: GoalCategory(name: goal.category).color)
-                    .frame(width: 86, height: 32)
+            if trend.isEmpty {
+                Text("Add a progress update to start the trend.")
+                    .font(TBTypography.caption())
+                    .foregroundStyle(TBColor.textSecondary)
+            } else {
+                Chart {
+                    ForEach(trend) { point in
+                        LineMark(
+                            x: .value("Date", point.date),
+                            y: .value("Progress", point.actual),
+                            series: .value("Series", "Actual")
+                        )
+                        .foregroundStyle(by: .value("Series", "Actual"))
+                        .lineStyle(StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
 
+                        LineMark(
+                            x: .value("Date", point.date),
+                            y: .value("Progress", point.plan),
+                            series: .value("Series", "Plan")
+                        )
+                        .foregroundStyle(by: .value("Series", "Plan"))
+                        .lineStyle(StrokeStyle(lineWidth: 1.5, dash: [5, 4]))
+                    }
+                }
+                .chartForegroundStyleScale(
+                    domain: ["Actual", "Plan"],
+                    range: [TBColor.primaryAccent, TBColor.textSecondary]
+                )
+                .chartLegend(position: .bottom, alignment: .leading, spacing: 12)
+                .chartXAxis {
+                    AxisMarks(values: .automatic(desiredCount: 3)) {
+                        AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
+                            .foregroundStyle(TBColor.border)
+                        AxisValueLabel(format: .dateTime.month(.abbreviated).day())
+                            .foregroundStyle(TBColor.textSecondary)
+                    }
+                }
+                .chartYAxis {
+                    AxisMarks(values: [0, 0.5, 1]) {
+                        AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
+                            .foregroundStyle(TBColor.border)
+                        AxisValueLabel(format: Decimal.FormatStyle.Percent.percent.scale(1))
+                            .foregroundStyle(TBColor.textSecondary)
+                    }
+                }
+                .chartYScale(domain: 0...1)
+                .frame(height: 112)
+            }
+
+            HStack(spacing: 12) {
                 momentumMetric("Time", "\(Int(metrics.hoursInvested.rounded()))h")
                 momentumMetric("AI", "\(Int(metrics.timeSavedHours.rounded()))h saved")
                 momentumMetric("Progress", "\(Int(goal.progress * 100))%")
@@ -784,29 +890,11 @@ private struct GoalMomentumRow: View {
     }
 }
 
-private struct Sparkline: View {
-    let values: [Double]
-    let tint: Color
-
-    var body: some View {
-        GeometryReader { proxy in
-            Path { path in
-                let safeValues = values.isEmpty ? [0] : values
-                let step = proxy.size.width / CGFloat(max(safeValues.count - 1, 1))
-
-                for index in safeValues.indices {
-                    let x = CGFloat(index) * step
-                    let y = proxy.size.height * (1 - min(max(safeValues[index], 0), 1))
-                    if index == safeValues.startIndex {
-                        path.move(to: CGPoint(x: x, y: y))
-                    } else {
-                        path.addLine(to: CGPoint(x: x, y: y))
-                    }
-                }
-            }
-            .stroke(tint, style: StrokeStyle(lineWidth: 2.4, lineCap: .round, lineJoin: .round))
-        }
-    }
+private struct GoalProgressTrendPoint: Identifiable {
+    let id: UUID
+    let date: Date
+    let actual: Double
+    let plan: Double
 }
 
 private struct GoalOutcomeMetrics {
@@ -816,8 +904,117 @@ private struct GoalOutcomeMetrics {
     let aiAssistedTasks: Int
     let timeSavedHours: Double
     let completionVelocity: Double
-    let progressTrend: [Double]
     let projectedCompletionDate: Date
+}
+
+private struct AILeverageChart: View {
+    let sessions: [AgentSession]
+
+    private let analytics = AIProductivityAnalytics()
+
+    private var points: [AILeveragePoint] {
+        let orderedSessions = sessions.sorted { $0.startTime < $1.startTime }
+
+        return orderedSessions.indices.map { index in
+            let includedSessions = Array(orderedSessions.prefix(index + 1))
+            let summary = analytics.workSummary(for: includedSessions)
+            let plannedFocusTime = TimeInterval(max(summary.totalSessions, 1)) * 3600
+            let focus = min(max(summary.totalRuntime / plannedFocusTime, 0), 1)
+            let alignedRuntime = includedSessions
+                .filter { !$0.repository.isEmpty && !$0.taskName.isEmpty }
+                .map(\.runtime)
+                .reduce(0, +)
+            let alignment = analytics.goalAlignmentScore(
+                alignedTime: alignedRuntime,
+                totalTime: summary.totalRuntime
+            )
+            let leverage = analytics.aiLeverageScore(
+                outputAchieved: Double(includedSessions.filter(\.isComplete).count),
+                humanEffortInvested: summary.totalRuntime
+            )
+            let composite = analytics.executionQualityScore(
+                completionRate: summary.completionRate,
+                focusTime: summary.totalRuntime,
+                plannedFocusTime: plannedFocusTime,
+                goalAlignment: alignment,
+                aiLeverage: leverage
+            )
+
+            return AILeveragePoint(
+                id: includedSessions[index].id,
+                date: includedSessions[index].startTime,
+                composite: composite,
+                completion: summary.completionRate,
+                focus: focus,
+                alignment: alignment
+            )
+        }
+    }
+
+    var body: some View {
+        Chart {
+            ForEach(points) { point in
+                LineMark(
+                    x: .value("Session", point.date),
+                    y: .value("Score", point.composite),
+                    series: .value("Metric", "Composite")
+                )
+                .foregroundStyle(by: .value("Metric", "Composite"))
+                .lineStyle(StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
+
+                supportingMark(point.completion, label: "Completion", point: point)
+                supportingMark(point.focus, label: "Focus", point: point)
+                supportingMark(point.alignment, label: "Alignment", point: point)
+            }
+        }
+        .chartForegroundStyleScale(
+            domain: ["Composite", "Completion", "Focus", "Alignment"],
+            range: [TBColor.textPrimary, TBColor.primaryAccent, TBColor.blue, TBColor.secondaryAccent]
+        )
+        .chartLegend(position: .bottom, alignment: .leading, spacing: 10)
+        .chartXAxis {
+            AxisMarks(values: .automatic(desiredCount: 3)) {
+                AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
+                    .foregroundStyle(TBColor.border)
+                AxisValueLabel(format: .dateTime.month(.abbreviated).day())
+                    .foregroundStyle(TBColor.textSecondary)
+            }
+        }
+        .chartYAxis {
+            AxisMarks(values: [0, 0.5, 1]) {
+                AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
+                    .foregroundStyle(TBColor.border)
+                AxisValueLabel(format: Decimal.FormatStyle.Percent.percent.scale(1))
+                    .foregroundStyle(TBColor.textSecondary)
+            }
+        }
+        .chartYScale(domain: 0...1)
+        .frame(height: 180)
+    }
+
+    private func supportingMark(
+        _ value: Double,
+        label: String,
+        point: AILeveragePoint
+    ) -> some ChartContent {
+        LineMark(
+            x: .value("Session", point.date),
+            y: .value("Score", value),
+            series: .value("Metric", label)
+        )
+        .foregroundStyle(by: .value("Metric", label))
+        .lineStyle(StrokeStyle(lineWidth: 1.5, lineCap: .round, lineJoin: .round))
+    }
+}
+
+private struct AILeveragePoint: Identifiable {
+    let id: UUID
+    let date: Date
+    let composite: Double
+    let completion: Double
+    let focus: Double
+    let alignment: Double
+
 }
 
 private struct GoalDashboardItem: Identifiable, Hashable {
