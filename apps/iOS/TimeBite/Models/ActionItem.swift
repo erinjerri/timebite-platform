@@ -64,7 +64,7 @@ struct WorkLabel: Identifiable, Hashable, Codable {
 
     static let palette: [Color] = [
         TBColor.primaryAccent,
-        Color(red: 0.39, green: 0.77, blue: 0.98),
+        TBColor.blue,
         Color(red: 0.92, green: 0.47, blue: 0.82),
         TBColor.gold,
         Color(red: 0.98, green: 0.52, blue: 0.38),

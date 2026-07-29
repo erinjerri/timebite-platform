@@ -6,6 +6,7 @@ enum TBColor {
     static let surfaceElevated = Color(red: 0.10, green: 0.14, blue: 0.21)
 
     static let primaryAccent = Color(red: 0.00, green: 0.90, blue: 0.77)
+    static let blue = Color(red: 0.39, green: 0.77, blue: 0.98)
     static let secondaryAccent = Color(red: 0.66, green: 0.34, blue: 0.97)
     static let gold = Color(red: 0.96, green: 0.73, blue: 0.26)
 

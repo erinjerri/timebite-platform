@@ -19,11 +19,18 @@ struct TrackView: View {
         CompletionCalendarModel(goal: goals.first, progressEntries: progressEntries)
     }
 
+    private var weekTotalMinutes: Int {
+        weekMinutes.reduce(0, +)
+    }
+
+    private var isMomentumMilestoneWeek: Bool {
+        weekMinutes.allSatisfy { $0 >= 60 }
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    header
                     segmentedControl
 
                     switch selectedPeriod {
@@ -40,6 +47,18 @@ struct TrackView: View {
             .background(background)
             .navigationTitle("Track")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Button {
+                        showingAddHabit = true
+                    } label: {
+                        Image(systemName: "plus")
+                            .font(.system(size: 15, weight: .bold))
+                            .foregroundStyle(TBColor.textPrimary)
+                    }
+                    .accessibilityLabel("Add habit")
+                }
+            }
             .sheet(isPresented: $showingAddHabit) {
                 AddHabitSheet(
                     title: $draftTitle,
@@ -48,38 +67,6 @@ struct TrackView: View {
                     onCancel: { showingAddHabit = false }
                 )
                 .preferredColorScheme(.dark)
-            }
-        }
-    }
-
-    private var header: some View {
-        TBCard {
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Daily rhythm")
-                        .font(TBTypography.title(.title2, weight: .semibold))
-                        .foregroundStyle(TBColor.textPrimary)
-                    Text("Track the day, see the week, and glance at the month.")
-                        .font(TBTypography.caption())
-                        .foregroundStyle(TBColor.textSecondary)
-                }
-
-                Spacer()
-
-                Button {
-                    showingAddHabit = true
-                } label: {
-                    Image(systemName: "plus")
-                        .font(.system(size: 15, weight: .bold))
-                        .foregroundStyle(TBColor.textPrimary)
-                        .frame(width: 36, height: 36)
-                        .background(
-                            Circle()
-                                .fill(TBColor.primaryAccent.opacity(0.16))
-                                .overlay(Circle().stroke(TBColor.primaryAccent.opacity(0.24), lineWidth: 1))
-                        )
-                }
-                .buttonStyle(.plain)
             }
         }
     }
@@ -111,48 +98,7 @@ struct TrackView: View {
     private var dailyCard: some View {
         VStack(spacing: 12) {
             labelRollupCard
-
-            ForEach(habits) { habit in
-                TBCard {
-                    HStack(alignment: .top, spacing: 12) {
-                        VStack(spacing: 6) {
-                            Image(systemName: habit.completed ? "checkmark.circle.fill" : "clock.badge.questionmark")
-                                .foregroundStyle(habit.completed ? TBColor.primaryAccent : habit.accent)
-                                .font(.system(size: 20, weight: .semibold))
-                                .frame(width: 32, height: 32)
-                                .background(Circle().fill(habit.accent.opacity(0.12)))
-
-                            RoundedRectangle(cornerRadius: 99, style: .continuous)
-                                .fill(habit.completed ? TBColor.primaryAccent : TBColor.textSecondary.opacity(0.35))
-                                .frame(width: 2, height: 34)
-                        }
-
-                        VStack(alignment: .leading, spacing: 8) {
-                            HStack(alignment: .firstTextBaseline) {
-                                Text(habit.title)
-                                    .font(TBTypography.body(.semibold))
-                                    .foregroundStyle(TBColor.textPrimary)
-                                Spacer()
-                                Text("\(habit.minutes) min")
-                                    .font(TBTypography.caption(.semibold))
-                                    .foregroundStyle(habit.completed ? TBColor.primaryAccent : TBColor.textSecondary)
-                            }
-
-                            Text(habit.note)
-                                .font(TBTypography.caption())
-                                .foregroundStyle(TBColor.textSecondary)
-
-                            HStack {
-                                labelPill(habit.category, tint: habit.accent)
-                                Spacer()
-                                Text(habit.completed ? "Logged" : "Upcoming")
-                                    .font(TBTypography.caption(.semibold))
-                                    .foregroundStyle(TBColor.textSecondary)
-                            }
-                        }
-                    }
-                }
-            }
+            HabitDurationList(habits: habits)
         }
     }
 
@@ -162,17 +108,18 @@ struct TrackView: View {
                 HStack(alignment: .top) {
                     sectionHeader(title: "Time by Work Label", subtitle: "Today · server aggregated")
                     Spacer()
-                    Text("\(labelRollups.map(\.minutes).reduce(0, +))m")
+                    Text(labelRollups.map(\.minutes).reduce(0, +).formattedMinutes)
                         .font(TBTypography.caption(.semibold))
                         .foregroundStyle(TBColor.textPrimary)
                 }
 
                 ForEach(labelRollups) { rollup in
+                    let tint = trackTint(for: rollup.label)
                     VStack(alignment: .leading, spacing: 7) {
                         HStack {
-                            sharpLabel(rollup.label)
+                            sharpLabel(rollup.label, tint: tint)
                             Spacer()
-                            Text("\(rollup.minutes) min")
+                            Text(rollup.minutes.formattedMinutes)
                                 .font(TBTypography.caption(.semibold))
                                 .foregroundStyle(TBColor.textSecondary)
                         }
@@ -180,9 +127,9 @@ struct TrackView: View {
                         GeometryReader { proxy in
                             ZStack(alignment: .leading) {
                                 Rectangle()
-                                    .fill(rollup.label.color.opacity(0.12))
+                                    .fill(tint.opacity(0.12))
                                 Rectangle()
-                                    .fill(rollup.label.color)
+                                    .fill(tint)
                                     .frame(width: proxy.size.width * min(max(rollup.serverPercentOfDay, 0), 1))
                             }
                         }
@@ -208,7 +155,7 @@ struct TrackView: View {
                     ForEach(Array(weekMinutes.enumerated()), id: \.offset) { index, value in
                         VStack(spacing: 8) {
                             RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                .fill(TBColor.accentGradient)
+                                .fill(TBColor.primaryAccent)
                                 .frame(height: max(CGFloat(value) * 1.5, 28))
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 14, style: .continuous)
@@ -224,9 +171,13 @@ struct TrackView: View {
                 .frame(height: 190)
 
                 HStack {
-                    labelPill("Momentum is up", tint: TBColor.primaryAccent)
+                    if isMomentumMilestoneWeek {
+                        MilestoneMomentumPill(text: "Momentum is up")
+                    } else {
+                        labelPill("Momentum is up", tint: TBColor.primaryAccent)
+                    }
                     Spacer()
-                    Text("412 min total")
+                    Text("\(weekTotalMinutes.formattedMinutes) total")
                         .font(TBTypography.caption(.semibold))
                         .foregroundStyle(TBColor.textSecondary)
                 }
@@ -253,7 +204,6 @@ struct TrackView: View {
             minutes: 15,
             completed: false,
             category: draftCategory,
-            accent: TBColor.primaryAccent,
             note: "Locally added from the MVP sheet."
         )
         habits.insert(habit, at: 0)
@@ -279,14 +229,18 @@ struct TrackView: View {
             )
     }
 
-    private func sharpLabel(_ label: WorkLabel) -> some View {
+    private func sharpLabel(_ label: WorkLabel, tint: Color) -> some View {
         Text(label.displayName)
             .font(TBTypography.caption(.semibold))
-            .foregroundStyle(label.color)
+            .foregroundStyle(tint)
             .padding(.vertical, 6)
             .padding(.horizontal, 9)
-            .background(label.color.opacity(0.12))
-            .overlay(Rectangle().stroke(label.color.opacity(0.34), lineWidth: 1))
+            .background(tint.opacity(0.12))
+            .overlay(Rectangle().stroke(tint.opacity(0.34), lineWidth: 1))
+    }
+
+    private func trackTint(for label: WorkLabel) -> Color {
+        label.colorIndex.isMultiple(of: 2) ? TBColor.primaryAccent : TBColor.blue
     }
 
     private func sectionHeader(title: String, subtitle: String) -> some View {
@@ -307,6 +261,142 @@ private enum TrackPeriod: String, CaseIterable, Identifiable {
     case monthly = "Monthly"
 
     var id: String { rawValue }
+}
+
+private struct HabitDurationList: View {
+    let habits: [HabitEntry]
+
+    private var maxMinutes: Int {
+        max(habits.map(\.minutes).max() ?? 1, 1)
+    }
+
+    var body: some View {
+        TBCard {
+            VStack(alignment: .leading, spacing: 14) {
+                TrackSectionHeader(title: "Daily tasks", subtitle: "Duration-weighted view")
+
+                VStack(alignment: .leading, spacing: 12) {
+                    ForEach(habits) { habit in
+                        HabitDurationRow(
+                            habit: habit,
+                            fraction: Double(habit.minutes) / Double(maxMinutes)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+private struct HabitDurationRow: View {
+    let habit: HabitEntry
+    let fraction: Double
+
+    var body: some View {
+        GeometryReader { proxy in
+            let labelReserve = min(max(proxy.size.width * 0.46, 138), 210)
+            let barSpace = max(proxy.size.width - labelReserve - 10, 80)
+            let normalizedFraction = CGFloat(min(max(fraction, 0), 1))
+            let segmentWidth = max(barSpace * normalizedFraction, 18)
+
+            HStack(alignment: .center, spacing: 10) {
+                Capsule(style: .continuous)
+                    .fill(habit.accent.opacity(0.82))
+                    .frame(width: segmentWidth, height: 6)
+                    .background(
+                        Capsule(style: .continuous)
+                            .fill(habit.accent.opacity(0.12))
+                            .frame(width: barSpace, height: 6),
+                        alignment: .leading
+                    )
+
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(alignment: .firstTextBaseline, spacing: 5) {
+                        Text(habit.title)
+                            .font(TBTypography.caption(.semibold))
+                            .foregroundStyle(TBColor.textPrimary)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.74)
+                        Text(habit.minutes.formattedMinutes)
+                            .font(TBTypography.caption(.semibold))
+                            .foregroundStyle(habit.accent)
+                            .lineLimit(1)
+                    }
+
+                    Text(habit.category)
+                        .font(TBTypography.caption())
+                        .foregroundStyle(TBColor.textSecondary)
+                        .lineLimit(1)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+        .frame(height: 32)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(habit.title), \(habit.minutes.formattedMinutes), \(habit.category), \(habit.completed ? "logged" : "upcoming")")
+    }
+}
+
+private struct MilestoneMomentumPill: View {
+    let text: String
+
+    var body: some View {
+        Text(text)
+            .font(TBTypography.caption(.semibold))
+            .foregroundStyle(TBColor.textPrimary)
+            .padding(.vertical, 7)
+            .padding(.horizontal, 12)
+            .background {
+                Capsule(style: .continuous)
+                    .fill(Color.black.opacity(0.92))
+                    .overlay(
+                        Capsule(style: .continuous)
+                            .stroke(
+                                LinearGradient(
+                                    colors: [TBColor.primaryAccent, TBColor.blue],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                ),
+                                lineWidth: 1
+                            )
+                    )
+                    .shadow(color: TBColor.primaryAccent.opacity(0.42), radius: 12)
+                    .shadow(color: TBColor.blue.opacity(0.30), radius: 18)
+            }
+    }
+}
+
+private struct TrackSectionHeader: View {
+    let title: String
+    let subtitle: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title)
+                .font(TBTypography.title(.headline, weight: .semibold))
+                .foregroundStyle(TBColor.textPrimary)
+            Text(subtitle)
+                .font(TBTypography.caption())
+                .foregroundStyle(TBColor.textSecondary)
+        }
+    }
+}
+
+private extension Int {
+    var formattedMinutes: String {
+        guard self >= 60 else {
+            return "\(self)m"
+        }
+
+        let hours = self / 60
+        let minutes = self % 60
+
+        guard minutes > 0 else {
+            return "\(hours)h"
+        }
+
+        return "\(hours)h \(minutes)m"
+    }
 }
 
 private struct AddHabitSheet: View {
