@@ -5,6 +5,7 @@ struct ActionItem: Identifiable, Hashable {
     var title: String
     var targetMinutes: Int
     var elapsedMinutes: Int
+    var scheduledStart: Date
     /// Canonical progress returned by TaskSvc. The client never derives this
     /// value from elapsed and estimated duration.
     var serverPercentComplete: Double
@@ -19,6 +20,7 @@ struct ActionItem: Identifiable, Hashable {
         title: String,
         targetMinutes: Int,
         elapsedMinutes: Int,
+        scheduledStart: Date = .now,
         serverPercentComplete: Double,
         streakDays: Int,
         category: String,
@@ -30,6 +32,7 @@ struct ActionItem: Identifiable, Hashable {
         self.title = title
         self.targetMinutes = targetMinutes
         self.elapsedMinutes = elapsedMinutes
+        self.scheduledStart = scheduledStart
         self.serverPercentComplete = serverPercentComplete
         self.streakDays = streakDays
         self.category = category
@@ -84,6 +87,7 @@ struct ActionQueueItem: Identifiable, Hashable {
     var title: String
     var estimatedDurationMinutes: Int
     var elapsedMinutes: Int
+    var scheduledStart: Date
     /// Canonical progress returned by TaskSvc.
     var serverPercentComplete: Double
     var colorIndex: Int
@@ -98,6 +102,7 @@ struct ActionQueueItem: Identifiable, Hashable {
         title: String,
         estimatedDurationMinutes: Int,
         elapsedMinutes: Int = 0,
+        scheduledStart: Date = .now,
         serverPercentComplete: Double = 0,
         colorIndex: Int,
         labelID: UUID? = nil,
@@ -110,6 +115,7 @@ struct ActionQueueItem: Identifiable, Hashable {
         self.title = title
         self.estimatedDurationMinutes = estimatedDurationMinutes
         self.elapsedMinutes = elapsedMinutes
+        self.scheduledStart = scheduledStart
         self.serverPercentComplete = serverPercentComplete
         self.colorIndex = colorIndex
         self.labelID = labelID
@@ -124,20 +130,20 @@ struct ActionQueueItem: Identifiable, Hashable {
     var color: Color { WorkLabel.palette[colorIndex % WorkLabel.palette.count] }
 
     static let samples: [ActionQueueItem] = [
-        .init(title: "Refactor iOS to consume timebite-core", estimatedDurationMinutes: 180, colorIndex: 1, labelID: WorkLabel.samples[0].id, epic: "visionOS Companion Setup", dueText: "Jul 23", repoName: "timebite-platform"),
-        .init(title: "Create timebite-vision app repo", estimatedDurationMinutes: 60, colorIndex: 2, labelID: WorkLabel.samples[2].id, epic: "visionOS Companion Setup", dueText: "Jul 23", repoName: "timebite-vision"),
-        .init(title: "Add timebite-core to visionOS", estimatedDurationMinutes: 60, colorIndex: 3, labelID: WorkLabel.samples[2].id, epic: "visionOS Companion Setup", dueText: "Jul 23", repoName: "timebite-vision"),
-        .init(title: "Implement auth handoff", estimatedDurationMinutes: 240, colorIndex: 4, labelID: WorkLabel.samples[1].id, epic: "visionOS Companion Setup", dueText: "Jul 24", repoName: "shared"),
-        .init(title: "Verify Plaid visionOS support", estimatedDurationMinutes: 60, colorIndex: 5, labelID: WorkLabel.samples[1].id, epic: "visionOS Companion Setup", dueText: "Jul 23", repoName: "timebite-core"),
-        .init(title: "Port P6 ring + task rail", estimatedDurationMinutes: 360, colorIndex: 0, labelID: WorkLabel.samples[2].id, epic: "visionOS Companion Setup", dueText: "Jul 24", repoName: "timebite-vision"),
-        .init(title: "Set up visionOS 26+ CI", estimatedDurationMinutes: 120, colorIndex: 1, labelID: WorkLabel.samples[2].id, epic: "visionOS Companion Setup", dueText: "Jul 24", repoName: "timebite-vision"),
-        .init(title: "Decide App Store record strategy", estimatedDurationMinutes: 60, colorIndex: 2, labelID: WorkLabel.samples[3].id, epic: "visionOS Companion Setup", dueText: "Jul 24", repoName: "App Store Connect"),
-        .init(title: "Start visionOS TestFlight soak", estimatedDurationMinutes: 60, colorIndex: 3, labelID: WorkLabel.samples[2].id, epic: "visionOS Companion Setup", dueText: "Jul 23", repoName: "timebite-vision"),
-        .init(title: "Finalize demo account + Review Notes", estimatedDurationMinutes: 120, colorIndex: 4, labelID: WorkLabel.samples[3].id, epic: "App Review Consistency", dueText: "Jul 25", repoName: "shared"),
-        .init(title: "Reconcile privacy labels", estimatedDurationMinutes: 120, colorIndex: 5, labelID: WorkLabel.samples[3].id, epic: "App Review Consistency", dueText: "Jul 26", repoName: "shared"),
-        .init(title: "Align Coming Soon gates", estimatedDurationMinutes: 120, colorIndex: 0, labelID: WorkLabel.samples[3].id, epic: "App Review Consistency", dueText: "Jul 26", repoName: "shared"),
-        .init(title: "Verify screenshots + metadata", estimatedDurationMinutes: 180, colorIndex: 1, labelID: WorkLabel.samples[3].id, epic: "App Review Consistency", dueText: "Jul 27", repoName: "shared"),
-        .init(title: "Verify visionOS 26 SDK archive", estimatedDurationMinutes: 60, colorIndex: 2, labelID: WorkLabel.samples[3].id, epic: "App Review Consistency", dueText: "Jul 25", repoName: "timebite-vision")
+        .init(title: "Refactor iOS to consume timebite-core", estimatedDurationMinutes: 180, scheduledStart: .today(hour: 9, minute: 30), serverPercentComplete: 0.46, colorIndex: 1, labelID: WorkLabel.samples[0].id, epic: "visionOS Companion Setup", status: "In Progress", dueText: "Jul 23", repoName: "timebite-platform"),
+        .init(title: "Create timebite-vision app repo", estimatedDurationMinutes: 60, scheduledStart: .today(hour: 11, minute: 30), serverPercentComplete: 1, colorIndex: 2, labelID: WorkLabel.samples[2].id, epic: "visionOS Companion Setup", status: "Done", dueText: "Jul 23", repoName: "timebite-vision"),
+        .init(title: "Add timebite-core to visionOS", estimatedDurationMinutes: 60, scheduledStart: .today(hour: 13), serverPercentComplete: 0.35, colorIndex: 3, labelID: WorkLabel.samples[2].id, epic: "visionOS Companion Setup", dueText: "Jul 23", repoName: "timebite-vision"),
+        .init(title: "Implement auth handoff", estimatedDurationMinutes: 240, scheduledStart: .today(hour: 14), serverPercentComplete: 0.18, colorIndex: 4, labelID: WorkLabel.samples[1].id, epic: "visionOS Companion Setup", dueText: "Jul 24", repoName: "shared"),
+        .init(title: "Verify Plaid visionOS support", estimatedDurationMinutes: 60, scheduledStart: .today(hour: 17, minute: 30), colorIndex: 5, labelID: WorkLabel.samples[1].id, epic: "visionOS Companion Setup", dueText: "Jul 23", repoName: "timebite-core"),
+        .init(title: "Port P6 ring + task rail", estimatedDurationMinutes: 360, scheduledStart: .today(hour: 18), serverPercentComplete: 0.12, colorIndex: 0, labelID: WorkLabel.samples[2].id, epic: "visionOS Companion Setup", dueText: "Jul 24", repoName: "timebite-vision"),
+        .init(title: "Set up visionOS 26+ CI", estimatedDurationMinutes: 120, scheduledStart: .today(hour: 20), colorIndex: 1, labelID: WorkLabel.samples[2].id, epic: "visionOS Companion Setup", dueText: "Jul 24", repoName: "timebite-vision"),
+        .init(title: "Decide App Store record strategy", estimatedDurationMinutes: 60, scheduledStart: .today(hour: 21, minute: 30), colorIndex: 2, labelID: WorkLabel.samples[3].id, epic: "visionOS Companion Setup", dueText: "Jul 24", repoName: "App Store Connect"),
+        .init(title: "Start visionOS TestFlight soak", estimatedDurationMinutes: 60, scheduledStart: .today(hour: 8, minute: 30), serverPercentComplete: 1, colorIndex: 3, labelID: WorkLabel.samples[2].id, epic: "visionOS Companion Setup", status: "Done", dueText: "Jul 23", repoName: "timebite-vision"),
+        .init(title: "Finalize demo account + Review Notes", estimatedDurationMinutes: 120, scheduledStart: .today(hour: 10), colorIndex: 4, labelID: WorkLabel.samples[3].id, epic: "App Review Consistency", dueText: "Jul 25", repoName: "shared"),
+        .init(title: "Reconcile privacy labels", estimatedDurationMinutes: 120, scheduledStart: .today(hour: 12, minute: 30), colorIndex: 5, labelID: WorkLabel.samples[3].id, epic: "App Review Consistency", dueText: "Jul 26", repoName: "shared"),
+        .init(title: "Align Coming Soon gates", estimatedDurationMinutes: 120, scheduledStart: .today(hour: 15, minute: 30), colorIndex: 0, labelID: WorkLabel.samples[3].id, epic: "App Review Consistency", dueText: "Jul 26", repoName: "shared"),
+        .init(title: "Verify screenshots + metadata", estimatedDurationMinutes: 180, scheduledStart: .today(hour: 16), colorIndex: 1, labelID: WorkLabel.samples[3].id, epic: "App Review Consistency", dueText: "Jul 27", repoName: "shared"),
+        .init(title: "Verify visionOS 26 SDK archive", estimatedDurationMinutes: 60, scheduledStart: .today(hour: 23), colorIndex: 2, labelID: WorkLabel.samples[3].id, epic: "App Review Consistency", dueText: "Jul 25", repoName: "timebite-vision")
     ]
 }
 
@@ -161,6 +167,7 @@ extension ActionItem {
         title: "Extract shared services into timebite-core",
         targetMinutes: 240,
         elapsedMinutes: 0,
+        scheduledStart: .today(hour: 10, minute: 45),
         serverPercentComplete: 0,
         streakDays: 12,
         category: "visionOS Companion Setup",
@@ -168,4 +175,22 @@ extension ActionItem {
         accent: TBColor.primaryAccent,
         note: "TestFlight Jul 25 • App submission Jul 30 • timebite-core"
     )
+
+    static let empty = ActionItem(
+        title: "No action selected",
+        targetMinutes: 0,
+        elapsedMinutes: 0,
+        scheduledStart: .now,
+        serverPercentComplete: 0,
+        streakDays: 0,
+        category: "",
+        accent: TBColor.primaryAccent,
+        note: "Start or select an action to begin a focus session."
+    )
+}
+
+private extension Date {
+    static func today(hour: Int, minute: Int = 0) -> Date {
+        Calendar.current.date(bySettingHour: hour, minute: minute, second: 0, of: .now) ?? .now
+    }
 }
