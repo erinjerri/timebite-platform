@@ -2,6 +2,7 @@ import SwiftUI
 
 struct RootView: View {
     @State private var selectedSection: String = "now"
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         HStack(spacing: 0) {
@@ -9,7 +10,7 @@ struct RootView: View {
             Divider()
             content
         }
-        .background(TimeBitePalette.background.ignoresSafeArea())
+        .background(TimeBitePalette.background(for: colorScheme).ignoresSafeArea())
     }
 
     private var sidebar: some View {
@@ -24,7 +25,7 @@ struct RootView: View {
         }
         .padding(20)
         .frame(width: 240)
-        .background(TimeBitePalette.surface)
+        .background(TimeBitePalette.surface(for: colorScheme))
     }
 
     @ViewBuilder

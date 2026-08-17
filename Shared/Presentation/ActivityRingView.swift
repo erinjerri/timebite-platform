@@ -1,5 +1,10 @@
 import SwiftUI
 
+/// The one canonical Activity Ring rendering implementation shared by every
+/// TimeBite platform. It knows nothing about how progress was calculated, where
+/// the data came from, or which platform is rendering it — callers pass already
+/// normalized display data (see `ActivityProgressCalculator`) and presentation
+/// labels; the view stays purely declarative and display-only.
 struct ActivityRingView: View {
     let progress: Double
     let accentColor: Color
@@ -7,7 +12,13 @@ struct ActivityRingView: View {
     let secondaryLabel: String
     let lineWidth: CGFloat
 
-    init(progress: Double, accentColor: Color = .accentColor, primaryLabel: String, secondaryLabel: String, lineWidth: CGFloat = 14) {
+    init(
+        progress: Double,
+        accentColor: Color = .accentColor,
+        primaryLabel: String,
+        secondaryLabel: String,
+        lineWidth: CGFloat = 14
+    ) {
         self.progress = min(max(progress, 0), 1)
         self.accentColor = accentColor
         self.primaryLabel = primaryLabel
@@ -17,16 +28,24 @@ struct ActivityRingView: View {
 
     var body: some View {
         ZStack {
-            Circle().stroke(accentColor.opacity(0.14), style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
+            Circle()
+                .stroke(accentColor.opacity(0.14), style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
+
             Circle()
                 .trim(from: 0, to: progress)
                 .stroke(accentColor, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
                 .rotationEffect(.degrees(-90))
+                .animation(.easeInOut(duration: 0.25), value: progress)
+
             VStack(spacing: 4) {
-                Text(primaryLabel).font(TimeBiteTypography.font(.headline, weight: .semibold))
-                Text(secondaryLabel).font(TimeBiteTypography.font(.caption)).foregroundStyle(.secondary)
+                Text(primaryLabel)
+                    .font(TimeBiteTypography.font(.headline, weight: .semibold))
+                Text(secondaryLabel)
+                    .font(TimeBiteTypography.font(.caption))
+                    .foregroundStyle(.secondary)
             }
             .multilineTextAlignment(.center)
+            .padding(.horizontal, 8)
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(primaryLabel)

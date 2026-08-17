@@ -1,10 +1,13 @@
 import Foundation
 
 struct ActiveFocusSession: Codable, Hashable, Sendable {
-    var id: UUID
-    var title: String
-    var startedAt: Date
-    var plannedMinutes: Int
-    var elapsedSeconds: Int
-    var isRunning: Bool
+    var startDate: Date
+    var endDate: Date?
+    var focusTimeInterval: TimeInterval
+
+    init(startDate: Date, endDate: Date? = nil, focusTimeInterval: TimeInterval) {
+        self.startDate = startDate
+        self.endDate = endDate
+        self.focusTimeInterval = focusTimeInterval
+    }
 }

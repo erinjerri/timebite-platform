@@ -1,8 +1,11 @@
 import Foundation
 
 struct DailyReflectionSummary: Codable, Hashable, Sendable {
-    var date: Date
-    var prompt: String
-    var answer: String?
-    var isComplete: Bool
+    var amReflection: String?
+    var pmReflection: String?
+
+    init(amReflection: String? = nil, pmReflection: String? = nil) {
+        self.amReflection = amReflection
+        self.pmReflection = pmReflection
+    }
 }
