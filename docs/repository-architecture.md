@@ -1,219 +1,148 @@
-# CYRA and TimeBite Repository Architecture
+# TimeBite Repository and Product Architecture
 
-Last updated: July 26, 2026.
+Last updated: August 17, 2026.
 
-## Naming Rule
+> **This document was rewritten on August 17, 2026.** It previously described a
+> multi-repository split (separate `timebite-ios` and `timebite-vision` repos, with
+> shared code named `TimeBiteKit`, and the name "TimeBite Core" explicitly forbidden).
+> That plan is superseded. TimeBite is consolidating into a single monorepo, and the
+> shared module is named **TimeBiteCore**. Older documents and commit messages that
+> reference `TimeBiteKit` or a per-platform repo split predate this decision.
 
-`timebite-macos` is the canonical or "core" TimeBite application.
+## Naming Rules
 
-Do not use "TimeBite Core" to describe `timebite-platform`. Do not create a
-`timebite-core` application repository. If shared Swift code needs an
-independent package after two clients consume it, call that package
-`TimeBiteKit`.
+| Name | What it is |
+| --- | --- |
+| `timebite-platform` | The monorepo. Everything: all four Apple app targets, the shared module, backend services, schemas, and documentation. |
+| `TimeBiteCore` | The shared Swift module consumed by all four app targets. Domain models, progress and Activity Ring calculations, daily summary logic, service protocols, semantic design tokens, and neutral presentation primitives. |
+| `timebite-macos` | The standalone macOS repository being migrated into `timebite-platform`. Canonical reference for product behavior and visual direction until migration completes. |
 
-## Repository Ownership
+Do not introduce `TimeBiteKit`; it is the superseded name for `TimeBiteCore`. Do
+not create separate per-platform application repositories.
 
-| Repository | Status | Canonical responsibility |
-| --- | --- | --- |
-| [`erinjerri/timebite-macos`](https://github.com/erinjerri/timebite-macos) | Existing; architecture/design handoff in progress | Canonical macOS TimeBite application and reference implementation for product behavior |
-| [`erinjerri/timebite-platform`](https://github.com/erinjerri/timebite-platform) | Existing; transition repository | Backend services, schemas, sync, integrations, AI/agent services, and existing client code while it is extracted |
-| `erinjerri/timebite-ios` | Create after the macOS baseline is stable | iPhone and iPad application; owns the paired watchOS app and WidgetKit extension |
-| `erinjerri/timebite-vision` | Create after shared contracts stabilize | Apple Vision Pro application; spatial execution, drag and drop, and computer-vision-assisted capture |
-| `TimeBiteKit` | Begin as a package inside `timebite-macos`; extract only when needed | Shared domain models, JSON contracts, timer state machine, progress-ring calculations, import/export, and service protocols |
-| [`erinjerri/cyra-vision`](https://github.com/erinjerri/cyra-vision) | Existing | CYRA physical paper planner and Vision Board capture application; OCR, VisionKit, speech-to-text, review, and structured planner export |
-| [`erinjerri/cyra-site`](https://github.com/erinjerri/cyra-site) | Existing; canonical website | CYRA website built from the CYRA website template, Neuform UI, and the Payload CMS backend patterns from `erinjerri-portf-template` |
-| [`erinjerri/erinjerri-portf-template`](https://github.com/erinjerri/erinjerri-portf-template) | Upstream/template; local checkout needs repair | Reusable Payload CMS backend and portfolio-site patterns consumed by `cyra-site` |
-| [`erinjerri/timebite-torus-agentbeats`](https://github.com/erinjerri/timebite-torus-agentbeats) | Existing; archive/reference | Hackathon and demo work; not a production dependency |
-| [`erinjerri/cyra-marketing-site`](https://github.com/erinjerri/cyra-marketing-site) | Legacy/reference | Previous marketing-site implementation; not the canonical website going forward |
-
-## Product and Code Boundaries
-
-### `timebite-macos`
-
-The macOS app is the source implementation for the complete TimeBite
-experience:
-
-- planning and daily intent
-- goal and task editing
-- day-part allocation
-- reverse-Pomodoro timer behavior
-- two-ring progress model
-- reflection, review, and analytics
-- desktop import, drag and drop, and operator workflows
-
-Build and validate features here first when they benefit from the full desktop
-workspace. Extract reusable behavior into `TimeBiteKit`; do not make the iOS or
-visionOS apps depend directly on macOS UI code.
-
-#### Initial macOS baseline artifacts
-
-The first product-definition handoff into `timebite-macos` consists of:
-
-- the initial macOS system architecture document
-- the initial macOS design Markdown
-- the lo-fi macOS wireframe
-
-These artifacts establish the source baseline for implementation sequencing,
-screen ownership, shared-component extraction, and later iOS/watchOS/visionOS
-adaptation.
-
-As verified on July 26, 2026, the public `main` branch and the local clone still
-show only `.gitignore` and `README.md`. Treat the handoff as pending until the
-three artifacts are committed, pushed, and linked from the
-`timebite-macos/README.md`. Do not duplicate or rewrite them in
-`timebite-platform`; this repository should link to the macOS originals.
-
-Recommended organization:
+## Target Structure
 
 ```text
-timebite-macos/
-├── README.md
-├── docs/
-│   ├── system-architecture.md
-│   ├── design.md
-│   └── wireframes/
-│       └── macos-lo-fi.*
-└── TimeBiteMac/
+timebite-platform/
+├── apps/
+│   ├── iOS/                 # iPhone + iPad
+│   ├── macOS/               # Migrated from timebite-macos
+│   ├── watchOS/             # Paired Watch app
+│   └── visionOS/            # Apple Vision Pro
+├── Packages/
+│   └── TimeBiteCore/        # Shared module consumed by all four targets
+├── backend/                 # Services for goals, cycles, assistant, telemetry
+├── docs/                    # Product, architecture, roadmap, sprint docs
+├── schemas/                 # Shared JSON shapes for goals, tasks, rollups
+├── specs/                   # Focused product and platform specifications
+├── research/                # Research experiments and outputs
+└── README.md
 ```
 
-### `timebite-platform`
+`Shared/` at the repository root is the current, pre-packaging location of the
+shared code. It becomes `Packages/TimeBiteCore` when the module is formalized.
 
-This repository owns capabilities shared through APIs and data contracts:
-
-- FastAPI and other backend services
-- authentication and sync
-- canonical JSON schemas
-- Plaid and other external-service adapters
-- AI/agent orchestration, retrieval, and telemetry
-- migration tooling and compatibility fixtures
-- existing iOS, macOS, and visionOS code until each client is moved
-
-It is a platform repository, not the canonical client application.
-
-### `timebite-ios` and watchOS
-
-The iOS repository will own both the iPhone/iPad app and its paired Watch app.
-Keep watchOS in the same repository because signing, companion bundle
-configuration, Watch Connectivity, widgets, and releases are coupled.
-
-The Watch experience includes:
-
-- swipeable parts of the day
-- two progress rings for each day part
-- the live reverse-Pomodoro countdown
-- start, pause, resume, complete, and reflection handoff
-- WidgetKit complications and Smart Stack surfaces
-- compact snapshots and event deltas synchronized with the phone
-
-### `timebite-vision`
-
-The visionOS client is the most spatially ambitious TimeBite surface:
-
-- spatial day-part and ring views
-- live timer and reflection
-- drag-and-drop planning
-- image, document, and environment-assisted capture
-- computer-vision-assisted input
-- future ambient interaction experiments
-
-It is Apple Vision Pro first. Future Apple AI glasses can share its interaction
-contracts. Other glasses platforms should receive separate adapters when a
-second platform and SDK are real; do not force non-Apple code into the
-visionOS application target.
-
-### `cyra-vision`
-
-CYRA Vision remains distinct from TimeBite Vision:
-
-- `cyra-vision` digitizes physical CYRA planner and Vision Board input.
-- `timebite-vision` is the Apple Vision Pro TimeBite execution client.
-
-Both may produce or consume the same versioned planning exchange format, but
-they retain separate product identity, navigation, stores, and release plans.
-
-### `cyra-site`
-
-`cyra-site` is the canonical public website repository. It combines:
-
-- the existing CYRA website template
-- Neuform UI
-- Payload CMS backend patterns from `erinjerri-portf-template`
-
-Cross-product public documentation belongs here after the architecture is
-stable. Internal implementation details and operator links stay in Notion and
-repository documentation.
-
-The local `erinjerri-portf-template` directory is not currently an isolated
-checkout: Git resolves its top level to the parent `GH-Repos-Main` directory.
-Its configured origin is the expected GitHub URL, but the connected GitHub app
-cannot currently resolve that repository. Repair or freshly clone this
-template before importing it into `cyra-site`.
-
-## Data and Dependency Direction
+## Dependency Direction
 
 ```mermaid
 flowchart LR
-    Mac["timebite-macos<br/>canonical app"]
-    Kit["TimeBiteKit<br/>shared Swift package"]
-    Platform["timebite-platform<br/>services + schemas"]
-    IOS["timebite-ios<br/>iPhone + iPad + Watch"]
-    Vision["timebite-vision<br/>Apple Vision Pro"]
-    CYRAVision["cyra-vision<br/>paper + voice capture"]
-    Site["cyra-site<br/>public website"]
+    Core["TimeBiteCore<br/>shared module"]
+    IOS["apps/iOS"]
+    Mac["apps/macOS"]
+    Watch["apps/watchOS"]
+    Vision["apps/visionOS"]
+    Backend["backend/<br/>services + schemas"]
 
-    Mac --> Kit
-    IOS --> Kit
-    Vision --> Kit
-    Mac --> Platform
-    IOS --> Platform
-    Vision --> Platform
-    CYRAVision --> Platform
-    Platform --> Site
+    IOS --> Core
+    Mac --> Core
+    Watch --> Core
+    Vision --> Core
+
+    IOS --> Backend
+    Mac --> Backend
+    Watch --> Backend
+    Vision --> Backend
 ```
 
-Clients depend on `TimeBiteKit` and platform contracts. `TimeBiteKit` must not
-depend on app UI targets.
+The flow is one-way:
+
+`Platform UI -> TimeBiteCore presentation -> TimeBiteCore services -> TimeBiteCore domain -> TimeBiteCore models`
+
+`TimeBiteCore` must not depend on any app target, and must not contain
+platform-specific behavior.
+
+### What belongs in `TimeBiteCore`
+
+Domain models, validation and derivation logic, progress and Activity Ring
+calculations, daily summary logic, AM/PM/Total day-part rules, repository and
+storage contracts, formatting helpers, semantic design tokens, and reusable
+presentation primitives that genuinely work on all four platforms.
+
+### What stays in an app target
+
+Navigation, windowing and scene management, gestures and input affordances, app
+lifecycle, permission flows, and any layout tuned to one platform's conventions.
+
+## macOS Is the Reference Implementation
+
+`timebite-macos` holds the strongest existing implementation of TimeBite's
+product behavior and visual direction. Two consequences follow:
+
+1. **macOS migrates in as-is.** `timebite-macos` becomes `apps/macOS/`, retaining
+   its workspace shell, navigation, and feature views.
+2. **iOS is rebuilt from it.** The existing `apps/iOS` app predates the macOS work
+   and has diverged from it. Rather than patching iOS incrementally, a new iOS
+   version is built under `apps/iOS` derived from the macOS implementation and
+   `TimeBiteCore`, so both platforms express one product.
+
+Rebuilding iOS from macOS does not mean copying macOS layouts onto a phone. It
+means sharing domain logic, semantic tokens, and information architecture, while
+keeping navigation and layout native to each platform.
+
+## Platform Responsibilities
+
+| Platform | Role |
+| --- | --- |
+| macOS | Desktop workspace. Information density, resizable layouts, pointer and keyboard interaction. The reference implementation. |
+| iOS | iPhone and iPad. Touch, compact responsive layout, native navigation. Rebuilt from the macOS implementation. |
+| watchOS | Glance-first. Activity Rings, current progress, AM/PM/Daily summary, minimal Actions detail. Not a miniature desktop app. |
+| visionOS | Conventional SwiftUI window first. Rings, Actions, and daily summary in a readable native presentation. Spatial and immersive work is deferred until justified. |
 
 ## Consolidation Order
 
-1. Commit and push the macOS system architecture, design Markdown, and lo-fi
-   wireframe into `timebite-macos/docs/`.
-2. Link all three baseline artifacts from `timebite-macos/README.md`.
-3. Reconcile the architecture, design, and wireframe into one implementation
-   checklist; record conflicts explicitly instead of choosing silently.
-4. Establish a clean, buildable `timebite-macos` Xcode baseline.
-5. Inventory features in `timebite-platform` as move, share, retain, or archive.
-6. Move canonical desktop product behavior to `timebite-macos`.
-7. Create `Packages/TimeBiteKit` inside `timebite-macos`.
-8. Extract domain values, JSON contracts, timer logic, and ring calculations.
-9. Keep backend, Plaid, sync, and agent services in `timebite-platform`.
-10. Create `timebite-ios` and include the paired watchOS targets.
-11. Consume `TimeBiteKit` from iPhone, iPad, and Watch.
-12. Create `timebite-vision` after the shared contracts pass on macOS and iOS.
-13. Repair or freshly clone `erinjerri-portf-template` as an isolated
-    repository before merging its Payload CMS patterns.
-14. Update `cyra-site` with the public product ecosystem; keep the internal
-    operating map in Notion.
+1. Establish shared domain, ring calculations, and semantic design tokens under
+   `Shared/`. *(Done — see `docs/cross-platform-slice-handoff.md`.)*
+2. Prove the shared layer compiles by consuming it from the existing iOS target.
+3. Add macOS, watchOS, and visionOS targets against the shared layer.
+4. Migrate `timebite-macos` into `apps/macOS/`.
+5. Formalize `Shared/` as `Packages/TimeBiteCore`.
+6. Rebuild `apps/iOS` from the macOS implementation on top of `TimeBiteCore`.
+7. Decide the fate of the standalone `timebite-macos` repository (archive or retain).
+
+## Related Repositories
+
+| Repository | Status | Responsibility |
+| --- | --- | --- |
+| [`erinjerri/timebite-platform`](https://github.com/erinjerri/timebite-platform) | Canonical | The monorepo. All Apple app targets, `TimeBiteCore`, backend, schemas, docs. |
+| [`erinjerri/timebite-macos`](https://github.com/erinjerri/timebite-macos) | Migrating in | Standalone macOS app. Reference implementation until it lands in `apps/macOS/`. |
+| [`erinjerri/cyra-vision`](https://github.com/erinjerri/cyra-vision) | Separate product | CYRA planner and Vision Board capture. Distinct product identity from TimeBite; may share a versioned planning exchange format. |
+| [`erinjerri/cyra-site`](https://github.com/erinjerri/cyra-site) | Canonical website | Public site. |
+| [`erinjerri/timebite-torus-agentbeats`](https://github.com/erinjerri/timebite-torus-agentbeats) | Archive/reference | Hackathon and demo work; not a production dependency. |
 
 ## Finance Unlock Prompt Audit
 
-The progressive Finance prompt was partially implemented, but it was not
-implemented as the requested reusable unlock system.
+Retained from the previous revision of this document.
 
-Evidence:
+The progressive Finance prompt was partially implemented, but not as the
+requested reusable unlock system. Commit `17da20e` added the Stage 2 headline
+and checking-account copy inside `PlaidConnectModal`, embedded in
+`apps/iOS/TimeBite/Features/Finance/FinanceDashboardView.swift`.
+`FinanceUnlockStage`, `FinanceUnlockModal`, `FinanceUnlockManager`, and
+`FinanceUnlockViewModel` do not exist, and neither do Stages 3 and 4 or their
+configurable rule engine. Commit `cd45f29` later added live Plaid LinkKit and
+backend synchronization despite the original prompt saying not to implement
+Plaid yet.
 
-- Commit `17da20e` added the exact Stage 2 headline, "Make your plan automatic,"
-  and checking-account copy inside `PlaidConnectModal`.
-- The implementation is embedded in
-  `apps/iOS/TimeBite/Features/Finance/FinanceDashboardView.swift`.
-- `FinanceUnlockStage`, `FinanceUnlockModal`, `FinanceUnlockManager`, and
-  `FinanceUnlockViewModel` do not exist.
-- Stages 3 and 4 and their configurable rule engine do not exist.
-- Commit `cd45f29` later added live Plaid LinkKit and backend synchronization,
-  despite the original prompt saying not to implement Plaid yet.
-
-There is no repository or Notion evidence that the prompt itself ran a
-self-improving-AI process. It reads and behaves as a feature specification.
-The implementation history shows normal feature commits, not prompt
-evaluation, recursive improvement, automatic rule tuning, or a recorded
-self-improvement loop.
+There is no repository or Notion evidence that the prompt ran a
+self-improving-AI process. The implementation history shows normal feature
+commits, not prompt evaluation or a recorded self-improvement loop.

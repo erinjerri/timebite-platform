@@ -78,25 +78,35 @@ The MVP should bias toward fewer surfaces:
 
 ## Repository Layout
 
-TimeBite is moving from a single client monorepo toward a macOS-first product
-family. This repository is the platform, services, schema, integration, and
-migration home. The canonical desktop product lives in `timebite-macos`, and
-platform-specific clients consume components extracted from that app.
-Its initial system architecture, design specification, and lo-fi wireframe
-form the macOS product baseline once they are committed to that repository's
-default branch.
+`timebite-platform` is the TimeBite monorepo: all four Apple app targets, the
+shared `TimeBiteCore` module, backend services, schemas, and documentation.
+
+The standalone `timebite-macos` repository holds the reference implementation of
+TimeBite's product behavior and visual direction, and is being migrated into
+`apps/macOS/`. Once it lands, `apps/iOS` is rebuilt from that implementation on
+top of `TimeBiteCore` so both platforms express one product.
 
 ```text
 timebite-platform/
-├── apps/                    # Existing clients while extraction is in progress
+├── apps/
+│   ├── iOS/                 # iPhone + iPad
+│   ├── macOS/               # Migrating in from timebite-macos
+│   ├── watchOS/             # Paired Watch app
+│   └── visionOS/            # Apple Vision Pro
+├── Packages/
+│   └── TimeBiteCore/        # Shared module consumed by all four targets
 ├── backend/                 # Services for goals, cycles, assistant, telemetry
 ├── docs/                    # Product, architecture, roadmap, sprint docs
 ├── schemas/                 # Shared JSON shapes for goals, tasks, rollups
-├── shared/                  # Shared code awaiting TimeBiteKit extraction
 ├── specs/                   # Focused product and platform specifications
 ├── research/                # Research experiments and outputs
 └── README.md
 ```
+
+`Shared/` at the repository root is the current, pre-packaging location of the
+shared code; it becomes `Packages/TimeBiteCore` when the module is formalized.
+Some app targets in the tree above do not exist yet — see the consolidation
+order in the architecture doc.
 
 See [Repository and product architecture](docs/repository-architecture.md) for
 the canonical ownership map and migration order.

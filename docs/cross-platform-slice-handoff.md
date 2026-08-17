@@ -49,13 +49,15 @@ baseline commit before any edits. (That work existed only on disk, untracked, an
 - **iOS rings are minute-based** (`Double` planned/consumed minutes); the shared calculator is
   count-based (`Int`). Recommend adding a `Double` overload to `ActivityProgressCalculator`
   rather than rounding at the call site, so no precision is lost.
-- **Consider `Packages/TimeBiteKit`** (a local SwiftPM package) for `Shared/` instead of adding
-  the same file references to four separate targets. `docs/repository-architecture.md` already
-  names this package, and there are now four clients — so this follows the approved
+- **Consider `Packages/TimeBiteCore`** (a local SwiftPM package) for `Shared/` instead of adding
+  the same file references to four separate targets. `docs/repository-architecture.md` names
+  `TimeBiteCore` as the shared module for all four targets, so this follows the approved
   architecture rather than inventing one, and shrinks the pbxproj surface considerably.
-- **`docs/repository-architecture.md` (July 26, 2026) contradicts this monorepo direction** — it
-  describes splitting into separate `timebite-ios` / `timebite-vision` repos. Current work
-  follows the monorepo instruction. That doc still needs a superseded-by note or a decision.
+  (`TimeBiteKit` is the superseded name for this module; ignore it where it still appears.)
+- **iOS will eventually be rebuilt from the macOS implementation** rather than patched
+  indefinitely — see `docs/repository-architecture.md`. That happens after the macOS migration,
+  so the iOS refactor described here is still worth doing: it proves the shared layer compiles
+  and keeps the current app working in the meantime.
 - **`timebite-macos` was only ever read from, never written to.** It has its own uncommitted
   local changes; leave it alone.
 - **This sandbox cannot launch a simulator app** (`simctl launch` hangs; the native simulator
