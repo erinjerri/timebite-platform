@@ -48,6 +48,30 @@
 		300000000000000000000027 /* TimeBite/Services/SavingsRecommendationEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000028 /* TimeBite/Services/SavingsRecommendationEngine.swift */; };
 		300000000000000000000028 /* TimeBite/Services/GoalAssistantService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000029 /* TimeBite/Services/GoalAssistantService.swift */; };
 		300000000000000000000029 /* TimeBite/Features/Finance/SavingsSpendingDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000002A /* TimeBite/Features/Finance/SavingsSpendingDashboardView.swift */; };
+		30000000000000000000002B /* Shared/Domain/ActivityProgressCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000002B /* Shared/Domain/ActivityProgressCalculator.swift */; };
+		30000000000000000000002C /* Shared/Domain/HabitCompletionCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000002C /* Shared/Domain/HabitCompletionCalculator.swift */; };
+		30000000000000000000002D /* Shared/Domain/SchedulingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000002D /* Shared/Domain/SchedulingService.swift */; };
+		30000000000000000000002E /* Shared/Domain/TrackingThresholds.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000002E /* Shared/Domain/TrackingThresholds.swift */; };
+		30000000000000000000002F /* Shared/Models/ActiveFocusSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000002F /* Shared/Models/ActiveFocusSession.swift */; };
+		300000000000000000000030 /* Shared/Models/ActivityRingProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000030 /* Shared/Models/ActivityRingProgress.swift */; };
+		300000000000000000000031 /* Shared/Models/DailyActivitySummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000031 /* Shared/Models/DailyActivitySummary.swift */; };
+		300000000000000000000032 /* Shared/Models/DailyReflectionSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000032 /* Shared/Models/DailyReflectionSummary.swift */; };
+		300000000000000000000033 /* Shared/Models/DashboardMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000033 /* Shared/Models/DashboardMetrics.swift */; };
+		300000000000000000000034 /* Shared/Models/FocusSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000034 /* Shared/Models/FocusSession.swift */; };
+		300000000000000000000035 /* Shared/Models/Habit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000035 /* Shared/Models/Habit.swift */; };
+		300000000000000000000036 /* Shared/Models/HabitLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000036 /* Shared/Models/HabitLog.swift */; };
+		300000000000000000000037 /* Shared/Models/PlanningHierarchy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000037 /* Shared/Models/PlanningHierarchy.swift */; };
+		300000000000000000000038 /* Shared/Models/ScheduledBlock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000038 /* Shared/Models/ScheduledBlock.swift */; };
+		300000000000000000000039 /* Shared/Models/TrackingRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000039 /* Shared/Models/TrackingRecord.swift */; };
+		30000000000000000000003A /* Shared/Models/TrackingSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000003A /* Shared/Models/TrackingSummary.swift */; };
+		30000000000000000000003B /* Shared/Presentation/ActivityRingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000003B /* Shared/Presentation/ActivityRingView.swift */; };
+		30000000000000000000003C /* Shared/Presentation/IkigaiIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000003C /* Shared/Presentation/IkigaiIconView.swift */; };
+		30000000000000000000003D /* Shared/Presentation/TimeBitePalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000003D /* Shared/Presentation/TimeBitePalette.swift */; };
+		30000000000000000000003E /* Shared/Presentation/TimeBiteTypography.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000003E /* Shared/Presentation/TimeBiteTypography.swift */; };
+		30000000000000000000003F /* Shared/Services/DashboardAggregationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000003F /* Shared/Services/DashboardAggregationService.swift */; };
+		300000000000000000000040 /* Shared/Services/TimelineService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000040 /* Shared/Services/TimelineService.swift */; };
+		300000000000000000000041 /* Shared/Services/TrackingAggregationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000041 /* Shared/Services/TrackingAggregationService.swift */; };
+		300000000000000000000042 /* Shared/DemoData/ActivityRingsDemoFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000042 /* Shared/DemoData/ActivityRingsDemoFixtures.swift */; };
 		30000000000000000000002A /* LinkKit in Frameworks */ = {isa = PBXBuildFile; productRef = 500000000000000000000001 /* LinkKit */; };
 /* End PBXBuildFile section */
 
@@ -94,6 +118,30 @@
 		200000000000000000000028 /* TimeBite/Services/SavingsRecommendationEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Services/SavingsRecommendationEngine.swift; sourceTree = SOURCE_ROOT; };
 		200000000000000000000029 /* TimeBite/Services/GoalAssistantService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Services/GoalAssistantService.swift; sourceTree = SOURCE_ROOT; };
 		20000000000000000000002A /* TimeBite/Features/Finance/SavingsSpendingDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBite/Features/Finance/SavingsSpendingDashboardView.swift; sourceTree = SOURCE_ROOT; };
+		20000000000000000000002B /* Shared/Domain/ActivityProgressCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../../Shared/Domain/ActivityProgressCalculator.swift; sourceTree = SOURCE_ROOT; };
+		20000000000000000000002C /* Shared/Domain/HabitCompletionCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../../Shared/Domain/HabitCompletionCalculator.swift; sourceTree = SOURCE_ROOT; };
+		20000000000000000000002D /* Shared/Domain/SchedulingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../../Shared/Domain/SchedulingService.swift; sourceTree = SOURCE_ROOT; };
+		20000000000000000000002E /* Shared/Domain/TrackingThresholds.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../../Shared/Domain/TrackingThresholds.swift; sourceTree = SOURCE_ROOT; };
+		20000000000000000000002F /* Shared/Models/ActiveFocusSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../../Shared/Models/ActiveFocusSession.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000030 /* Shared/Models/ActivityRingProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../../Shared/Models/ActivityRingProgress.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000031 /* Shared/Models/DailyActivitySummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../../Shared/Models/DailyActivitySummary.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000032 /* Shared/Models/DailyReflectionSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../../Shared/Models/DailyReflectionSummary.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000033 /* Shared/Models/DashboardMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../../Shared/Models/DashboardMetrics.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000034 /* Shared/Models/FocusSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../../Shared/Models/FocusSession.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000035 /* Shared/Models/Habit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../../Shared/Models/Habit.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000036 /* Shared/Models/HabitLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../../Shared/Models/HabitLog.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000037 /* Shared/Models/PlanningHierarchy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../../Shared/Models/PlanningHierarchy.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000038 /* Shared/Models/ScheduledBlock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../../Shared/Models/ScheduledBlock.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000039 /* Shared/Models/TrackingRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../../Shared/Models/TrackingRecord.swift; sourceTree = SOURCE_ROOT; };
+		20000000000000000000003A /* Shared/Models/TrackingSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../../Shared/Models/TrackingSummary.swift; sourceTree = SOURCE_ROOT; };
+		20000000000000000000003B /* Shared/Presentation/ActivityRingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../../Shared/Presentation/ActivityRingView.swift; sourceTree = SOURCE_ROOT; };
+		20000000000000000000003C /* Shared/Presentation/IkigaiIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../../Shared/Presentation/IkigaiIconView.swift; sourceTree = SOURCE_ROOT; };
+		20000000000000000000003D /* Shared/Presentation/TimeBitePalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../../Shared/Presentation/TimeBitePalette.swift; sourceTree = SOURCE_ROOT; };
+		20000000000000000000003E /* Shared/Presentation/TimeBiteTypography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../../Shared/Presentation/TimeBiteTypography.swift; sourceTree = SOURCE_ROOT; };
+		20000000000000000000003F /* Shared/Services/DashboardAggregationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../../Shared/Services/DashboardAggregationService.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000040 /* Shared/Services/TimelineService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../../Shared/Services/TimelineService.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000041 /* Shared/Services/TrackingAggregationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../../Shared/Services/TrackingAggregationService.swift; sourceTree = SOURCE_ROOT; };
+		200000000000000000000042 /* Shared/DemoData/ActivityRingsDemoFixtures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../../Shared/DemoData/ActivityRingsDemoFixtures.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -176,10 +224,74 @@
 		100000000000000000000007 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				10000000000000000000002A /* Domain */,
+				10000000000000000000002B /* Models */,
+				10000000000000000000002C /* Presentation */,
+				10000000000000000000002D /* Services */,
+				10000000000000000000002E /* DemoData */,
 				100000000000000000000008 /* Theme */,
 				100000000000000000000009 /* Components */,
 			);
 			name = Shared;
+			sourceTree = "<group>";
+		};
+		10000000000000000000002A /* Domain */ = {
+			isa = PBXGroup;
+			children = (
+				20000000000000000000002B /* Shared/Domain/ActivityProgressCalculator.swift */,
+				20000000000000000000002C /* Shared/Domain/HabitCompletionCalculator.swift */,
+				20000000000000000000002D /* Shared/Domain/SchedulingService.swift */,
+				20000000000000000000002E /* Shared/Domain/TrackingThresholds.swift */,
+			);
+			name = Domain;
+			sourceTree = "<group>";
+		};
+		10000000000000000000002B /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				20000000000000000000002F /* Shared/Models/ActiveFocusSession.swift */,
+				200000000000000000000030 /* Shared/Models/ActivityRingProgress.swift */,
+				200000000000000000000031 /* Shared/Models/DailyActivitySummary.swift */,
+				200000000000000000000032 /* Shared/Models/DailyReflectionSummary.swift */,
+				200000000000000000000033 /* Shared/Models/DashboardMetrics.swift */,
+				200000000000000000000034 /* Shared/Models/FocusSession.swift */,
+				200000000000000000000035 /* Shared/Models/Habit.swift */,
+				200000000000000000000036 /* Shared/Models/HabitLog.swift */,
+				200000000000000000000037 /* Shared/Models/PlanningHierarchy.swift */,
+				200000000000000000000038 /* Shared/Models/ScheduledBlock.swift */,
+				200000000000000000000039 /* Shared/Models/TrackingRecord.swift */,
+				20000000000000000000003A /* Shared/Models/TrackingSummary.swift */,
+			);
+			name = Models;
+			sourceTree = "<group>";
+		};
+		10000000000000000000002C /* Presentation */ = {
+			isa = PBXGroup;
+			children = (
+				20000000000000000000003B /* Shared/Presentation/ActivityRingView.swift */,
+				20000000000000000000003C /* Shared/Presentation/IkigaiIconView.swift */,
+				20000000000000000000003D /* Shared/Presentation/TimeBitePalette.swift */,
+				20000000000000000000003E /* Shared/Presentation/TimeBiteTypography.swift */,
+			);
+			name = Presentation;
+			sourceTree = "<group>";
+		};
+		10000000000000000000002D /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				20000000000000000000003F /* Shared/Services/DashboardAggregationService.swift */,
+				200000000000000000000040 /* Shared/Services/TimelineService.swift */,
+				200000000000000000000041 /* Shared/Services/TrackingAggregationService.swift */,
+			);
+			name = Services;
+			sourceTree = "<group>";
+		};
+		10000000000000000000002E /* DemoData */ = {
+			isa = PBXGroup;
+			children = (
+				200000000000000000000042 /* Shared/DemoData/ActivityRingsDemoFixtures.swift */,
+			);
+			name = DemoData;
 			sourceTree = "<group>";
 		};
 		100000000000000000000008 /* Theme */ = {
@@ -399,6 +511,30 @@
 				300000000000000000000027 /* TimeBite/Services/SavingsRecommendationEngine.swift in Sources */,
 				300000000000000000000028 /* TimeBite/Services/GoalAssistantService.swift in Sources */,
 				300000000000000000000029 /* TimeBite/Features/Finance/SavingsSpendingDashboardView.swift in Sources */,
+				30000000000000000000002B /* Shared/Domain/ActivityProgressCalculator.swift in Sources */,
+				30000000000000000000002C /* Shared/Domain/HabitCompletionCalculator.swift in Sources */,
+				30000000000000000000002D /* Shared/Domain/SchedulingService.swift in Sources */,
+				30000000000000000000002E /* Shared/Domain/TrackingThresholds.swift in Sources */,
+				30000000000000000000002F /* Shared/Models/ActiveFocusSession.swift in Sources */,
+				300000000000000000000030 /* Shared/Models/ActivityRingProgress.swift in Sources */,
+				300000000000000000000031 /* Shared/Models/DailyActivitySummary.swift in Sources */,
+				300000000000000000000032 /* Shared/Models/DailyReflectionSummary.swift in Sources */,
+				300000000000000000000033 /* Shared/Models/DashboardMetrics.swift in Sources */,
+				300000000000000000000034 /* Shared/Models/FocusSession.swift in Sources */,
+				300000000000000000000035 /* Shared/Models/Habit.swift in Sources */,
+				300000000000000000000036 /* Shared/Models/HabitLog.swift in Sources */,
+				300000000000000000000037 /* Shared/Models/PlanningHierarchy.swift in Sources */,
+				300000000000000000000038 /* Shared/Models/ScheduledBlock.swift in Sources */,
+				300000000000000000000039 /* Shared/Models/TrackingRecord.swift in Sources */,
+				30000000000000000000003A /* Shared/Models/TrackingSummary.swift in Sources */,
+				30000000000000000000003B /* Shared/Presentation/ActivityRingView.swift in Sources */,
+				30000000000000000000003C /* Shared/Presentation/IkigaiIconView.swift in Sources */,
+				30000000000000000000003D /* Shared/Presentation/TimeBitePalette.swift in Sources */,
+				30000000000000000000003E /* Shared/Presentation/TimeBiteTypography.swift in Sources */,
+				30000000000000000000003F /* Shared/Services/DashboardAggregationService.swift in Sources */,
+				300000000000000000000040 /* Shared/Services/TimelineService.swift in Sources */,
+				300000000000000000000041 /* Shared/Services/TrackingAggregationService.swift in Sources */,
+				300000000000000000000042 /* Shared/DemoData/ActivityRingsDemoFixtures.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
